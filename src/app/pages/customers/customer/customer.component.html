@@ -1,0 +1,292 @@
+
+<form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
+  <!-- Bloque de botones -->
+  <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">
+    <h4 class="col"> {{tituloPagina}} </h4>  
+    <button type="button" class="btn btn-danger btn-block"
+      (click)="abandonarPagina()"> 
+      <i class="fas fa-arrow-left"></i>
+      Regresar
+    </button>
+    <!-- Boton guardar formulario-->
+    <label class="col-form-label">&nbsp;</label>
+    <button type="submit" class="btn btn-outline-primary btn-block">
+      Guardar
+    </button>
+  </div>
+  <!-- Fin bloque botones -->
+  <!-- Bloque datos de cliente -->
+  <div class="form-group">
+      <!--ID cliente-->
+      <div class="form-group row mb-2">
+        <div class="col-3">
+          <label class="form-label" for="inpuId">Identificación</label>
+          <input class="form-control"
+                  id="inputId"
+                  type="text"
+                  formControlName="identification"
+                  [class.is-invalid]="IDNoValido">
+          <small *ngIf="IDNoValido" class="text-danger">{{msgError('identification')}}</small>
+        </div> 
+        <!-- Fin ID cliente -->
+        <!--Nombre de cliente-->
+        <div class="col-9">
+          <label class="form-label" for="inputNombre">Nombre del cliente</label>
+          <input class="form-control"
+                id="inputNombre"
+                type="text"
+                  formControlName="nombre"
+                [class.is-invalid]="nombreNoValido">
+          <small *ngIf="nombreNoValido" class="text-danger">{{msgError('nombre')}}</small>
+        </div>
+        <!-- Fin nombre de cliente -->
+      </div>
+      <!--Telefono  del cliente-->
+      <div class="form-group row">
+        <div class="col-3">
+        <label class="form-label" for="inputTelefono">Teléfono de contacto</label>
+        <input class="form-control"
+                  id="inputTelefono"
+                  type="text"
+                  
+                  formControlName="telefono"
+                  [class.is-invalid]="telefonoNoValido">     
+        <small *ngIf="telefonoNoValido" class="text-danger">{{msgError('telefono')}}</small>
+      </div>
+      <div class="col-9"></div>
+      </div>
+    <!--  Fin Telefono de cliente  -->
+    </div>
+    <!-- Fin Bloque datos de cliente --> 
+    <hr>
+  
+    <!-- Bloque Pestañas de listas de datos de cliente   -->
+    <div>  
+      <!-- Titulos de pestañas -->
+      <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="marca-tab" data-bs-toggle="tab" data-bs-target="#marca" type="button" role="tab" aria-controls="marca" aria-selected="true">Marcas</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="regionmercado-tab" data-bs-toggle="tab" data-bs-target="#regionmercado" type="button" role="tab" aria-controls="regionmercado" aria-selected="false">Regiones de Mercado</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="localizacionpantalla-tab" data-bs-toggle="tab" data-bs-target="#localizacionpantalla" type="button" role="tab" aria-controls="localizacionpantalla" aria-selected="false">Localización de pantallas</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="codigo-tab" data-bs-toggle="tab" data-bs-target="#codigo" type="button" role="tab" aria-controls="codigo" aria-selected="false">Codificación de emplazamientos</button>
+        </li>
+      </ul>
+  
+      <!-- Contenidos pestañas -->
+      <div class="tab-content" id="myTabContent"> 
+        <!--  Pestaña Marcas Comerciales  -->
+        <div class="tab-pane fade show active mt-3" id="marca" role="tabpanel" aria-labelledby="marca-tab">
+          <div class="row">
+            <div class="col">
+              <table class="table">
+                <thead class="table-light">
+                  <tr>
+                    <th class="col-1">#</th>
+                    <th class="col-4">Marca</th>
+                    <th class="col-1">Color</th>
+                    <th class="col-4">Imagen corporativa</th>
+                    <th class="col-1"></th>
+                    <th class="col-1">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody formArrayName="marca">
+                  <tr *ngFor="let a of marca.controls; let marcaIndex=index" [formGroupName]="marcaIndex">
+                    <th>
+                      {{marcaIndex+1}}
+                    </th>
+                    <td>
+                      <input class="form-control"
+                        type="text"
+                        placeholder="Nombre de la marca"
+                        formControlName="nombreMarca"
+                        [class.is-invalid]="a.get('nombreMarca').invalid && a.get('nombreMarca').touched">
+                      <small *ngIf="a.get('nombreMarca').invalid && a.get('nombreMarca').touched" class="text-danger">{{msgErrorArray('nombreMarca',marcaIndex)}}</small>             
+                    </td>  
+                    <td>
+                      <input class="form-control form-control-color" 
+                        type="color" 
+                        id="colorInput"
+                        value="#000000"
+                        formControlName="colorMarca">
+                    </td>
+                    <td>  
+                      <input (change)="capturarFile($event,marcaIndex)"
+                        class="form-control"
+                        type="file"
+                        accept="image/png"
+                        formControlName="imagenMarca">         
+        
+                    </td>
+                    <td>       
+                      <div>
+                        <img id="fileMarca" class="img-thumbnail" [src]="binariosImagenMarca[marcaIndex]">
+                      </div>
+                    </td>
+                    <td>
+                      <button type="button" class="btn btn-light" (click)="removeMarca(marcaIndex)">
+                        <i class="far fa-trash-alt"></i>                    
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>  
+            </div>
+          </div>
+          <div class="d-grid gap-2 col-4 mx-auto">  
+            <button class="btn btn-outline-primary mt-3 btn-block" 
+                    type="button" (click)="addMarca()">
+              Añadir marca
+            </button>
+          </div> 
+        </div>
+        <!-- Fin pestaña marcas comerciales -->  
+  
+        <!-- Pestaña Región de mercado   -->
+        <div class="tab-pane fade mt-3" id="regionmercado" role="tabpanel" aria-labelledby="regionmercado-tab">  
+          <div class="row">
+            <div class="col">
+              <table class="table">
+                <thead class=table-light>
+                  <tr>
+                    <th>#</th>
+                    <th>Region de Mercado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody formArrayName="regionMercado">
+                  <tr *ngFor="let a of regionMercado.controls; let regionMercadoIndex=index" [formGroupName]="regionMercadoIndex">
+                    <th>
+                      {{regionMercadoIndex+1}}
+                    </th>
+                    <td>
+                      <input class="form-control"
+                        type="text"
+                        placeholder="Nombre de la región de mercado"
+                        formControlName="nombreRegionMercado"
+                        [class.is-invalid]="a.get('nombreRegionMercado').invalid && a.get('nombreRegionMercado').touched">
+                      <small *ngIf="a.get('nombreRegionMercado').invalid && a.get('nombreRegionMercado').touched" class="text-danger">{{msgErrorArray('nombreRegionMercado',regionMercadoIndex)}}</small>             
+                    </td>  
+                    <td>
+                      <button type="button" class="btn btn-light" (click)="removeRegionMercado(regionMercadoIndex)">
+                        <i class="far fa-trash-alt"></i>                    
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>  
+            </div>
+          </div>
+          <div class="d-grid gap-2 col-4 mx-auto">  
+            <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addRegionMercado()">
+              Añadir región de mercado
+            </button>
+          </div>
+        </div>
+        <!-- Fin pestaña regiones comerciales -->
+        <!-- Localización de pantalla   -->
+        <div class="tab-pane fade  mt-3" id="localizacionpantalla" role="tabpanel" aria-labelledby="localizacionpantalla-tab">
+          <div class="row">
+            <div class="col">
+              <table class="table">
+                <thead class=table-light>
+                  <tr>
+                    <th>#</th>
+                    <th>Localización pantallas</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                    <tbody formArrayName="localizacionPantalla">
+                      <tr *ngFor="let a of localizacionPantalla.controls; let localizacionPantallaIndex=index" [formGroupName]="localizacionPantallaIndex">
+                        <th>
+                          {{localizacionPantallaIndex+1}}
+                        </th>
+                        <td>
+                          <input class="form-control"
+                            type="text"
+                            placeholder="Nombre de la localizacion de pantalla"
+                            formControlName="nombreLocalizacionPantalla"
+                            [class.is-invalid]="a.get('nombreLocalizacionPantalla').invalid && a.get('nombreLocalizacionPantalla').touched">
+                          <small *ngIf="a.get('nombreLocalizacionPantalla').invalid && a.get('nombreLocalizacionPantalla').touched" class="text-danger">{{msgErrorArray('nombreLocalizacionPantalla',localizacionPantallaIndex)}}</small>             
+                        </td>  
+                    <td>
+                      <button type="button" class="btn btn-light" (click)="removeLocalizacionPantalla(localizacionPantallaIndex)">
+                        <i class="far fa-trash-alt"></i>                    
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>  
+            </div>
+          </div>
+          <div class="d-grid gap-2 col-4 mx-auto">  
+            <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addLocalizacionPantalla()">
+              Añadir localización de pantalla
+            </button>
+          </div>
+        </div>
+        <!-- Fin localizacion de pantallas -->
+        <!-- Codigos de emplazamiento   -->
+        <div class="tab-pane fade  mt-3" id="codigo" role="tabpanel" aria-labelledby="codigo-tab">
+          <div class="row">
+            <div class="col">
+              <table class="table">
+                <thead class=table-light>
+                  <tr>
+                    <th>#</th>
+                    <th>Código de emplazamiento</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody formArrayName="codigo">
+                  <tr *ngFor="let a of codigo.controls; let codigoIndex=index" [formGroupName]="codigoIndex">
+                    <th>
+                      {{codigoIndex+1}}
+                    </th>
+                    <td>
+                      <input class="form-control"
+                        type="text"
+                        placeholder="Iniciales código emplazamiento"
+                        formControlName="acronymCodigo"
+                        [class.is-invalid]="a.get('acronymCodigo').invalid && a.get('acronymCodigo').touched">
+                      <small *ngIf="a.get('acronymCodigo').invalid && a.get('acronymCodigo').touched" class="text-danger">{{msgErrorArray('acronymCodigo',codigoIndex)}}</small>             
+                    </td>  
+                    <td>
+                      <button type="button" class="btn btn-light" (click)="removeCodigo(codigoIndex)">
+                        <i class="far fa-trash-alt"></i>                    
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>  
+            </div>
+          </div>
+          <div class="d-grid gap-2 col-4 mx-auto">  
+            <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addCodigo()">
+              Añadir código de emplazamiento
+            </button>
+          </div>
+        </div>
+        <!-- Fin codigo de emplazamientos -->
+      </div>  
+      <!-- Fin Contenidos pestañas -->
+    </div>
+    <!-- Fin bloque Pestañas de listas de datos de cliente    --> 
+</form>
+<hr>
+
+<!-- <pre>
+  estado formulario:{{customerForm.valid}}
+  <br>
+  status:{{customerForm.status}}
+  touched:{{customerForm.touched}}
+</pre>
+<pre>
+  {{customerForm.value|json}}
+</pre> -->
+

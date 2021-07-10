@@ -1,0 +1,29 @@
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" [routerLink]= "['home']">
+        <img src="assets/img/hiedra7.png" width="30" height="30" alt="">
+    </a>
+    <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button> -->
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <!-- active -->
+        <li class="nav-item" routerLinkActive="active">
+          <a class="nav-link" [routerLink]= "['user-list']">Usuarios</a>
+        </li>  
+        <li class="nav-item" routerLinkActive="active"> 
+          <a class="nav-link" [routerLink]= "['customer-list']">Clientes</a>
+        </li>
+        <li class="nav-item" routerLinkActive="active">
+          <a class="nav-link" [routerLink]= "['venue']">Locales</a>
+        </li>
+        <li class="nav-item" routerLinkActive="active">
+          <a class="nav-link" [routerLink]= "['site']">Emplazamientos</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

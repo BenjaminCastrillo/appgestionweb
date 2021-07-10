@@ -1,0 +1,71 @@
+<div class="d-grid gap-2 d-md-flex justify-content-md-end mb-2 mt-2">
+  <h4>Listado de clientes</h4>
+  <div class="col text-end">
+    <button routerLink="/customer/nuevo" class="btn btn-primary">
+      <i class="fas fa-plus"></i>
+      Nuevo
+    </button>
+  </div>
+</div>
+<div class="form-group me-2">
+  <input  name="filterCustomer"
+          [(ngModel)]="filterCustomer"
+          (keyup)="buscar(filterCustomer)"
+          class="form-control" 
+          type="search" 
+          placeholder="Buscar..." 
+          aria-label="Search">
+</div>
+<table class="table table-condensed table-striped">
+  <thead>
+    <!-- [ngStyle]="{'width':'100px'}" -->
+    <tr>
+      <th scope="col" class="col-sm-1">#</th>
+      <th scope="col" class="col-sm-2">ID</th>
+      <th scope="col" class="col-sm-5">Nombre</th>
+      <th scope="col" class="col-sm-2">Teléfono</th>
+      <th scope="col" class="col-sm-2">Acciones</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let customer of customers |customer:filterCustomer:page:linesPages; let i =index">
+      <td >{{i+1+page}}</td>
+      <td>{{customer.identification}}</td>
+      <td>{{customer.name}}</td>
+      <td>{{customer.phoneNumber}}</td>
+      <td>
+        <button type="button" 
+                class="btn btn-light btn-sm mr-1" 
+                (click)="editCustomer(customer)"> <!-- [routerLink]="['/customer',customer.id]"> -->
+          <i class="fas fa-edit"></i>
+        </button>
+        &nbsp;
+        <button type="button" 
+                class="btn btn-light btn-sm" 
+                (click)="removeCustomer(customer,i)">
+          <i class="far fa-trash-alt"></i>
+        </button>
+       </td>
+    </tr>
+  
+  </tbody>
+</table>
+<div class="d-grid text-center d-md-block" 
+  *ngIf="customers.length>linesPages">
+  <button class="btn btn-outline-secondary btn-sm"
+          (click)="prevPage()"
+          [disabled]="page===0">
+    Pag. Anterior
+  </button>
+  &nbsp;
+  <button class="btn btn-outline-secondary btn-sm"
+          (click)="nextPage()"
+          [disabled]="(customers |customer:filterCustomer:page:linesPages).length<linesPages"> 
+    Pag. Siguiente
+  </button>
+</div>
+<div class="text-center" *ngIf="cargando">
+  <div class="spinner-border" role="status"></div>
+</div>
+
