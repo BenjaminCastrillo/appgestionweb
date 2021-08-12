@@ -1,0 +1,118 @@
+<form [formGroup]="venueForm" (ngSubmit)="onSubmit()">
+  <!-- Bloque de botones -->
+  <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">
+    <h4 class="col"> {{tituloPagina}} <small>(#{{currentVenue.id}})</small></h4>  
+    <button type="button" class="btn btn-danger btn-block"
+      (click)="abandonarPagina()"> 
+      <i class="fas fa-arrow-left"></i>
+      Regresar
+    </button>
+    <!-- Boton guardar formulario-->
+    <label class="col-form-label">&nbsp;</label>
+    <button type="submit" class="btn btn-outline-primary btn-block">
+      Guardar
+    </button>
+  </div>
+  <!-- Fin bloque botones -->
+  <!-- Bloque datos de local -->
+  <div class="form-group">
+      <!--1 linea -->
+      <div class="form-group row mb-2">
+        <!--ID registro -->
+        <!-- <div class="col-1">
+          <label class="form-label" for="inpuId">#ID</label>
+          <input class="form-control"
+                  id="inputId"
+                  type="text"
+                  formControlName="id">
+        </div>  -->
+        <!-- Fin ID registro -->
+        <!-- Nombre de local -->
+        <div class="col-4">
+          <label class="form-label" for="inputNombre">Nombre del local</label>
+          <input class="form-control"
+                id="inputNombre"
+                type="text"
+                  formControlName="nombre"
+                [class.is-invalid]="nombreNoValido">
+          <small *ngIf="nombreNoValido" class="text-danger">{{msgError('nombre')}}</small>
+        </div>
+        <!-- Fin nombre de local -->
+        <!-- Cliente-->
+        <div class="col-3">
+          <label class="form-label" for="inputCliente">Cliente</label>
+          <select class="form-select" formControlName="cliente">
+            <option   value="{{a.id}}" *ngFor="let a of customers" 
+                      [selected]="selectCliente(a.id)" 
+                      [class.is-invalid]="clienteNoValido">{{a.name}}</option>
+          </select>
+          <small *ngIf="clienteNoValido" class="text-danger">{{msgError('cliente')}}</small>
+        </div>
+        <!-- Fin Cliente -->
+        <!-- Marca del local -->
+        <div class="col-2">
+          <label class="form-label" for="inputMarca">Marca comercial</label>
+          <select class="form-select" formControlName="marca">
+            <option value="{{a.id}}" *ngFor="let a of brands" 
+                    [selected]="selectMarca(a.id)" 
+                    [class.is-invalid]="marcaNoValido">
+                    <!-- <del *ngIf="a.deleted"> {{a.description}}</del></option> -->
+                    {{a.description}}<span class="text-danger" *ngIf="a.deleted">(deleted)</span></option> 
+          </select>
+          <small *ngIf="marcaNoValido" class="text-danger">{{msgError('marca')}}</small>
+        </div>
+        <!-- Fin marca del local -->
+
+         <!-- Fecha de alta-->
+        <div class="col-2" *ngIf="!newVenue">
+          <label class="form-label" for="inputfechaAlta">Fecha de alta</label>
+          <input class="form-control"
+                id="inputfechaAlta"
+                type="text"
+                formControlName="fechaAlta">
+        </div>
+      <!-- Fin fecha de alta -->
+    </div>
+    <!-- Fin 1 linea -->
+    <!-- 2 linea -->
+    <div class="form-group row mb-2">
+      <!-- Pais-->
+      <div class="col-2">
+        <label class="form-label" for="inputPais">Pais</label>
+        <select class="form-select" formControlName="pais">
+          <option  value="{{a.id}}" *ngFor="let a of countries" [selected]="selectPais(a.id)" 
+                  [class.is-invalid]="paisNoValido">{{a.name}}</option>
+        </select>
+        <small *ngIf="paisNoValido" class="text-danger">{{msgError('pais')}}</small>
+      </div>
+      <!-- Fin Pais -->
+      <!-- Región de mercado-->
+      <div class="col-2">
+        <label class="form-label" for="inputRegionComercial">Region Comercial</label>
+        <select class="form-select" formControlName="regionComercial">
+          <option  value="{{a.id}}" *ngFor="let a of marketRegions" [selected]="selectRegionComercial(a.id)" 
+                  [class.is-invalid]="regionComercialNoValido">{{a.description}}</option>
+        </select>
+        <small *ngIf="regionComercialNoValido" class="text-danger">{{msgError('regionComercial')}}</small>
+      </div>
+      <!-- Fin Región de mercado -->
+    </div>
+     <!-- Fin 2 linea -->
+  </div> 
+  <!-- Fin Bloque datos de cliente --> 
+</form>
+<hr>
+<pre>
+  estado formulario:{{venueForm.valid}}
+  <br>
+  status:{{venueForm.status}}
+  touched:{{venueForm.touched}}
+</pre>
+<pre>
+  marca status {{venueForm.controls.marca.status}}
+  Region status {{venueForm.controls.regionComercial.status}}
+</pre>
+
+<pre>
+  {{venueForm.value|json}}
+</pre>

@@ -2,7 +2,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable, Subject} from 'rxjs';
-import { CustomersResponse, Customer } from '../interfaces/customer-interface';
+import { map, delay } from 'rxjs/operators';
+import { CustomersResponse, Customer, Brand, MarketRegion } from '../interfaces/customer-interface';
 
 
 interface ErrorValidate{
@@ -23,6 +24,7 @@ export class CustomerService {
 
 
   getCustomers():Observable<CustomersResponse>{
+
     return this.http.get<CustomersResponse>(`${this.url}/customers`);
   }
   
@@ -54,7 +56,36 @@ export class CustomerService {
     deleteCustomer(id:string):Observable<any>{
       return this.http.delete(`${this.url}/customers/${id}`);
     }
-// Validaciones sincronas
+
+    getBrandsBytIdCustomer(id:number):Observable<Brand[]>{
+      return this.http.get<any>(`${this.url}/brands/${id}`)
+      .pipe(
+        map (resp=>{
+          if (resp.result===true)
+              return resp.data
+          else 
+              return []
+        }),
+        map(marcas=>{
+            return marcas
+        })
+      )
+    }
+  
+    getMarketRegionsBytIdCustomer(id:number):Observable<MarketRegion[]>{
+      return this.http.get<any>(`${this.url}/marketregions/${id}`)
+      .pipe(
+        map (resp=>{
+          if (resp.result===true)
+              return resp.data
+          else 
+              return []
+        }),
+        map(regionesMercado=>{
+            return regionesMercado
+        })
+      )
+    }
 
 
   // Validaciones asíncronas 

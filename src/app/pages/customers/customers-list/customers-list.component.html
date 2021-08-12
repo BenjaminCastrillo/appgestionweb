@@ -13,15 +13,15 @@
           (keyup)="buscar(filterCustomer)"
           class="form-control" 
           type="search" 
-          placeholder="Buscar..." 
+          placeholder="Buscar por ID, CIF, nombre" 
           aria-label="Search">
 </div>
-<table class="table table-condensed table-striped">
+<table class="table table-condensed table-striped" *ngIf="!cargando && customers.length>0">
   <thead>
     <!-- [ngStyle]="{'width':'100px'}" -->
     <tr>
-      <th scope="col" class="col-sm-1">#</th>
-      <th scope="col" class="col-sm-2">ID</th>
+      <th scope="col" class="col-sm-1">#ID</th>
+      <th scope="col" class="col-sm-2">CIF/NIF</th>
       <th scope="col" class="col-sm-5">Nombre</th>
       <th scope="col" class="col-sm-2">Teléfono</th>
       <th scope="col" class="col-sm-2">Acciones</th>
@@ -29,21 +29,23 @@
   </thead>
 
   <tbody>
-    <tr *ngFor="let customer of customers |customer:filterCustomer:page:linesPages; let i =index">
-      <td >{{i+1+page}}</td>
+    <tr *ngFor="let customer of customers |customer:filterCustomer:page:linesPages:customers.length; let i =index">
+      <td >{{customer.id}}</td>
       <td>{{customer.identification}}</td>
       <td>{{customer.name}}</td>
       <td>{{customer.phoneNumber}}</td>
       <td>
         <button type="button" 
                 class="btn btn-light btn-sm mr-1" 
-                (click)="editCustomer(customer)"> <!-- [routerLink]="['/customer',customer.id]"> -->
+                (click)="editCustomer(customer)" 
+                placement="bottom" ngbTooltip="Editar" [openDelay]="300">  <!-- [routerLink]="['/customer',customer.id]"> -->
           <i class="fas fa-edit"></i>
         </button>
         &nbsp;
         <button type="button" 
                 class="btn btn-light btn-sm" 
-                (click)="removeCustomer(customer,i)">
+                (click)="removeCustomer(customer,i)"
+                placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
           <i class="far fa-trash-alt"></i>
         </button>
        </td>
@@ -51,6 +53,11 @@
   
   </tbody>
 </table>
+<div class="text-center mt-3" *ngIf="cargando">
+  <div class="spinner-border" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
 <div class="d-grid text-center d-md-block" 
   *ngIf="customers.length>linesPages">
   <button class="btn btn-outline-secondary btn-sm"
@@ -64,8 +71,6 @@
           [disabled]="(customers |customer:filterCustomer:page:linesPages).length<linesPages"> 
     Pag. Siguiente
   </button>
-</div>
-<div class="text-center" *ngIf="cargando">
-  <div class="spinner-border" role="status"></div>
+  
 </div>
 

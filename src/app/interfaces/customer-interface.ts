@@ -9,6 +9,7 @@ export interface Customer {
   identification:      string;
   name:                string;
   phoneNumber:         null | string;
+  entryDate?:          null | Date;  
   brands:              Brand[];
   marketRegions:       MarketRegion[];
   locationsScreen:     LocationsScreen[];

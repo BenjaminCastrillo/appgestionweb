@@ -1,1 +1,339 @@
-<p>user works!</p>
+<form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+  <!-- Bloque de botones -->
+  <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">
+    <h4 class="col"> {{pageTitle}} (#{{currentUser.id}})</h4>
+    <button type="button" class="btn btn-danger btn-block"
+      (click)="abandonarPagina()"> 
+      <i class="fas fa-arrow-left"></i>
+      Regresar
+    </button>
+    <!-- Boton guardar formulario-->
+    <label class="col-form-label">&nbsp;</label>
+    <button type="submit" class="btn btn-outline-primary btn-block">
+      Guardar
+    </button>
+  </div>
+  <!-- Fin bloque botones -->
+  <!-- Bloque datos de cliente -->
+  <div class="form-group">
+    <div class="form-group row mb-3"> 
+      <!--Nombre de cliente-->
+      <div class="col-5">
+        <label class="form-label" for="inputNombre">Nombre</label>
+        <input class="form-control"
+              id="inputNombre"
+              type="text"
+                formControlName="nombre"
+              [class.is-invalid]="nombreNoValido">
+        <small *ngIf="nombreNoValido" class="text-danger">{{msgError('nombre')}}</small>
+      </div>
+      <!-- Fin nombre de cliente -->
+      <!--Apellido de cliente-->
+      <div class="col-5">
+        <label class="form-label" for="inputApellido">Apellido</label>
+        <input class="form-control"
+              id="inputApellido"
+              type="text"
+                formControlName="apellido"
+              [class.is-invalid]="apellidoNoValido">
+        <small *ngIf="apellidoNoValido" class="text-danger">{{msgError('apellido')}}</small>
+      </div>
+      <!-- Fin apellido de cliente -->
+         <!-- Fecha de alta-->
+         <div class="col-2" *ngIf="!newUser">
+          <label class="form-label" for="inputfechaAlta">Fecha de alta</label>
+          <input class="form-control"
+                id="inputfechaAlta"
+                type="text"
+                formControlName="fechaAlta">
+        </div>
+        <!-- Fin fecha de alta -->
+     
+    </div>
+      <!-- Fin linea-->
+    <div class="form-group row mb-3">
+      <!-- email -->
+      <div class="col-4">
+        <label class="form-label" for="inputEmail">Correo electrónico</label>
+        <input class="form-control"
+              id="inputEmail"
+              type="email"
+              formControlName="email"
+              [class.is-invalid]="emailNoValido">
+        <small *ngIf="emailNoValido" class="text-danger">{{msgError('email')}}</small>
+      </div>
+      <!-- Fin email -->
+        <!-- check modificar password -->
+      <div class="col-2 align-self-center" *ngIf="!newUser">
+        <div class="form-check ">
+          <input class="form-check-input" type="checkbox" value="nuevaPassword" 
+                id="flexCheckDefault"
+                formControlName="nuevaPassword">
+          <label class="form-check-label" for="flexCheckDefault">Modificar password</label>
+        </div>
+      </div>
+      <!-- Fin check modificar password -->
+      <!-- Password -->
+      <div class="col-4">
+        <label class="form-label" for="inputpassword">Password</label>
+        <input class="form-control"
+              id="inputpassword"
+              type="text"
+              formControlName="password"
+              [class.is-invalid]="passwordNoValido">
+        <small *ngIf="passwordNoValido" class="text-danger">{{msgError('password')}}</small>
+      </div>
+      <!-- Fin Password -->
+      <!-- Idioma-->
+      <div class="col-2">
+        <label class="form-label" for="inputidioma">Idioma</label>
+        <select class="form-select" formControlName="idioma">
+          <option  value="{{a.id}}" *ngFor="let a of languages" [selected]="selectIdioma(a.id)"
+                  [class.is-invalid]="idiomaNoValido">{{a.description}}</option>
+        </select>     
+        <small *ngIf="idiomaNoValido" class="text-danger">{{msgError('idioma')}}</small>
+      </div>
+      <!-- Fin idioma -->
+    </div>
+      <!-- Fin linea-->
+    <div class="form-group row mb-3">
+      <!-- ROL-->
+      <div class="col-2">
+        <label class="form-label" for="inputrol">Rol</label>
+        <select class="form-select" formControlName="rol">
+          <option  value="{{a.id}}" *ngFor="let a of roles" [selected]="selectRol(a.id)" 
+                  [class.is-invalid]="rolNoValido">{{a.description}}</option>
+        </select>
+        <small *ngIf="rolNoValido" class="text-danger">{{msgError('rol')}}</small>
+      </div>
+      <!-- Fin ROL -->
+      <!-- Relación con el propietario -->
+      <div class="col-5">
+        <label class="form-label" for="inputrelacionUsuario">Relación con el usuario</label>
+        <input class="form-control"
+              id="inputrelacionUsuario"
+              type="text"
+              formControlName="relacionUsuario"
+              [class.is-invalid]="relacionUsuarioNoValido">
+        <small *ngIf="relacionUsuarioNoValido" class="text-danger">{{msgError('relacionUsuario')}}</small>
+      </div>
+      <!-- Fin Relación con el propietario -->
+      <!-- check usuario bloqueado -->
+      <div class="col-3 align-self-center">
+        <div class="form-check ">
+          <input class="form-check-input" type="checkbox" value="bloqueado" 
+                  id="flexCheckBlocked"
+                  formControlName="bloqueado">
+          <label class="form-check-label" for="flexCheckBlocked">Usuario Bloqueado</label>
+
+        </div>
+      </div>
+      <!-- Fin check usuario bloqueado -->
+       <!-- Último acceso-->
+       <div class="col-2">
+        <label class="form-label" for="inputultimoAcceso">Ultimo acceso</label>
+        <input class="form-control"
+              id="inputultimoAcceso"
+              type="text"
+              formControlName="ultimoAcceso">
+      </div>
+      <!-- Fin último acceso -->
+    </div>
+    <!-- Fin linea-->
+    <!-- Notas del usuario-->
+    <div>
+      <label for="exampleFormControlTextarea1" class="form-label">Notas</label>
+      <textarea class="form-control" 
+                id="exampleFormControlTextarea1" 
+                formControlName="notas"
+                rows="2"></textarea>
+    </div>
+    <!-- Fin Notas del usuario-->
+    <!-- Fin linea-->
+  </div>
+  <!-- Fin Bloque datos de cliente --> 
+  <hr> 
+  <!-- Bloque Pestañas de listas de datos de cliente   -->
+  <div>  
+    <!-- Titulos de Clientes y Categorias -->
+    <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="cliente-tab" data-bs-toggle="tab" data-bs-target="#cliente" type="button" role="tab" aria-controls="cliente" aria-selected="true">Clientes</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="categoria-tab" data-bs-toggle="tab" data-bs-target="#categoria" type="button" role="tab" aria-controls="categoria" aria-selected="false">Categorias</button>
+      </li>
+    </ul>
+  
+    <!-- Contenidos pestañas -->
+    <div class="tab-content" id="myTabContent"> 
+      <!-- Pestaña clientes   -->
+      <div class="tab-pane fade show active mt-3" id="cliente" role="tabpanel" aria-labelledby="cliente-tab">  
+        
+        <div class="container-fluid row mb-3">
+            
+          <div class="col-5">
+            <label class="form-label">Seleccione los clientes asociados al usuario</label>
+            <div class="form-group mb-2">
+              <input class="form-control"
+                  id="inputCustomer"
+                  placeholder="Buscar..."
+                  type="text"
+                  formControlName="customerSearch">
+            </div>  
+            <table class="table table-condensed table-striped">
+              <thead class=table-light>
+                <tr>
+                  <th scope="col" class="col-sm-1">#</th>
+                  <th scope="col" class="col-sm-3">NIF/CIF</th>
+                  <th scope="col" class="col-sm-4">nombre</th>
+                  <th scope="col" class="col-sm-1">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let a of customers |customer: filterCustomer:page:linesPages; let i=index">
+                  <th>
+                    {{i+1+page}}
+                  </th>
+                  <td>{{a.identification}}</td>
+                  <td>{{a.name}}</td>
+                  <td>
+                    <button type="button" class="btn btn-light" 
+                          (click)="selectCliente(a.id,a.name)"
+                          placement="bottom" ngbTooltip="Seleccionar" [openDelay]="300">   
+                      <i class="fas fa-check"></i>                
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>  
+            <div class="d-grid text-center d-md-block" 
+                  *ngIf="customers.length>linesPages">
+              <button class="btn btn-outline-secondary btn-sm"
+                      type="button"
+                      (click)="prevPage()"
+                      [disabled]="page===0">
+                Pag. Anterior
+              </button>
+              &nbsp;
+              <button class="btn btn-outline-secondary btn-sm"
+                      type="button"
+                      (click)="nextPage()"
+                      [disabled]="(customers |customer:filterCustomer:page:linesPages).length<linesPages"> 
+                Pag. Siguiente
+              </button>
+            </div>
+          </div>
+        <!-- Fin lista de clientes -->
+        <div class="col-2"></div>
+        <!-- Lista clientes seleccionados -->
+        <div class="col-5">
+          <br>
+          <br>
+          <br>
+          <table class="table">
+            <thead class="table-light">
+              <tr>
+                <th scope="col" class="col-sm-1">#</th>
+                <th scope="col" class="col-sm-4">Cliente</th>
+                <th scope="col" class="col-sm-1">Acciones</th>
+              </tr>
+            </thead>
+            <tbody formArrayName="cliente">
+              <tr *ngFor="let a of cliente.controls; let clienteIndex=index" [formGroupName]="clienteIndex">
+                <th>
+                  {{clienteIndex+1}}
+                </th>
+                <td>
+                  <input class="form-control"
+                    type="text"
+                    placeholder="nombre"
+                    formControlName="nombre"
+                    disabled
+                    [class.is-invalid]="a.get('nombre').invalid && a.get('nombre').touched">
+                  <small *ngIf="a.get('nombre').invalid && a.get('nombre').touched" class="text-danger">{{msgErrorArray('nombre',categoriaIndex)}}</small>             
+                </td>    
+                <td>
+                  <button type="button" class="btn btn-light" 
+                  placement="bottom" ngbTooltip="Borrar" [openDelay]="300"
+                  (click)="removeCliente(clienteIndex)">
+                    <i class="far fa-trash-alt"></i>                    
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>  
+        </div>        
+      </div>
+
+      </div>
+      <!-- Fin pestaña clientes --> 
+
+      <!-- Pestaña categorias   -->
+      <div class="tab-pane fade mt-3" id="categoria" role="tabpanel" aria-labelledby="categoria-tab">  
+        <div class="row">
+          <div class="col">
+            <table class="table">
+              <thead class=table-light>
+                <tr>
+                  <th>#</th>
+                  <th>Categoria</th>
+                  <th>Color</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody formArrayName="categoria">
+                <tr *ngFor="let a of categoria.controls; let categoriaIndex=index" [formGroupName]="categoriaIndex">
+                  <th>
+                    {{categoriaIndex+1}}
+                  </th>
+                  <td>
+                    <input class="form-control"
+                      type="text"
+                      placeholder="Descripción de categoria"
+                      formControlName="descripcionCategoria"
+                      [class.is-invalid]="a.get('descripcionCategoria').invalid && a.get('descripcionCategoria').touched">
+                    <small *ngIf="a.get('descripcionCategoria').invalid && a.get('descripcionCategoria').touched" class="text-danger">{{msgErrorArray('descripcionCategoria',categoriaIndex)}}</small>             
+                  </td>  
+                  <td>
+                    <input class="form-control form-control-color" 
+                      type="color" 
+                      value="colorCategoria"
+                      formControlName="colorCategoria">
+                  </td>
+                  <td>
+                    <button type="button" class="btn btn-light" (click)="removeCategoria(categoriaIndex)">
+                      <i class="far fa-trash-alt"></i>                    
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>  
+          </div>
+        </div>
+        <div class="d-grid gap-2 col-4 mx-auto">  
+          <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addCategoria()">
+            Añadir categoria
+          </button>
+        </div>
+      </div>
+      <!-- Fin pestaña categorias --> 
+    </div>  
+    <!-- Fin Contenidos pestañas -->
+  </div>
+    <!-- Fin bloque Pestañas de listas de datos de cliente    --> 
+</form>
+
+
+
+<!-- <pre>
+  password dirty {{userForm.controls.password.dirty}}
+  password pristine {{userForm.controls.password.pristine}}
+  estado formulario:{{userForm.valid}}
+  <br>
+  status:{{userForm.status}}
+  touched:{{userForm.touched}}
+</pre>
+<pre>
+  {{userForm.value|json}}
+</pre> -->

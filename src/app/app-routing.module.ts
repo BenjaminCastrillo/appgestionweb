@@ -1,10 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import {VenueComponent} from './pages/venue/venue.component';
 import {CustomersListComponent} from './pages/customers/customers-list/customers-list.component';
 import {CustomerComponent} from './pages/customers/customer/customer.component';
-import {SiteComponent} from './pages/site/site.component';
 import {UsersListComponent} from './pages/users/users-list/users-list.component';
+import {UserComponent} from './pages/users/user/user.component';
+import {UserExceptionsComponent} from './pages/users/user-exceptions/user-exceptions.component';
+import {VenuesListComponent} from './pages/venues/venues-list/venues-list.component';
+import {VenueComponent} from './pages/venues/venue/venue.component';
 import {HomeComponent} from './pages/home/home.component';
 
 const routes: Routes = [
@@ -17,6 +19,14 @@ const routes: Routes = [
     component:UsersListComponent
   },
   {
+    path:'user-exceptions/:id',
+    component:UserExceptionsComponent
+  },
+  {
+    path:'user/:id',
+    component:UserComponent
+  },
+  {
     path:'customer-list',
     component:CustomersListComponent  
   },
@@ -25,12 +35,16 @@ const routes: Routes = [
     component:CustomerComponent  
   },
   {
-    path:'venue',
+  path:'venue-list',
+  component:VenuesListComponent
+  },
+  {
+    path:'venue/:id',
     component:VenueComponent
   },
   {
     path:'site',
-    component:SiteComponent
+    component:HomeComponent
   },
   {
     path:'**',

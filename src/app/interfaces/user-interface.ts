@@ -8,25 +8,31 @@ export interface User {
   id:               number;
   name:             string;
   surname:          string;
-  lastAccess:       null;
-  notes:            null;
+  lastAccess:       null | Date;
+  entryDate?:       null | Date;  
+  languageId:       number;
   email:            string;
-  password:         null;
-  customerUserList: CustomerUserList[];
-  relationship:     null | string;
+  password:         null | string;
+  newPassword?:     boolean;
   rol:              Rol;
+  relationship:     null | string;
+  notes:            null | string; 
+  customerUserList: CustomerUserList[];
   sitesLists:       SitesList[];
   categories:       Category[];
+  filter?:          null | boolean;
+  blocked:          boolean;
 }
 
 export interface Category {
   id: number;
   description: string;
+  color:       string;
+  deleted:     boolean;
 }
 export interface Rol {
-  id_category: number;
+  id: number;
   description: string;
-  color:       string;
 }
 
 export interface CustomerUserList {
@@ -34,8 +40,10 @@ export interface CustomerUserList {
   id_customer: number;
   name:        string;
   exception:   number;
+  deleted:     boolean;
 }
 
 export interface SitesList {
-  id_site: number;
+  id:            number;
+  comercialcode: string;   
 }

@@ -18,9 +18,11 @@ export class CustomersListComponent implements OnInit {
   public cargando:boolean=false;
   public filterCustomer:string='';
   public page:number=0;
-  public linesPages:number=5;
-  public filterLines:number=0;
+  public linesPages:number=8;
+  
 
+
+  
   constructor(private customerServices:CustomerService,
     private router:Router ) {
 
@@ -47,14 +49,16 @@ export class CustomersListComponent implements OnInit {
       showCancelButton:true,
     }).then(resp=>{
       if (resp.value){
+        
+
         this.customerServices.deleteCustomer(customer.id.toString())
         .subscribe(resp=>{
-          this.customers.splice(i,1);
+          this.customers.splice(this.customers.findIndex(e=> e.id===customer.id),1);
           },
           error=>{
             Swal.fire({
               title: 'Lo siento tuvimos un problema',
-              text:`El registro de ${customer.name} no pudo eliminar`,
+              text:`El registro de ${customer.name} no se eliminó`,
               confirmButtonColor: '#007bff',
               icon:'error'
             });
@@ -78,13 +82,11 @@ export class CustomersListComponent implements OnInit {
   nextPage(){
 
     this.page +=this.linesPages;
-    console.log('pulsado next',this.page)
     return  
   }
   prevPage(){
 
     this.page -=this.linesPages;
-    console.log('pulsado prev',this.page)
     return  
   }
 }

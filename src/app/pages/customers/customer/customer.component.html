@@ -2,7 +2,7 @@
 <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
   <!-- Bloque de botones -->
   <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">
-    <h4 class="col"> {{tituloPagina}} </h4>  
+    <h4 class="col"> {{tituloPagina}} (#{{currentCustomer.id}})</h4>  
     <button type="button" class="btn btn-danger btn-block"
       (click)="abandonarPagina()"> 
       <i class="fas fa-arrow-left"></i>
@@ -30,7 +30,7 @@
         </div> 
         <!-- Fin ID cliente -->
         <!--Nombre de cliente-->
-        <div class="col-9">
+        <div class="col-7">
           <label class="form-label" for="inputNombre">Nombre del cliente</label>
           <input class="form-control"
                 id="inputNombre"
@@ -40,6 +40,15 @@
           <small *ngIf="nombreNoValido" class="text-danger">{{msgError('nombre')}}</small>
         </div>
         <!-- Fin nombre de cliente -->
+         <!-- Fecha de alta-->
+      <div class="col-2" *ngIf="!newCustomer">
+        <label class="form-label" for="inputfechaAlta">Fecha de alta</label>
+        <input class="form-control"
+              id="inputfechaAlta"
+              type="text"
+              formControlName="fechaAlta">
+      </div>
+      <!-- Fin fecha de alta -->
       </div>
       <!--Telefono  del cliente-->
       <div class="form-group row">
@@ -129,7 +138,8 @@
                       </div>
                     </td>
                     <td>
-                      <button type="button" class="btn btn-light" (click)="removeMarca(marcaIndex)">
+                      <button type="button" class="btn btn-light" (click)="removeMarca(marcaIndex)"
+                         placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
                         <i class="far fa-trash-alt"></i>                    
                       </button>
                     </td>
@@ -173,7 +183,8 @@
                       <small *ngIf="a.get('nombreRegionMercado').invalid && a.get('nombreRegionMercado').touched" class="text-danger">{{msgErrorArray('nombreRegionMercado',regionMercadoIndex)}}</small>             
                     </td>  
                     <td>
-                      <button type="button" class="btn btn-light" (click)="removeRegionMercado(regionMercadoIndex)">
+                      <button type="button" class="btn btn-light" (click)="removeRegionMercado(regionMercadoIndex)"
+                            placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
                         <i class="far fa-trash-alt"></i>                    
                       </button>
                     </td>
@@ -215,7 +226,8 @@
                           <small *ngIf="a.get('nombreLocalizacionPantalla').invalid && a.get('nombreLocalizacionPantalla').touched" class="text-danger">{{msgErrorArray('nombreLocalizacionPantalla',localizacionPantallaIndex)}}</small>             
                         </td>  
                     <td>
-                      <button type="button" class="btn btn-light" (click)="removeLocalizacionPantalla(localizacionPantallaIndex)">
+                      <button type="button" class="btn btn-light" (click)="removeLocalizacionPantalla(localizacionPantallaIndex)"
+                            placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
                         <i class="far fa-trash-alt"></i>                    
                       </button>
                     </td>
@@ -257,7 +269,8 @@
                       <small *ngIf="a.get('acronymCodigo').invalid && a.get('acronymCodigo').touched" class="text-danger">{{msgErrorArray('acronymCodigo',codigoIndex)}}</small>             
                     </td>  
                     <td>
-                      <button type="button" class="btn btn-light" (click)="removeCodigo(codigoIndex)">
+                      <button type="button" class="btn btn-light" (click)="removeCodigo(codigoIndex)"
+                            placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
                         <i class="far fa-trash-alt"></i>                    
                       </button>
                     </td>
@@ -279,7 +292,6 @@
     <!-- Fin bloque Pestañas de listas de datos de cliente    --> 
 </form>
 <hr>
-
 <!-- <pre>
   estado formulario:{{customerForm.valid}}
   <br>

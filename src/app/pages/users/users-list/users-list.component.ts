@@ -20,7 +20,7 @@ export class UsersListComponent implements OnInit {
   public cargando:boolean=false;
   public filterUser:string='';
   public page:number=0;
-  public linesPages:number=5;
+  public linesPages:number=10;
   public filterLines:number=0;
 
   constructor(private userServices:UserService,
@@ -31,14 +31,14 @@ export class UsersListComponent implements OnInit {
     this.cargando=true;
     this.userServices.getUsers()
     .subscribe(resp=>{
-      if (resp.result===true) this.users=resp.data;
-      this.cargando=false;
-      console.log('usuarios',this.users);
+      if (resp.result===true){ 
+        this.users=resp.data;      
+        this.cargando=false;
+      }
       });
   }
 
   editUser(user:User){
-
     this.router.navigate(['/user',user.id]);
   }
   removeUser(user:User,i:number){
@@ -51,9 +51,28 @@ export class UsersListComponent implements OnInit {
       showConfirmButton:true,
       showCancelButton:true,
     }).then(resp=>{
-
+      if (resp.value){
+        this.userServices.deleteUser(user.id.toString())
+        .subscribe(resp=>{
+          this.users.splice(this.users.findIndex(e=> e.id===user.id),1);
+          },
+          error=>{
+            Swal.fire({
+              title: 'Lo siento tuvimos un problema',
+              text:`El registro de ${user.name} ${user.surname} no se eliminó`,
+              confirmButtonColor: '#007bff',
+              icon:'error'
+            });
+            console.log(error.error.result);
+          });
+      }
 
     });
+    return
+  }
+
+  exceptionsUser(user:User){
+    this.router.navigate(['/user-exceptions',user.id]);
   }
 
   buscar(tecla:string){

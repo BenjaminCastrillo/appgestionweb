@@ -29,7 +29,6 @@ export class UploadService {
       default:
         return
     }
-console.log('llamo al servicio');
 return this.http.post(`${this.url}/${metodo}`,
     file,{headers:httpHeaders})
   }

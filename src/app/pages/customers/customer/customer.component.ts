@@ -30,7 +30,7 @@ export class CustomerComponent implements OnInit {
   public customerForm: FormGroup;
   public currentCustomer:Customer;
   public customerId:string;
-  public clienteNuevo:boolean;
+  public newCustomer:boolean;
   public tituloPagina:string;
 
   public filesImagenMarca: Array <ImagenesFile> =[];
@@ -44,7 +44,7 @@ export class CustomerComponent implements OnInit {
               private customerServices:CustomerService,
               private uploadServices:UploadService,
               private utilService:UtilService,
-              private route:ActivatedRoute ,
+              private ActivatedRoute:ActivatedRoute ,
               private router:Router
               ) {
       this.crearFormulario();
@@ -52,12 +52,12 @@ export class CustomerComponent implements OnInit {
   }
   ngOnInit(): void {
    
-    this.customerId= this.route.snapshot.paramMap.get('id');
+    this.customerId= this.ActivatedRoute.snapshot.paramMap.get('id');
     if (this.customerId==='nuevo'){
-      this.clienteNuevo=true;
+      this.newCustomer=true;
       this.tituloPagina='Alta nuevo cliente';
     }else{
-      this.clienteNuevo=false;
+      this.newCustomer=false;
       this.tituloPagina='Modificación datos de cliente';
       this.customerForm.get('identification').disable();
       this.customerServices.getCustomerById(this.customerId)
@@ -67,13 +67,6 @@ export class CustomerComponent implements OnInit {
         })
     }      
     
-    
-    // this.crearListeners();
-    // console.log('entro en onInit customer:');
-    // this.customerServices.customers.subscribe(list=>{ 
-    //   console.log('onInit customer: ',list);
-    //   this.customerList=list;
-    //  })
   }
 
   get IDNoValido() {
@@ -117,6 +110,7 @@ export class CustomerComponent implements OnInit {
       ],this.customerServices.existsIdCustomer.bind(this.customerServices) // validador asincrono
     ],
     nombre: ['', Validators.required],
+    fechaAlta:[{value:'',disabled:true}],
     telefono: ['', [Validators.required, Validators.pattern('[0-9]*'),Validators.maxLength(18)]],
     marca: this.fb.array([]),
     regionMercado:this.fb.array([]),
@@ -134,7 +128,7 @@ export class CustomerComponent implements OnInit {
 
   loadData(customer:Customer){  
     let mr=[], ls=[], co=[], br=[];
-  
+    
     customer.brands.forEach((elem,index)=>{
       br.push(this.newMarca(elem.description,elem.image,elem.color,elem.id))
       if (elem.image){
@@ -155,6 +149,7 @@ export class CustomerComponent implements OnInit {
    
     this.customerForm.get('identification').patchValue(customer.identification);
     this.customerForm.get('nombre').patchValue(customer.name);
+    this.customerForm.get('fechaAlta').patchValue(customer.entryDate);
     this.customerForm.get('telefono').patchValue(customer.phoneNumber);
   
     this.customerForm.setControl('marca',this.fb.array(br||[]));
@@ -239,33 +234,22 @@ export class CustomerComponent implements OnInit {
         mr=this.respRegionMercado();
         ls=this.respLocalizacionPantalla();
         co=this.respCodigo();
+
         let respuesta:Customer ={
               id                  :this.customerId==='nuevo'?null:Number(this.customerId),
               identification      :this.customerForm.get('identification').value,
               name                :this.customerForm.get('nombre').value,
               phoneNumber         :this.customerForm.get('telefono').value,
+              entryDate           :this.customerForm.get('fechaAlta').value,
               brands              :br,
               marketRegions       :mr,
               locationsScreen     :ls,
               sitesComercialCodes :co
         }
-        // const customerResponse = new RespuestaCustomer(
-        //   this.customerId==='nuevo'?null:Number(this.customerId),
-        //   this.customerForm.get('identification').value,
-        //   this.customerForm.get('nombre').value,
-        //   this.customerForm.get('telefono').value,
-        //   br,
-        //   mr,
-        //   ls,
-        //   co
-        // );
         if (this.customerId==='nuevo'){
           peticionHtml=this.customerServices.saveCustomer(respuesta);
-          console.log('vuelvo de salvar nuevo cliente');
         }else{
-          console.log('voy a actualizar los datos del cliente');
           peticionHtml=this.customerServices.updateCustomer(respuesta);
-          console.log('vuelvo de actualizar los datos del cliente');
         }
         peticionHtml.subscribe(resp=>{
           if (this.filesImagenMarca.length>0){
