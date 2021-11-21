@@ -1,7 +1,7 @@
 <form [formGroup]="venueForm" (ngSubmit)="onSubmit()">
   <!-- Bloque de botones -->
   <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">
-    <h4 class="col"> {{tituloPagina}} <small>(#{{currentVenue.id}})</small></h4>  
+    <h4 class="col"> {{tituloPagina}} <span *ngIf="!newVenue"><small class="text-muted">(#{{currentVenue.id}})</small></span></h4>  
     <button type="button" class="btn btn-danger btn-block"
       (click)="abandonarPagina()"> 
       <i class="fas fa-arrow-left"></i>
@@ -16,19 +16,10 @@
   <!-- Fin bloque botones -->
   <!-- Bloque datos de local -->
   <div class="form-group">
-      <!--1 linea -->
-      <div class="form-group row mb-2">
-        <!--ID registro -->
-        <!-- <div class="col-1">
-          <label class="form-label" for="inpuId">#ID</label>
-          <input class="form-control"
-                  id="inputId"
-                  type="text"
-                  formControlName="id">
-        </div>  -->
-        <!-- Fin ID registro -->
+    <!--1 linea -->
+    <div class="form-group row mb-3">    
         <!-- Nombre de local -->
-        <div class="col-4">
+        <div class="col-6">
           <label class="form-label" for="inputNombre">Nombre del local</label>
           <input class="form-control"
                 id="inputNombre"
@@ -39,7 +30,7 @@
         </div>
         <!-- Fin nombre de local -->
         <!-- Cliente-->
-        <div class="col-3">
+        <div class="col-4">
           <label class="form-label" for="inputCliente">Cliente</label>
           <select class="form-select" formControlName="cliente">
             <option   value="{{a.id}}" *ngFor="let a of customers" 
@@ -49,59 +40,575 @@
           <small *ngIf="clienteNoValido" class="text-danger">{{msgError('cliente')}}</small>
         </div>
         <!-- Fin Cliente -->
-        <!-- Marca del local -->
-        <div class="col-2">
-          <label class="form-label" for="inputMarca">Marca comercial</label>
-          <select class="form-select" formControlName="marca">
-            <option value="{{a.id}}" *ngFor="let a of brands" 
-                    [selected]="selectMarca(a.id)" 
-                    [class.is-invalid]="marcaNoValido">
-                    <!-- <del *ngIf="a.deleted"> {{a.description}}</del></option> -->
-                    {{a.description}}<span class="text-danger" *ngIf="a.deleted">(deleted)</span></option> 
-          </select>
-          <small *ngIf="marcaNoValido" class="text-danger">{{msgError('marca')}}</small>
-        </div>
-        <!-- Fin marca del local -->
-
-         <!-- Fecha de alta-->
+        <!-- Fecha de alta-->
         <div class="col-2" *ngIf="!newVenue">
           <label class="form-label" for="inputfechaAlta">Fecha de alta</label>
-          <input class="form-control"
+          <p class=" p-2 cajaFecha">{{currentVenue.entryDate|date:'mediumDate'}}</p>
+          <!-- <input class="form-control"
                 id="inputfechaAlta"
                 type="text"
-                formControlName="fechaAlta">
+                formControlName="fechaAlta"> -->
         </div>
       <!-- Fin fecha de alta -->
     </div>
     <!-- Fin 1 linea -->
     <!-- 2 linea -->
-    <div class="form-group row mb-2">
-      <!-- Pais-->
-      <div class="col-2">
-        <label class="form-label" for="inputPais">Pais</label>
-        <select class="form-select" formControlName="pais">
-          <option  value="{{a.id}}" *ngFor="let a of countries" [selected]="selectPais(a.id)" 
-                  [class.is-invalid]="paisNoValido">{{a.name}}</option>
-        </select>
-        <small *ngIf="paisNoValido" class="text-danger">{{msgError('pais')}}</small>
+    <div class="form-group row mb-0">
+
+      <!-- Inicio columna izquierda-->
+      <div class="col-9">
+        <!-- Linea 1 izquierda -->
+        <div class="row  mb-3">
+          <!-- Marca del local -->
+          <div class="col-2">
+            <label class="form-label" for="inputMarca">Marca Comercial</label>          
+            <select class="form-select" formControlName="marca">
+              <option value="{{a.id}}" *ngFor="let a of brands | notdeletedbrands:marcaBorrada" 
+                      [selected]="selectMarca(a.id)" 
+                      [class.is-invalid]="marcaNoValido">
+                      {{a.description}}  <span class="text-danger" *ngIf="a.deleted">(deleted)</span></option> 
+            </select>
+            <small *ngIf="marcaNoValido" class="text-danger">{{msgError('marca')}}</small>
+          </div>
+          <!-- Fin marca del local -->
+          <!-- Imagen Marca del local -->
+          <div  class="col-2 mt-3">
+            <img id="fileMarca" class="img-thumbnail" width="100" [src]="binariosImagenMarca">  
+          </div>
+          <!-- Fin Imagen Marca del local -->
+          <!-- Región de mercado-->
+          <div class="col-4">
+            <label class="form-label" for="inputRegionComercial">Región Comercial</label>
+            <select class="form-select" formControlName="regionComercial">
+              <option value="{{a.id}}" *ngFor="let a of marketRegions | notdeletedmarketregion:regionComercialBorrada" 
+                      [selected]="selectRegionComercial(a.id)" 
+                      [class.is-invalid]="regionComercialNoValido">
+                      {{a.description}} <span class="text-danger" *ngIf="a.deleted">(deleted)</span></option>
+            </select>
+            <small *ngIf="regionComercialNoValido" class="text-danger">{{msgError('regionComercial')}}</small>
+          </div>
+          <!-- Fin Región de mercado -->
+          <!-- Input Imagen del local-->
+          <div class="col-4">     
+            <label class="form-label" for="inputImagenLocal">Imagen del local</label>  
+            <input (change)="capturarFile($event)"
+              class="form-control"
+              type="file"
+              accept="image/png/jpeg"
+              formControlName="imagenLocal">         
+          </div>
+          <!-- Fin input imagen del local -->       
+        </div>       
+        <!-- Fin Linea 1 izquierda -->
+        <!-- Linea 2 izquierda -->
+        <!-- Pais -->
+        <div class="row mb-3">
+          <div class="col-3">  
+            <label class="form-label" for="inputPais">Pais</label>
+            <select class="form-select" formControlName="pais">
+              <option  value="{{a.id}}" *ngFor="let a of countries" 
+                      [selected]="selectPais(a.id)" 
+                      [class.is-invalid]="paisNoValido">{{a.name}}</option>
+            </select>
+            <small *ngIf="paisNoValido" class="text-danger">{{msgError('pais')}}</small>
+          </div>
+        </div>
+        <!-- Fin Pais -->
+        <!-- Fin Linea 2 izquierda -->
+        <!-- Linea 3 izquierda -->
+        <!-- Organizacion territorial -->
+        <div class="form-group row">
+          <div class="col-9">
+              <table class="table table-borderless">
+                <thead class=table-light>
+                </thead>
+                <tbody formArrayName="localizacion">
+                  <tr *ngFor="let a of localizacion.controls; let localizacionIndex=index" [formGroupName]="localizacionIndex">
+                    <td>
+                      {{a.get('nombreOrganizacionTerritorial').value}}:    
+                    </td>
+                    <td>      
+                      <select class="form-select" formControlName="idEntidadTerritorial">
+                        <option value="{{b.id}}" *ngFor="let b of location | territorialentities:localizacionIndex; let locationIndex=index" 
+                                [selected]="selectEntidadTerritorial(b.id,localizacionIndex,locationIndex)">
+                                <!-- [class.is-invalid]="entidadTerritoriallNoValido"> -->
+                                {{b.territorialEntityName}}</option>
+                      </select>
+                    </td>  
+                  </tr>
+                </tbody>
+              </table>  
+          </div>
+        </div>
+        <!-- Fin organizacion territorial -->
+        <!-- Fin Linea 3 izquierda -->
       </div>
-      <!-- Fin Pais -->
-      <!-- Región de mercado-->
-      <div class="col-2">
-        <label class="form-label" for="inputRegionComercial">Region Comercial</label>
-        <select class="form-select" formControlName="regionComercial">
-          <option  value="{{a.id}}" *ngFor="let a of marketRegions" [selected]="selectRegionComercial(a.id)" 
-                  [class.is-invalid]="regionComercialNoValido">{{a.description}}</option>
-        </select>
-        <small *ngIf="regionComercialNoValido" class="text-danger">{{msgError('regionComercial')}}</small>
+      <!-- Fin columna izquierda-->
+
+      <!-- Inicio columna derecha-->
+      <!-- Imagen del local-->
+      <div class="col-3">
+         <img id="fileVenue" class="img-fluid"  width="300"  [src]="binariosImagenLocal">
       </div>
-      <!-- Fin Región de mercado -->
+      <!-- Fin Imagen del local-->
+      <!-- Fin columna derecha-->
+
     </div>
-     <!-- Fin 2 linea -->
+    <!-- Fin 2 linea -->
+    <!-- Inicio 3 linea -->
+    <!--linea dirección -->
+    <div class="form-group row mb-3">
+      <!-- Tipo de via-->
+      <div class="col-2">
+        <label class="form-label" for="inputTipoVia">Tipo de via</label>
+        <select class="form-select" formControlName="tipoVia">
+          <option   value="{{a.id}}" *ngFor="let a of roadTypes" 
+                    [selected]="selectTipoVia(a.id)" 
+                    [class.is-invalid]="tipoViaNoValido">{{a.description}}</option>
+        </select>
+        <small *ngIf="tipoViaNoValido" class="text-danger">{{msgError('tipoVia')}}</small>
+      </div>
+      <!-- Fin tipo de via -->
+      <!-- Calle de local -->
+        <div class="col-6">
+        <label class="form-label" for="inputCalle">Dirección</label>
+        <input class="form-control"
+              id="inputCalle"
+              type="text"
+                formControlName="calle"
+              [class.is-invalid]="calleNoValido">
+        <small *ngIf="calleNoValido" class="text-danger">{{msgError('calle')}}</small>
+      </div>
+      <!-- Fin calle de local -->
+      <!-- número Calle de local -->
+      <div class="col-2">
+        <label class="form-label" for="inputNumero">Número</label>
+        <input class="form-control"
+              id="inputNumero"
+              type="text"
+                formControlName="numero"
+              [class.is-invalid]="numeroNoValido">
+        <small *ngIf="numeroNoValido" class="text-danger">{{msgError('numero')}}</small>
+      </div>
+      <!-- Fin número calle de local -->
+      <!-- Código postal de local -->
+      <div class="col-2">
+        <label class="form-label" for="inputCodigoPostal">Código Postal</label>
+        <input class="form-control"
+              id="inputCodigoPostal"
+              type="text"
+              formControlName="codigoPostal"
+              [class.is-invalid]="codigoPostalNoValido">
+        <small *ngIf="codigoPostalNoValido" class="text-danger">{{msgError('codigoPostal')}}</small>
+      </div>
+      <!-- Fin código postal  -->
+    </div>
+    <!-- Fin linea direccion-->   
+    <!-- Fin 3 linea -->    
+
+    <!-- Inicio 4 linea -->
+    <!-- <div class="form-group row mb-5">
+      <div class="col-3">
+        <label class="form-label" for="inputCodigoPostal">Horarios del local</label>
+        <ng-multiselect-dropdown
+          [placeholder]="'hola'"
+          [settings]="dropdownSettings"
+          [data]="b"
+          [(ngModel)]="a"
+          (onSelect)="onItemSelect($event)"
+          (onSelectAll)="onSelectAll($event)"
+          (onDeSelect)="onItemDeselect($event)">
+        </ng-multiselect-dropdown>
+      </div>
+    </div> -->
+<!-- Fin 3 linea -->   
   </div> 
   <!-- Fin Bloque datos de cliente --> 
-</form>
 <hr>
+  <!-- Bloque Pestañas de listas de datos de local   -->
+  <div>  
+  <!-- Titulos de pestañas -->
+  
+    <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="horario-tab" data-bs-toggle="tab" data-bs-target="#horario" type="button" role="tab" aria-controls="horario" aria-selected="true">Horarios</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="contacto-tab" data-bs-toggle="tab" data-bs-target="#contacto" type="button" role="tab" aria-controls="contacto" aria-selected="false">Contactos</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="emplazamiento-tab" data-bs-toggle="tab" data-bs-target="#emplazamiento" type="button" role="tab" aria-controls="emplazamiento" aria-selected="false">Emplazamientos</button>
+      </li>
+    </ul>
+
+    <!-- Contenidos pestañas -->
+    <div class="tab-content" id="myTabContent"> 
+      <!-- Pestaña Horarios  -->
+      <div class="tab-pane fade show active mt-3" id="horario" role="tabpanel" aria-labelledby="horario-tab">  
+        
+        <div class="container-fluid row mb-3">
+          <!-- lista de horarios del cliente -->  
+          <div class="col-5"> 
+            <label class="form-label">Seleccione los horarios asociados al local</label>
+            <div class="form-group mb-2">
+              <input class="form-control"
+                  id="inputSchedules"
+                  placeholder="Buscar..."
+                  type="text"
+                  formControlName="schedulesSearch">
+            </div>  
+             <table class="table table-condensed table-striped">
+              <thead class=table-light>
+                <tr>
+                  <th scope="col" class="col-sm-1">#</th>
+                  <th scope="col" class="col-sm-2">Descripción</th>
+                  <th scope="col" class="col-sm-3">Fecha inicio</th>
+                  <th scope="col" class="col-sm-2">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let a of schedules |schedules: filterSchedules:page:linesPages; let i=index">
+                  <th>
+                    {{i+1+page}}
+                  </th>
+                  <td>{{a.description}}</td>
+                  <td>{{a.startDate.description}}</td> 
+                  <td>
+                    <button type="button" class="btn btn-light" 
+                          (click)="selectHorario(a.id,a.description,a.startDate,a.weekly)"
+                          placement="bottom" ngbTooltip="Seleccionar" [openDelay]="300">   
+                      <i class="fas fa-check"></i>                
+                    </button>
+                    &nbsp;
+                    <button type="button" class="btn btn-light"
+                            placement="bottom" ngbTooltip="Ver horario" [openDelay]="300"
+                            (click)="showHorario(content,i)">
+                       <i class="far fa-clock"></i>
+                    </button>
+                  </td>
+
+                  <!-- Modal  Horario semanal ng-bootstrap-->
+                  <ng-template #content let-modal>
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="modal-horarios"> {{a.description}}</h4>
+                      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <table class="table">
+                        <thead class=table-light>
+                          <tr>
+                            <th class="col-1">Día de la semana</th>
+                            <th class="col-1">Apertura</th>
+                            <th class="col-1">Cierre</th>
+                            <th class="col-1">Apertura</th>
+                            <th class="col-1">Cierre</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let d of a.weekly">       
+                                <th>{{d.descriptionDay}}</th>
+                                <td>{{d.openingTime1}}</td>
+                                <td>{{d.closingTime1}}</td>
+                                <td>{{d.openingTime2}}</td>
+                                <td>{{d.closingTime2}}</td>            
+                            </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </ng-template>
+                    <!-- Fin Modal  Horario semanal-->
+
+                </tr>
+              </tbody>
+            </table>   
+            <div class="d-grid text-center d-md-block" 
+                  *ngIf="schedules.length>linesPages">
+              <button class="btn btn-outline-secondary btn-sm"
+                      type="button"
+                      (click)="prevPage()"
+                      [disabled]="page===0">
+                Pag. Anterior
+              </button>
+              &nbsp;
+              <button class="btn btn-outline-secondary btn-sm"
+                      type="button"
+                      (click)="nextPage()"
+                      [disabled]="(schedules |schedules:filterSchedules:page:linesPages).length<linesPages"> 
+                Pag. Siguiente
+              </button>
+            </div> 
+          </div>
+          <!-- Fin lista de horarios -->
+          <div class="col-2"></div>
+          <!-- Lista horarios seleccionados -->
+          <div class="col-5">
+            <label class="form-label"><strong>Horarios seleccionados al local</strong></label> 
+            <br>
+            <br>
+            <br>
+            <table class="table">
+              <thead class="table-light">
+                <tr>
+                    <th scope="col" class="col-sm-1">#</th>
+                    <th scope="col" class="col-sm-2">Descripción</th>
+                    <th scope="col" class="col-sm-3">Fecha inicio</th>
+                    <th scope="col" class="col-sm-2">Acciones</th>
+                  </tr>
+              </thead>
+              <tbody formArrayName="horario">
+                <tr *ngFor="let b of horario.controls; let horarioIndex=index" [formGroupName]="horarioIndex">
+                  <th>
+                    {{horarioIndex+1}}
+                  </th>
+                  <td>{{b.get('descripcionHorario').value}}</td>
+                  <td>{{b.get('diaInicio').value}}</td>
+                  <td>
+                    <button type="button" class="btn btn-light" 
+                    placement="bottom" ngbTooltip="Borrar" [openDelay]="300"
+                    (click)="removeHorario(horarioIndex)">
+                      <i class="far fa-trash-alt"></i>                    
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>  
+          </div>    
+          <!-- Fin Lista horarios seleccionados -->    
+        </div>
+      </div>
+      <!-- Fin pestaña horarios -->
+
+      <!-- Pestaña contactos -->
+      <div class="tab-pane fade mt-3" id="contacto" role="tabpanel" aria-labelledby="contacto-tab">  
+        <div class="row container">
+          <div class="col">
+            <table class="table">
+              <thead class="table-light">
+                <tr>
+                  <th scope="col" class="col-sm-1">#</th>
+                  <th scope="col" class="col-sm-2">Nombre</th>
+                  <th scope="col" class="col-sm-3">email</th>
+                  <th scope="col" class="col-sm-4">Notas</th>
+                  <th scope="col" class="col-sm-2">Acciones</th>
+                </tr>
+              </thead>
+              <tbody formArrayName="contacto">
+                <tr *ngFor="let a of contacto.controls; let contactoIndex=index" [formGroupName]="contactoIndex">
+           
+                  <th>
+                    {{contactoIndex+1}}
+                  </th>
+                  <td>
+                    <input class="form-control"
+                    type="text"
+                    placeholder="Nombre"
+                    formControlName="nombre"
+                    [class.is-invalid]="a.get('nombre').invalid && a.get('nombre').touched">
+                    <small *ngIf="a.get('nombre').invalid && a.get('nombre').touched" class="text-danger">{{msgErrorArray('nombre',contactoIndex)}}</small>         
+                  </td>
+                  <td>
+                    <input class="form-control"
+                    type="text"
+                    placeholder="email"
+                    formControlName="email"
+                    [class.is-invalid]="a.get('email').invalid && a.get('email').touched">
+                    <small *ngIf="a.get('email').invalid && a.get('email').touched" class="text-danger">{{msgErrorArray('email',contactoIndex)}}</small>         
+
+                  </td>  
+                  <td>
+                    <input class="form-control"
+                    type="text"
+                    placeholder="notas"
+                    formControlName="notas"
+                    [class.is-invalid]="a.get('notas').invalid && a.get('notas').touched">
+                    <small *ngIf="a.get('notas').invalid && a.get('notas').touched" class="text-danger">{{msgErrorArray('notas',contactoIndex)}}</small>         
+                
+                  </td>  
+                  <td>
+                   
+                 
+                    <button type="button" class="btn btn-light" 
+                        placement="bottom" ngbTooltip="Añadir telefonos" [openDelay]="300"
+                        (click)="showTelefono(content,contactoIndex)">
+                      <i class="fas fa-phone"></i>                                                                    
+                   </button>    
+                   &nbsp;
+                   <button type="button" class="btn btn-light" (click)="removeContacto(contactoIndex)"
+                            placement="bottom" ngbTooltip="Borrar contacto" [openDelay]="300">
+                      <i class="far fa-trash-alt"></i>                    
+                   </button>             
+                  </td>
+<!-- Modal  teléfonos-->
+                  <ng-template #content let-modal>
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="modal-basic-title">Teléfonos de contacto de {{a.get('nombre').value}}</h4>
+                      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      
+                      <table class="table">
+                        <thead class=table-light>
+                          <tr>
+                            <th class="col-2">Teléfono</th>
+                            <th class="col-6">Notas</th>
+                            <th class="col-2">Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody formArrayName="telefonos">
+                          <tr *ngFor="let d of telefonos.controls; let telefonosIndex=index" [formGroupName]="telefonosIndex">       
+                          <td>
+                            <input class="form-control"
+                                  type="text"           
+                                  formControlName="numeroTelefono"
+                                  [class.is-invalid]="d.get('numeroTelefono').invalid && d.get('numeroTelefono').touched">
+                            <small *ngIf="d.get('numeroTelefono').invalid && d.get('numeroTelefono').touched" class="text-danger">{{msgErrorArray('numeroTelefono',telefonosIndex)}}</small> 
+                          </td> 
+                          <td>
+                            <input class="form-control"
+                                  type="text"        
+                                  formControlName="notasTelefono"
+                                  [class.is-invalid]="d.get('notasTelefono').invalid && d.get('notasTelefono').touched">
+                            <small *ngIf="d.get('notasTelefono').invalid && d.get('notasTelefono').touched" class="text-danger">{{msgErrorArray('notasTelefono',telefonosIndex)}}</small> 
+                          </td>
+                          <td>
+                            <button type="button" class="btn btn-light" (click)="removeTelefono(telefonosIndex)"
+                                    placement="bottom" ngbTooltip="Borrar número de teléfono" [openDelay]="300">
+                              <i class="far fa-trash-alt"></i>                    
+                             </button>    
+                          </td>
+                        </tr>
+                        </tbody>
+                      </table>   
+                    </div>
+
+                    <div class="d-grid gap-2 col-4 mx-auto">  
+                      <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addTelefono(contactoIndex)">
+                        Añadir teléfono
+                      </button>
+                    </div>
+
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-outline-primary btn-block" 
+                            (click)="modal.close('Save click')">Guardar</button>
+                    </div>
+                  </ng-template>
+<!-- Fin Modal telefonos-->
+                </tr>
+              </tbody>
+            </table>  
+          </div>
+        </div>
+        <div class="d-grid gap-2 col-4 mx-auto">  
+          <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addcontacto()">
+            Añadir contacto
+          </button>
+        </div>
+      </div>
+      <!-- Fin pestaña contactos -->
+      <!-- Pestaña emplazamientos   -->
+
+      <div class="tab-pane fade mt-3" id="emplazamiento" role="tabpanel" aria-labelledby="emplazamiento-tab">  
+        <div class="row container">
+          <div class="col">
+            <div *ngIf="!newVenue && currentVenue.sites.length>0">
+              <table class="table">
+                <thead class=table-light>
+                  <tr>
+                    <th class="col-1">#</th>
+                    <th class="col-2">Código comercial</th>
+                    <th class="col-2">Duración licencia (meses)</th>            
+                    <th class="col-1">Status</th>
+                  </tr>
+                </thead>
+                <tbody formArrayName="emplazamiento">
+                  <tr *ngFor="let a of currentVenue.sites; let sitesIndex=index" [formGroupName]="sitesIndex">
+                    <th>
+                      {{a.id}}
+                    </th>
+                    <td>
+                      {{a.siteComercialId}}
+                    </td>
+                    <td>
+                      {{a.player.license.durationMonths}}
+                    </td>
+                    <td>
+                      <i *ngIf="a.status.id===1" class="bi bi-cone-striped" style="font-size: 1rem;"
+                      placement="bottom" ngbTooltip="{{a.status.description}}" [openDelay]="300"></i>
+                      <i *ngIf="a.status.id===2" class="bi bi-check-circle" style="font-size: 1rem;"
+                      placement="bottom" ngbTooltip="{{a.status.description}}" [openDelay]="300"></i>
+                      <i *ngIf="a.status.id===3" class="bi bi-exclamation-circle" style="font-size: 1rem;"
+                      placement="bottom" ngbTooltip="{{a.status.description}}" [openDelay]="300"></i>
+                      <i *ngIf="a.status.id===4" class="bi bi-x-circle" style="font-size: 1rem;"
+                      placement="bottom" ngbTooltip="{{a.status.description}}" [openDelay]="300"></i>
+                    </td>
+
+                  </tr>
+                </tbody>
+              </table> 
+            </div>
+            <br>
+            <div>
+              <table class="table">
+                <thead class=table-light>
+                  <tr>
+                    <th class="col-1">#</th>
+                    <th class="col-2">Código comercial</th>
+                    <th class="col-2">Duración licencia (meses)</th>            
+                    <th class="col-1">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody formArrayName="emplazamiento">
+                  <tr *ngFor="let a of emplazamiento.controls; let emplazamientoIndex=index" [formGroupName]="emplazamientoIndex">
+                    <th>
+                      {{emplazamientoIndex+1}}
+                    </th>
+                    <td>
+                      <select class="form-select" formControlName="idCodigoComercial">
+                        <option  value="{{b.id}}" *ngFor="let b of comercialCodes"       
+                                [selected]="selectCodigoComercial(b.id,emplazamientoIndex)"
+                                [class.is-invalid]="a.get('idCodigoComercial').invalid && a.get('idCodigoComercial').touched">{{b.acronym}}</option>
+                      </select>     
+                      <small *ngIf="a.get('idCodigoComercial').invalid && a.get('idCodigoComercial').touched" class="text-danger">{{msgErrorArray('idCodigoComercial',emplazamientoIndex)}}</small>   
+                    </td>
+                    <td>
+                      <select class="form-select" formControlName="duracionLicencia">
+                        <option  value="{{b}}" *ngFor="let b of monthsLicense"       
+                                [selected]="selectDuracionLicencia(b,emplazamientoIndex)"
+                                [class.is-invalid]="a.get('duracionLicencia').invalid && a.get('duracionLicencia').touched">{{b}}</option>
+                      </select>     
+                      <small *ngIf="a.get('duracionLicencia').invalid && a.get('duracionLicencia').touched" class="text-danger">{{msgErrorArray('duracionLicencia',emplazamientoIndex)}}</small>   
+                    </td>
+                    <td>
+                      <button type="button" class="btn btn-light" (click)="removeEmplazamiento(emplazamientoIndex)"
+                            placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
+                        <i class="far fa-trash-alt"></i>                    
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>  
+            </div>  
+          </div>
+        </div>
+        <div class="d-grid gap-2 col-4 mx-auto">  
+          <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addEmplazamiento()">
+            Añadir emplazamiento
+          </button>
+        </div>
+      </div>  
+      <!-- Fin pestaña emplazamientos -->
+    </div>  
+    <!-- Fin Contenidos pestañas -->
+  </div>
+  <!-- Fin bloque Pestañas de listas de datos de cliente    --> 
+
+</form>
+
+
 <pre>
   estado formulario:{{venueForm.valid}}
   <br>

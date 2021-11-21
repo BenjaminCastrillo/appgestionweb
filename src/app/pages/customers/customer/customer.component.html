@@ -2,7 +2,7 @@
 <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
   <!-- Bloque de botones -->
   <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">
-    <h4 class="col"> {{tituloPagina}} (#{{currentCustomer.id}})</h4>  
+    <h4 class="col"> {{tituloPagina}} <span *ngIf="!newCustomer"><small class="text-muted">(#{{currentCustomer.id}})</small></span></h4>  
     <button type="button" class="btn btn-danger btn-block"
       (click)="abandonarPagina()"> 
       <i class="fas fa-arrow-left"></i>
@@ -31,7 +31,7 @@
         <!-- Fin ID cliente -->
         <!--Nombre de cliente-->
         <div class="col-7">
-          <label class="form-label" for="inputNombre">Nombre del cliente</label>
+          <label class="form-label" for="inputNombre">Empresa</label>
           <input class="form-control"
                 id="inputNombre"
                 type="text"
@@ -43,28 +43,43 @@
          <!-- Fecha de alta-->
       <div class="col-2" *ngIf="!newCustomer">
         <label class="form-label" for="inputfechaAlta">Fecha de alta</label>
-        <input class="form-control"
+        <p class=" p-2 cajaFecha">{{currentCustomer.entryDate|date:'mediumDate'}}</p>
+        <!-- <input class="form-control"
               id="inputfechaAlta"
               type="text"
-              formControlName="fechaAlta">
+              formControlName="fechaAlta"> -->
       </div>
       <!-- Fin fecha de alta -->
       </div>
+
       <!--Telefono  del cliente-->
       <div class="form-group row">
+         <!--Nombre de cliente-->
+         <div class="col-7">
+          <label class="form-label" for="inputNombreContacto">Persona de contacto</label>
+          <input class="form-control"
+                id="inputNombreContacto"
+                type="text"
+                  formControlName="nombreContacto"
+                [class.is-invalid]="nombreContactoNoValido">
+          <small *ngIf="nombreContactoNoValido" class="text-danger">{{msgError('nombreContacto')}}</small>
+        </div>
+        <!-- Fin nombre de cliente -->
         <div class="col-3">
-        <label class="form-label" for="inputTelefono">Teléfono de contacto</label>
-        <input class="form-control"
-                  id="inputTelefono"
-                  type="text"
-                  
-                  formControlName="telefono"
-                  [class.is-invalid]="telefonoNoValido">     
-        <small *ngIf="telefonoNoValido" class="text-danger">{{msgError('telefono')}}</small>
-      </div>
-      <div class="col-9"></div>
+          <label class="form-label" for="inputTelefono">Teléfono de contacto</label>
+          <input class="form-control"
+                    id="inputTelefono"
+                    type="text"
+                    
+                    formControlName="telefono"
+                    [class.is-invalid]="telefonoNoValido">     
+          <small *ngIf="telefonoNoValido" class="text-danger">{{msgError('telefono')}}</small>
+        </div>
+      <!-- <div class="col-9"></div> -->
       </div>
     <!--  Fin Telefono de cliente  -->
+
+
     </div>
     <!-- Fin Bloque datos de cliente --> 
     <hr>
@@ -85,13 +100,16 @@
         <li class="nav-item" role="presentation">
           <button class="nav-link" id="codigo-tab" data-bs-toggle="tab" data-bs-target="#codigo" type="button" role="tab" aria-controls="codigo" aria-selected="false">Codificación de emplazamientos</button>
         </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="horario-tab" data-bs-toggle="tab" data-bs-target="#horario" type="button" role="tab" aria-controls="horario" aria-selected="false">Horarios de locales</button>
+        </li>
       </ul>
   
       <!-- Contenidos pestañas -->
       <div class="tab-content" id="myTabContent"> 
         <!--  Pestaña Marcas Comerciales  -->
         <div class="tab-pane fade show active mt-3" id="marca" role="tabpanel" aria-labelledby="marca-tab">
-          <div class="row">
+          <div class="row container">
             <div class="col">
               <table class="table">
                 <thead class="table-light">
@@ -159,7 +177,7 @@
   
         <!-- Pestaña Región de mercado   -->
         <div class="tab-pane fade mt-3" id="regionmercado" role="tabpanel" aria-labelledby="regionmercado-tab">  
-          <div class="row">
+          <div class="row container">
             <div class="col">
               <table class="table">
                 <thead class=table-light>
@@ -202,7 +220,7 @@
         <!-- Fin pestaña regiones comerciales -->
         <!-- Localización de pantalla   -->
         <div class="tab-pane fade  mt-3" id="localizacionpantalla" role="tabpanel" aria-labelledby="localizacionpantalla-tab">
-          <div class="row">
+          <div class="row container">
             <div class="col">
               <table class="table">
                 <thead class=table-light>
@@ -245,7 +263,7 @@
         <!-- Fin localizacion de pantallas -->
         <!-- Codigos de emplazamiento   -->
         <div class="tab-pane fade  mt-3" id="codigo" role="tabpanel" aria-labelledby="codigo-tab">
-          <div class="row">
+          <div class="row container">
             <div class="col">
               <table class="table">
                 <thead class=table-light>
@@ -286,13 +304,163 @@
           </div>
         </div>
         <!-- Fin codigo de emplazamientos -->
+        <!-- Pestaña Horarios  -->
+        <div class="tab-pane fade mt-3" id="horario" role="tabpanel" aria-labelledby="horario-tab">  
+          <div class="row container">
+            <div class="col">
+              <table class="table">
+                <thead class=table-light>
+                  <tr>
+                    <th class="col-1">#</th>
+                    <th class="col-3">Descripción</th>
+                    <th class="col-2">Día de inicio del periodo</th>
+                    <th class="col-3">Mes de inicio del periodo</th>
+                    <th class="col-3">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody formArrayName="horario">
+                  <tr *ngFor="let a of horario.controls; let horarioIndex=index" [formGroupName]="horarioIndex">
+                    <th>
+                      {{horarioIndex+1}}
+                    </th>
+                    <td>
+                      <input class="form-control"
+                      type="text"
+                      placeholder="Descripción del horario"
+                      formControlName="descripcionHorario"
+                      [class.is-invalid]="a.get('descripcionHorario').invalid && a.get('descripcionHorario').touched">
+                      <small *ngIf="a.get('descripcionHorario').invalid && a.get('descripcionHorario').touched" class="text-danger">{{msgErrorArray('descripcionHorario',horarioIndex)}}</small>         
+                    </td>
+                    <td>
+                      <input class="form-control"
+                      type="text"
+                      placeholder="Día inicio del horario"
+                      formControlName="diaInicio"
+                      [class.is-invalid]="a.get('diaInicio').invalid && a.get('diaInicio').touched">
+                      <small *ngIf="a.get('diaInicio').invalid && a.get('diaInicio').touched" class="text-danger">{{msgErrorArray('diaInicio',horarioIndex)}}</small> 
+                    </td>  
+                    <td>
+                      <select class="form-select" formControlName="mesInicio">
+                        <option  value="{{b.id}}" *ngFor="let b of month"       
+                                [selected]="selectMesHorario(b.id,horarioIndex)"
+                                [class.is-invalid]="a.get('mesInicio').invalid && a.get('mesInicio').touched">{{b.description}}</option>
+                      </select>     
+                      <small *ngIf="a.get('mesInicio').invalid && a.get('mesInicio').touched" class="text-danger">{{msgErrorArray('mesInicio',horarioIndex)}}</small>             
+                    </td>
+
+                    <td>
+                      <button type="button" class="btn btn-light"
+                              placement="bottom" ngbTooltip="Establecer horario" [openDelay]="300"
+                              (click)="setHorario(content,horarioIndex)">
+                        <i class="far fa-clock"></i>
+                      </button>
+                      &nbsp;
+                      <button type="button" class="btn btn-light" (click)="removeHorario(horarioIndex)"
+                            placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
+                        <i class="far fa-trash-alt"></i>                    
+                      </button>
+                    </td>
+<!-- Modal  Horario semanal -->
+                    <ng-template #content let-modal>
+                      <div class="modal-header">
+                        <h4 class="modal-title" id="modal-basic-title"> {{a.get('descripcionHorario').value}}</h4>
+                        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <table class="table">
+                          <thead class=table-light>
+                            <tr>
+                              <th class="col-2">Día de la semana</th>
+                              <th class="col-2">Apertura</th>
+                              <th class="col-2">Cierre</th>
+                              <th class="col-2">Apertura</th>
+                              <th class="col-2">Cierre</th>
+                              <th class="col-2">Acciones</th>
+                            </tr>
+                          </thead>
+                          <tbody formArrayName="weekly">
+                            <tr *ngFor="let d of weekly.controls; let weeklyIndex=index" [formGroupName]="weeklyIndex">       
+                            <th>
+                              {{d.get('descripcionDiaSemana').value}}
+                            </th>
+                            <td>
+                              <input class="form-control"
+                              type="time"           
+                              formControlName="horaApertura1"
+                              [class.is-invalid]="d.get('horaApertura1').invalid && d.get('horaApertura1').touched">
+                              <small *ngIf="d.get('horaApertura1').invalid && d.get('horaApertura1').touched" class="text-danger">{{msgErrorArray('horaApertura1',weeklyIndex)}}</small> 
+                            </td> 
+
+                            <td>
+                              <input class="form-control"
+                              type="time"        
+                              formControlName="horaCierre1"
+                              [class.is-invalid]="d.get('horaCierre1').invalid && d.get('horaCierre1').touched">
+                              <small *ngIf="d.get('horaCierre1').invalid && d.get('horaCierre1').touched" class="text-danger">{{msgErrorArray('horaCierre1',weeklyIndex)}}</small> 
+                            </td>
+                            <td>  
+                              <input class="form-control"
+                              type="time"
+                      
+                              formControlName="horaApertura2"
+                              [class.is-invalid]="d.get('horaApertura2').invalid && d.get('horaApertura2').touched">
+                              <small *ngIf="d.get('horaApertura2').invalid && d.get('horaApertura2').touched" class="text-danger">{{msgErrorArray('horaApertura2',weeklyIndex)}}</small> 
+                            </td>
+                            <td>
+                              <input class="form-control"
+                              type="time"
+
+                              formControlName="horaCierre2"
+                              [class.is-invalid]="d.get('horaCierre2').invalid && d.get('horaCierre2').touched">
+                              <small *ngIf="d.get('horaCierre2').invalid && d.get('horaCierre2').touched" class="text-danger">{{msgErrorArray('horaCierre2',weeklyIndex)}}</small> 
+                            </td>  
+                            <td> 
+                              <button type="button" class="btn btn-light"
+                                      placement="bottom" ngbTooltip="Repetir horario en siguientes días" [openDelay]="300"
+                                      (click)="repetirHorarioDia(weeklyIndex)">
+                                      <!-- <i class="bi bi-arrow-repeat"></i> -->
+                                <i class="fas fa-arrow-circle-down"></i> 
+                              </button>
+                              &nbsp;            
+                              <button type="button" class="btn btn-light"
+                                      placement="bottom" ngbTooltip="Borrar horario" [openDelay]="300"
+                                      (click)="borrarHorarioDia(weeklyIndex)">
+                                <i class="fas fa-eraser"></i>
+                              </button>
+                            </td>
+                          </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-primary btn-block" (click)="modal.close('Save click')">Guardar</button>
+                      </div>
+                    </ng-template>
+<!-- Fin Modal  Horario semanal-->
+
+                  </tr>
+                </tbody>
+              </table>  
+            </div>
+          </div>
+          <div class="d-grid gap-2 col-4 mx-auto">  
+            <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addHorario()">
+              Añadir horario
+            </button>
+          </div>
+        </div>
+        <!-- Fin pestaña horarios -->     
       </div>  
       <!-- Fin Contenidos pestañas -->
     </div>
     <!-- Fin bloque Pestañas de listas de datos de cliente    --> 
+
 </form>
 <hr>
-<!-- <pre>
+
+<pre>
   estado formulario:{{customerForm.valid}}
   <br>
   status:{{customerForm.status}}
@@ -300,5 +468,8 @@
 </pre>
 <pre>
   {{customerForm.value|json}}
-</pre> -->
+</pre>
+
+
+
 

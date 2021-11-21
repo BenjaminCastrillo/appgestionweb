@@ -1,0 +1,91 @@
+<div class="d-grid gap-2 d-md-flex justify-content-md-start mb-2 mt-2">
+  <h4>Listado de emplazamientos</h4>
+  <!-- <div class="col text-end">
+    <button routerLink="/site/nuevo" class="btn btn-primary">
+      <i class="fas fa-plus"></i>
+      Nuevo
+    </button>
+  </div> -->
+</div>
+
+<div class="form-group mt-2">
+  <input  name="filterSite"
+          [(ngModel)]="filterSite"
+          (keyup)="buscar(filterSite)"
+          class="form-control" 
+          type="search" 
+          placeholder="Buscar por ID, localidad, cliente, ..." 
+          aria-label="Search">
+</div>
+<table class="table table-condensed table-striped" *ngIf="!cargando && listSites.length>0" >
+  <thead>
+    <tr>
+      <th scope="col" class="col-sm-1">#ID</th>
+      <th scope="col" class="col-sm-2">Codigo</th>
+      <th scope="col" class="col-sm-2">Local</th>
+      <th scope="col" class="col-sm-3">Localizacion</th>
+      <th scope="col" class="col-sm-2">Situación pantalla</th>
+      <th scope="col" class="col-sm-1">Estado</th>
+      <th scope="col" class="col-sm-1">Acciones</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let site of listSites | site:filterSite:page:linesPages:listSites.length;  let i =index">
+      <td >{{site.id}}<span *ngIf="site.filter" class="badge bg-warning text-dark">{{site.customer.name}}</span></td>
+      <td>{{site.siteComercialId}}</td>
+      <td>{{site.name}}</td>
+      <td>{{site.descriptionLocation}}</td>
+      <td>{{site.screenLocation.description}}</td> 
+      <td>   
+        <i *ngIf="site.status.id===1" class="bi bi-cone-striped" style="font-size: 1rem;"
+        placement="bottom" ngbTooltip="{{site.status.description}}" [openDelay]="300"></i>
+        <i *ngIf="site.status.id===2" class="bi bi-check-circle" style="font-size: 1rem;"
+        placement="bottom" ngbTooltip="{{site.status.description}}" [openDelay]="300"></i>
+        <i *ngIf="site.status.id===3" class="bi bi-exclamation-circle" style="font-size: 1rem;"
+        placement="bottom" ngbTooltip="{{site.status.description}}" [openDelay]="300"></i>
+        <i *ngIf="site.status.id===4" class="bi bi-x-circle" style="font-size: 1rem;"
+        placement="bottom" ngbTooltip="{{site.status.description}}" [openDelay]="300"></i>
+      </td>
+      <td>
+        <button type="button" 
+                class="btn btn-light btn-sm mr-1" 
+                (click)="editSite(site)" 
+                placement="bottom" ngbTooltip="Editar" [openDelay]="300">
+          <i class="fas fa-edit"></i>
+        </button>
+        &nbsp;
+        <button type="button" 
+                class="btn btn-light btn-sm" 
+                (click)="removeSite(site)"
+                placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
+          <i class="far fa-trash-alt"></i>
+        </button>
+      </td>
+    </tr> 
+  </tbody>
+</table>
+
+
+<div class="text-center mt-3" *ngIf="cargando">
+  <div class="spinner-border" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+<div class="d-grid text-center d-md-block" 
+  *ngIf="listSites.length>linesPages">
+  <button class="btn btn-outline-secondary btn-sm"
+          (click)="prevPage()"
+          [disabled]="page===0">
+    Pag. Anterior
+  </button>
+  &nbsp;
+  <button class="btn btn-outline-secondary btn-sm"
+          (click)="nextPage()"
+          [disabled]="(listSites |site:filterSite:page:linesPages).length<linesPages"> 
+    Pag. Siguiente
+  </button>
+</div>
+
+

@@ -8,6 +8,8 @@ import {UserExceptionsComponent} from './pages/users/user-exceptions/user-except
 import {VenuesListComponent} from './pages/venues/venues-list/venues-list.component';
 import {VenueComponent} from './pages/venues/venue/venue.component';
 import {HomeComponent} from './pages/home/home.component';
+import {SitesListComponent} from './pages/sites/sites-list/sites-list.component';
+import {SiteComponent} from './pages/sites/site/site.component';
 
 const routes: Routes = [
   {
@@ -43,8 +45,12 @@ const routes: Routes = [
     component:VenueComponent
   },
   {
-    path:'site',
-    component:HomeComponent
+    path:'site-list',
+    component:SitesListComponent
+  },
+  {
+    path:'site/:id',
+    component:SiteComponent
   },
   {
     path:'**',

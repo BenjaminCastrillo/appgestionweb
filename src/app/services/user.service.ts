@@ -55,30 +55,7 @@ export class UserService {
     return this.http.get<any>(`${this.url}/roles/${this.lang}`);
   }
 
-  
-  // Validaciones asíncronas 
-  existsEmailUser(control:FormControl,a:any[]):Promise<ErrorValidate>|Observable<ErrorValidate>{
-    let email=control.value;
- 
-    if (!control.value){
-      return Promise.resolve(null);
-    }
-     return new Promise ((resolve,reject)=>{
-       this.getUserByEmail(email)
-       .subscribe(
-         resp=>{
 
-            if (resp.data.length>0) 
-            {
-              resolve ({exists:true});
-         }
-            else resolve(null);
-          },
-          error=>{
-            resolve(null);
-          })
-     });
-  }
   
 }
 

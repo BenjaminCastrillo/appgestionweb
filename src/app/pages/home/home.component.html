@@ -1,72 +1,143 @@
-<div class="d-flex justify-content-center">
-home work
+<h1>home work</h1>>
+<div class="row mb-3">
+  <!-- Marca del local 
+  <div class="col-2">
+    <label class="form-label" for="inputMarca">Marca Comercial</label>
+  
+    <select class="form-select" formControlName="marca">
+      <option value="{{a.id}}" *ngFor="let a of brands | notdeletedbrands:marcaBorrada" 
+              [selected]="selectMarca(a.id)" 
+              [class.is-invalid]="marcaNoValido">
+              {{a.description}}  <span class="text-danger" *ngIf="a.deleted">(deleted)</span></option> 
+    </select>
+    <small *ngIf="marcaNoValido" class="text-danger">{{msgError('marca')}}</small>
+
+  </div>
+   Fin marca del local -->
+  <!-- Imagen Marca del local 
+  <div  class="col-1 mt-3">
+    <img id="fileMarca" class="img-thumbnail" width="100" [src]="binariosImagenMarca">  
+  </div>
+   Fin Imagen Marca del local -->
+  <!-- Región de mercado
+  <div class="col-3">
+    <label class="form-label" for="inputRegionComercial">Región Comercial</label>
+    <select class="form-select" formControlName="regionComercial">
+      <option value="{{a.id}}" *ngFor="let a of marketRegions | notdeletedmarketregion:regionComercialBorrada" 
+              [selected]="selectRegionComercial(a.id)" 
+              [class.is-invalid]="regionComercialNoValido">
+              {{a.description}} <span class="text-danger" *ngIf="a.deleted">(deleted)</span></option>
+    </select>
+    <small *ngIf="regionComercialNoValido" class="text-danger">{{msgError('regionComercial')}}</small>
+  </div>
+   Fin Región de mercado -->
+
+  <!-- Imagen del local
+  <div class="col-3">     
+    <label class="form-label" for="inputImagenLocal">Imagen del local</label>  
+    <input (change)="capturarFile($event)"
+      class="form-control"
+      type="file"
+      accept="image/png/jpeg"
+      formControlName="imagenLocal">         
+  </div>
+<div class="col-3 mt-3">
+    <img id="fileMarca" class="img-fluid"  width="300"  [src]="binariosImagenLocal">
 </div>
-    
-<div>  
-  <!-- Titulos de pestañas -->
-  <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="marca-tab" data-bs-toggle="tab" data-bs-target="#marca" type="button" role="tab" aria-controls="marca" aria-selected="true">Marcas</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="regionmercado-tab" data-bs-toggle="tab" data-bs-target="#regionmercado" type="button" role="tab" aria-controls="regionmercado" aria-selected="false">Regiones de Mercado</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="localizacionpantalla-tab" data-bs-toggle="tab" data-bs-target="#localizacionpantalla" type="button" role="tab" aria-controls="localizacionpantalla" aria-selected="false">Localización de pantallas</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="codigo-tab" data-bs-toggle="tab" data-bs-target="#codigo" type="button" role="tab" aria-controls="codigo" aria-selected="false">Codificación de emplazamientos</button>
-    </li>
-  </ul>
+       Fin  Imagen del local-->
 
-  <!-- Contenidos pestañas -->
-  <div class="tab-content" id="myTabContent"> 
-    <!--  Pestaña Marcas Comerciales  -->
-    <div class="tab-pane fade show active mt-3" id="marca" role="tabpanel" aria-labelledby="marca-tab">
-      <div class="row">
-        <div class="col">
-         
-        </div>
-      </div>
-
-    </div>
-    <!-- Fin pestaña marcas comerciales -->  
-
-    <!-- Pestaña Región de mercado   -->
-    <div class="tab-pane fade mt-3" id="regionmercado" role="tabpanel" aria-labelledby="regionmercado-tab">  
-      <div class="row">
-        <div class="col">
-
-        </div>
-      </div>
-
-    </div>
-    <!-- Fin pestaña regiones comerciales -->
-    <!-- Localización de pantalla   -->
-    <div class="tab-pane fade  mt-3" id="localizacionpantalla" role="tabpanel" aria-labelledby="localizacionpantalla-tab">
-      <div class="row">
-        <div class="col">
-
-        </div>
-      </div>
-
-    </div>
-    <!-- Fin localizacion de pantallas -->
-    <!-- Codigos de emplazamiento   -->
-    <div class="tab-pane fade  mt-3" id="codigo" role="tabpanel" aria-labelledby="codigo-tab">
-      <div class="row">
-        <div class="col">
-
-        </div>
-      </div>
-
-    </div>
-    <!-- Fin codigo de emplazamientos -->
-  </div>  
-  <!-- Fin Contenidos pestañas -->
 </div>
+<!-- Fin 2 linea -->
 
-  <!-- Fin lista de clientes -->
+<!-- Localización     style="background-color: #F2F2F2;"  -->
+<hr>
+<div class="form-group row mb-2">
+<h5>Dirección</h5>
+<!-- Pais 
+<div class="col-2">
+  <label class="form-label" for="inputPais">Pais</label>
+  <select class="form-select" formControlName="pais">
+    <option  value="{{a.id}}" *ngFor="let a of countries" 
+            [selected]="selectPais(a.id)" 
+            [class.is-invalid]="paisNoValido">{{a.name}}</option>
+  </select>
+  <small *ngIf="paisNoValido" class="text-danger">{{msgError('pais')}}</small>
+</div>
+ Fin Pais -->
+<!-- Organizacion territorial
+<div class="row mt-2">
+  <div class="col-8">
+    <div class="col-9">
+      <table class="table table-borderless">
+        <thead class=table-light>
+        </thead>
+        <tbody formArrayName="localizacion">
+          <tr *ngFor="let a of localizacion.controls; let localizacionIndex=index" [formGroupName]="localizacionIndex">
+            <td>
+              {{a.get('nombreOrganizacionTerritorial').value}}:    
+            </td>
+            <td>      
+              <select class="form-select" formControlName="idEntidadTerritorial">
+                <option value="{{b.id}}" *ngFor="let b of location | territorialentities:localizacionIndex; let locationIndex=index" 
+                        [selected]="selectEntidadTerritorial(b.id,localizacionIndex,locationIndex)">
+                        {{b.territorialEntityName}}</option>
+              </select>
+            </td>  
+          </tr>
+        </tbody>
+      </table>  
+    </div>
+  </div>
+</div>
+Fin organizacion territorial -->
+<!--linea dirección -->
+<div class="form-group row mb-2">
+    <!-- Tipo de via
+    <div class="col-2">
+      <label class="form-label" for="inputTipoVia">Tipo de via</label>
+      <select class="form-select" formControlName="tipoVia">
+        <option   value="{{a.id}}" *ngFor="let a of roadTypes" 
+                  [selected]="selectTipoVia(a.id)" 
+                  [class.is-invalid]="tipoViaNoValido">{{a.description}}</option>
+      </select>
+      <small *ngIf="tipoViaNoValido" class="text-danger">{{msgError('tipoVia')}}</small>
+    </div>
+    Fin tipo de via -->
+<!-- Calle de local 
+<div class="col-6">
+  <label class="form-label" for="inputCalle">Dirección</label>
+  <input class="form-control"
+        id="inputCalle"
+        type="text"
+          formControlName="calle"
+        [class.is-invalid]="calleNoValido">
+  <small *ngIf="calleNoValido" class="text-danger">{{msgError('calle')}}</small>
+</div>
+ Fin calle de local -->
+<!-- número Calle de local
+  <div class="col-2">
+  <label class="form-label" for="inputNumero">Número</label>
+  <input class="form-control"
+        id="inputNumero"
+        type="text"
+          formControlName="numero"
+        [class.is-invalid]="numeroNoValido">
+  <small *ngIf="numeroNoValido" class="text-danger">{{msgError('numero')}}</small>
+</div>
+ Fin número calle de local -->
+<!-- Código postal de local
+<div class="col-2">
+  <label class="form-label" for="inputCodigoPostal">Código Postal</label>
+  <input class="form-control"
+        id="inputCodigoPostal"
+        type="text"
+        formControlName="codigoPostal"
+        [class.is-invalid]="codigoPostalNoValido">
+  <small *ngIf="codigoPostalNoValido" class="text-danger">{{msgError('codigoPostal')}}</small>
+</div>
+Fin número calle de local -->
 
-
-
+</div>
+<!-- Fin linea direccion-->   
+</div>
+<!-- Fin localizacion-->   

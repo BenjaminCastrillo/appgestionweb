@@ -39,6 +39,9 @@ export class CustomersListComponent implements OnInit {
   }
 
   removeCustomer(customer:Customer,i:number){
+
+  
+
     Swal.fire({
       title:'¿Desea borrar el registro?',
       text: `${customer.name}`,

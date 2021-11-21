@@ -18,6 +18,7 @@ export class VenuePipe implements PipeTransform {
       if (venue.id.toString().toLowerCase().indexOf(text.toLowerCase())>-1 ||
           venue.name.toLowerCase().indexOf(text.toLowerCase())>-1 ||
           venue.address.toLowerCase().indexOf(text.toLowerCase())>-1 ||
+          venue.postalCode.toLowerCase().indexOf(text.toLowerCase())>-1 ||
           venue.customer.name.toLowerCase().indexOf(text.toLowerCase())>-1 ||
           venue.location.findIndex(e=>e.territorialEntityName.toLowerCase().includes(text.toLowerCase()))>-1)      
       {

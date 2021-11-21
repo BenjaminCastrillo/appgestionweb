@@ -7,8 +7,6 @@ import { Customer } from '../interfaces/customer-interface';
 export class CustomerPipe implements PipeTransform {
 
   transform(customers: any, text: string,page:number,linesPage:number,longArray:number): Customer[] {
-    
-
     if (text==='') return customers.slice(page,page+linesPage) 
     
     const resultado=[];

@@ -8,12 +8,14 @@ export interface Customer {
   id:                  number;
   identification:      string;
   name:                string;
+  contactName?:        string;
   phoneNumber:         null | string;
   entryDate?:          null | Date;  
   brands:              Brand[];
   marketRegions:       MarketRegion[];
   locationsScreen:     LocationsScreen[];
   sitesComercialCodes: SitesComercialCode[];
+  schedules:           Schedule[];
 }
 
 export interface Brand {
@@ -44,4 +46,36 @@ export interface SitesComercialCode {
   acronym:     string;
   id_customer: number;
   deleted:     boolean;
+}
+
+export interface Schedule {
+  id:          number;
+  description: string;
+  startDate:   StartDate;
+  weekly:      Weekly[];
+  deleted:     boolean;
+}
+
+export interface StartDate {
+  id:             string;
+  description:    string|null;
+}
+
+export interface Week {
+  id:          string;
+  description: string;
+}
+
+export interface Month {
+  id:          string;
+  description: string;
+}
+
+export interface Weekly {
+  day:            string;
+  descriptionDay: string;
+  openingTime1:   string;
+  closingTime1:   string;
+  openingTime2:   string | null;
+  closingTime2:   string | null;
 }

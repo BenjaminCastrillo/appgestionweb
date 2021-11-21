@@ -66,6 +66,7 @@ export class UserComponent implements OnInit {
     this.userServices.getLanguages()
       .subscribe(resp=>{
         if (resp.result===true) this.languages=resp.data;
+  
         })
     this.userServices.getRoles()
       .subscribe(resp=>{
@@ -103,7 +104,8 @@ export class UserComponent implements OnInit {
     return this.userForm.get('rol').invalid && this.userForm.get('rol').touched;
   }
   get relacionUsuarioNoValido(){
-    return this.userForm.get('relacionUsuario').invalid && this.userForm.get('relacionUsuario').touched;
+    return this.userForm.get('relacionUsuario').invalid 
+            && this.userForm.get('relacionUsuario').touched;
   }
   get categoria(){
     return this.userForm.get('categoria') as FormArray;
@@ -120,7 +122,7 @@ export class UserComponent implements OnInit {
       nombre:         ['', Validators.required],
       apellido:       ['', Validators.required],
       ultimoAcceso:   [{value:'',disabled:true}],
-      fechaAlta:      [{value:'',disabled:true}],
+   //   fechaAlta:      [{value:'',disabled:true}],
       email:          ['', [Validators.required,
                       Validators.pattern('[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$')]
                       ,this.existsEmailUser.bind(this)],
@@ -170,7 +172,7 @@ export class UserComponent implements OnInit {
     this.userForm.get('rol').patchValue(user.rol.id);
     this.userForm.get('relacionUsuario').patchValue(user.relationship);
     this.userForm.get('ultimoAcceso').patchValue(user.lastAccess);
-    this.userForm.get('fechaAlta').patchValue(user.entryDate);
+ //   this.userForm.get('fechaAlta').patchValue(user.entryDate);
     this.userForm.get('notas').patchValue(user.notes);
 
     
@@ -207,6 +209,7 @@ export class UserComponent implements OnInit {
         this.userForm.get('password').patchValue(null)
     }
     });
+
   }
 
   newCategoria(a:number|null,b:string|null,c:string|null): FormGroup {
@@ -227,7 +230,6 @@ export class UserComponent implements OnInit {
   }
 
   addCategoria(){
-    //  this.customerForm.get('regionMercado').markAsUntouched();
       this.categoria.push(this.newCategoria(null,null,null));
     }
 

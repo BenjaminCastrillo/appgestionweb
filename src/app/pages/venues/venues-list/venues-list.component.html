@@ -31,7 +31,7 @@
 
   <tbody>
     <tr *ngFor="let venue of venues | venue:filterVenue:page:linesPages:venues.length; let i =index">
-      <td >{{venue.id}} <span *ngIf="venue.filter" class="badge bg-warning text-dark">cli</span></td>
+      <td >{{venue.id}} <span *ngIf="venue.filter" class="badge bg-warning text-dark">{{venue.customer.name}}</span></td>
       <td>{{venue.name}}</td>
       <td>{{venue.location[venue.location.length-1].territorialEntityName}} ({{venue.location[venue.location.length-2].territorialEntityName}})</td>
       <td>{{venue.roadType.description}} {{venue.address}} {{venue.streetNumber}}</td>

@@ -5,6 +5,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+
 import { PipesModule } from '../pipes/pipes.module';
 import { HomeComponent } from './home/home.component';
 
@@ -14,7 +16,8 @@ import { UsersListComponent } from './users/users-list/users-list.component';
 import { UserComponent } from './users/user/user.component';
 import { VenueComponent } from './venues/venue/venue.component';
 import { VenuesListComponent } from './venues/venues-list/venues-list.component';
-
+import { SitesListComponent } from './sites/sites-list/sites-list.component';
+import { SiteComponent } from './sites/site/site.component';
 
 
 @NgModule({
@@ -25,7 +28,7 @@ import { VenuesListComponent } from './venues/venues-list/venues-list.component'
     CustomerComponent, 
     CustomersListComponent,
     VenueComponent, 
-    VenuesListComponent, 
+    VenuesListComponent, SitesListComponent, SiteComponent, 
     ],
   imports: [
     CommonModule,
@@ -34,6 +37,7 @@ import { VenuesListComponent } from './venues/venues-list/venues-list.component'
     FormsModule,
     NgbModule,
     PipesModule,
+    NgMultiSelectDropDownModule.forRoot(),
   ],
   exports:[
     HomeComponent, 

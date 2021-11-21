@@ -7,21 +7,8 @@ import { Brand } from '../interfaces/venue-interface';
 })
 export class NotdeletedbrandsPipe implements PipeTransform {
 
-  transform(value: Brand[], ...args: unknown[]): Brand[] {
-    console.log('en la pipe',value);
-    let resultado:Brand[];
-    
-    resultado=value.filter(e=>!e.deleted)
-    // value.forEach(e=>{
-    //   console.log(e);
-    //   if (!e.deleted){
-    //     resultado.push(e)
-    //     console.log('no deleted');
-    //   }
-
-    // })
-    console.log(resultado);
-    return resultado;  
+  transform(value: Brand[], marcaBorrada: boolean): Brand[] {
+    return marcaBorrada?value:value.filter(e=>!e.deleted);  
   }
 
 }

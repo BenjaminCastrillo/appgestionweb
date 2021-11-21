@@ -1,7 +1,7 @@
 <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
   <!-- Bloque de botones -->
   <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">
-    <h4 class="col"> {{pageTitle}} (#{{currentUser.id}})</h4>
+    <h4 class="col"> {{pageTitle}} <span *ngIf="!newUser"><small class="text-muted">(#{{currentUser.id}})</small></span></h4>
     <button type="button" class="btn btn-danger btn-block"
       (click)="abandonarPagina()"> 
       <i class="fas fa-arrow-left"></i>
@@ -42,10 +42,11 @@
          <!-- Fecha de alta-->
          <div class="col-2" *ngIf="!newUser">
           <label class="form-label" for="inputfechaAlta">Fecha de alta</label>
-          <input class="form-control"
+          <p class=" p-2 cajaFecha">{{currentUser.entryDate|date:'mediumDate'}}</p>
+          <!-- <input class="form-control"
                 id="inputfechaAlta"
                 type="text"
-                formControlName="fechaAlta">
+                formControlName="fechaAlta"> -->
         </div>
         <!-- Fin fecha de alta -->
      
@@ -88,7 +89,8 @@
       <div class="col-2">
         <label class="form-label" for="inputidioma">Idioma</label>
         <select class="form-select" formControlName="idioma">
-          <option  value="{{a.id}}" *ngFor="let a of languages" [selected]="selectIdioma(a.id)"
+          <option  value="{{a.id}}" *ngFor="let a of languages" 
+                  [selected]="selectIdioma(a.id)"
                   [class.is-invalid]="idiomaNoValido">{{a.description}}</option>
         </select>     
         <small *ngIf="idiomaNoValido" class="text-danger">{{msgError('idioma')}}</small>
@@ -235,7 +237,7 @@
             <thead class="table-light">
               <tr>
                 <th scope="col" class="col-sm-1">#</th>
-                <th scope="col" class="col-sm-4">Cliente</th>
+                <th scope="col" class="col-sm-4">Nombre</th>
                 <th scope="col" class="col-sm-1">Acciones</th>
               </tr>
             </thead>
@@ -251,7 +253,7 @@
                     formControlName="nombre"
                     disabled
                     [class.is-invalid]="a.get('nombre').invalid && a.get('nombre').touched">
-                  <small *ngIf="a.get('nombre').invalid && a.get('nombre').touched" class="text-danger">{{msgErrorArray('nombre',categoriaIndex)}}</small>             
+                  <small *ngIf="a.get('nombre').invalid && a.get('nombre').touched" class="text-danger">{{msgErrorArray('nombre',clienteIndex)}}</small>             
                 </td>    
                 <td>
                   <button type="button" class="btn btn-light" 
@@ -271,7 +273,7 @@
 
       <!-- Pestaña categorias   -->
       <div class="tab-pane fade mt-3" id="categoria" role="tabpanel" aria-labelledby="categoria-tab">  
-        <div class="row">
+        <div class="row container">
           <div class="col">
             <table class="table">
               <thead class=table-light>

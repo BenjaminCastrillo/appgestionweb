@@ -15,7 +15,7 @@ export class VenuesListComponent implements OnInit {
   public cargando:boolean=false;
   public filterVenue:string='';
   public page:number=0;
-  public linesPages:number=8;
+  public linesPages:number=12;
 
 
   constructor(private venueServices:VenueService,
@@ -27,7 +27,6 @@ export class VenuesListComponent implements OnInit {
     .subscribe(resp=>{    
       if (resp.result===true){ 
         this.venues=resp.data;     
-        console.log(this.venues) ;
         this.cargando=false;   
       }
     });
@@ -52,16 +51,6 @@ export class VenuesListComponent implements OnInit {
         // this.venueServices.deleteVenue(venue.id.toString())
         // .subscribe(resp=>{
           this.venues.splice(this.venues.findIndex(e=> e.id===venue.id),1);
-          // },
-          // error=>{
-          //   Swal.fire({
-          //     title: 'Lo siento tuvimos un problema',
-          //     text:`El registro de ${venue.name} no se eliminó`,
-          //     confirmButtonColor: '#007bff',
-          //     icon:'error'
-          //   });
-          //   console.log(error.error.result);
-          // });
       }
 
     });

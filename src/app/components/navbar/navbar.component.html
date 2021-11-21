@@ -1,5 +1,5 @@
 
-<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #6ab04c;">
+<nav class="navbar navbar-expand-lg navbar-inverse bg-inverse" style="background-color: #6ab04c;">
   <div class="container-fluid">
     <a class="navbar-brand" [routerLink]= "['home']">
         <img src="assets/img/letra y.png" width="30" height="30" alt="">
@@ -12,7 +12,7 @@
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <!-- active -->
         <li class="nav-item" routerLinkActive="active"> 
-          <a class="nav-link" [routerLink]= "['customer-list']">Clientes</a>
+          <a class="nav-link active" [routerLink]= "['customer-list']">Clientes</a>
         </li>
         <li class="nav-item" routerLinkActive="active">
           <a class="nav-link" [routerLink]= "['user-list']">Usuarios</a>
@@ -21,7 +21,7 @@
           <a class="nav-link" [routerLink]= "['venue-list']">Locales</a>
         </li>
         <li class="nav-item" routerLinkActive="active">
-          <a class="nav-link" [routerLink]= "['site']">Emplazamientos</a>
+          <a class="nav-link" [routerLink]= "['site-list']">Emplazamientos</a>
         </li>
       </ul>
     </div>

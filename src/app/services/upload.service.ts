@@ -23,14 +23,17 @@ export class UploadService {
     case 'V':
       metodo='venueimage';
       break;
+    case 'S':
+      metodo='siteimage';
+      break;
     case 'C':
       metodo='contentimage';
       break;
-      default:
-        return
+    default:
+      return
     }
-return this.http.post(`${this.url}/${metodo}`,
-    file,{headers:httpHeaders})
+    return this.http.post(`${this.url}/${metodo}`,
+        file,{headers:httpHeaders})
   }
   
   getImage(file:string):Observable<any>{ 

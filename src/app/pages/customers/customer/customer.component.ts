@@ -2,12 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable} from 'rxjs';
 import Swal from 'sweetalert2';
-import {FormBuilder, FormGroup,Validators, FormArray} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
+import {NgbModal, NgbModalConfig,ModalDismissReasons, NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+
 
 
 import { CustomerService } from '../../../services/customer.service';
-import { UploadService } from '../../../services/upload.service';
-import { Customer } from '../../../interfaces/customer-interface';
+import { UploadService  } from '../../../services/upload.service';
+import { Customer,Week, Month } from '../../../interfaces/customer-interface';
 import { UtilService } from '../../../services/util.service';
 
 
@@ -36,17 +38,30 @@ export class CustomerComponent implements OnInit {
   public filesImagenMarca: Array <ImagenesFile> =[];
   public binariosImagenMarca:Array <String> = [];
   public photoSelected: string | ArrayBuffer;
+  public week:Week[]=[];
+  public month:Month[]=[];
+  public ordenHorario:number=0;
+  public indiceHorario:number=0;
+  
+  public closeResult = '';
 
   private urlImage='http://192.168.1.42:3700/brandimage/';
   private imageDefault='../../../../assets/img/noimage.png';
+
+
+
+  public horarioArray: FormArray;
   
   constructor(private fb: FormBuilder,
               private customerServices:CustomerService,
               private uploadServices:UploadService,
               private utilService:UtilService,
-              private ActivatedRoute:ActivatedRoute ,
-              private router:Router
-              ) {
+              private ActivatedRoute:ActivatedRoute,
+              private router:Router,
+              config: NgbModalConfig, private modalService: NgbModal) 
+  {               
+      config.backdrop = 'static';
+      config.keyboard = false; 
       this.crearFormulario();
 
   }
@@ -63,10 +78,18 @@ export class CustomerComponent implements OnInit {
       this.customerServices.getCustomerById(this.customerId)
       .subscribe(resp=>{
           this.currentCustomer=resp.data[0];
-          this.loadData(resp.data[0]);
+          console.log('el customer:',this.currentCustomer);
+          this.loadData(this.currentCustomer);
         })
     }      
-    
+    this.customerServices.getWeek()
+    .subscribe(resp=>{
+      this.week=resp;
+    });    
+    this.customerServices.getMonth()
+    .subscribe(resp=>{
+      this.month=resp;
+    });  
   }
 
   get IDNoValido() {
@@ -81,16 +104,35 @@ export class CustomerComponent implements OnInit {
       this.customerForm.get('nombre').touched
     );
   }
+  get nombreContactoNoValido() {
+    return (
+      this.customerForm.get('nombreContacto').invalid &&
+      this.customerForm.get('nombreContacto').touched
+    );
+  }
   get telefonoNoValido() {
     return (
       this.customerForm.get('telefono').invalid &&
       this.customerForm.get('telefono').touched
     );
-  } 
+  }
+  get diaInicioNoValido() {
+    return (
+      this.customerForm.get('diaInicio').invalid && 
+      this.customerForm.get('diaInicio').touched
+    );
+  }
+  get mesInicioNoValido() {
+    const dia=this.customerForm.get('diaInicio').value;
+    return (
+      this.customerForm.get('mesInicio').invalid && 
+      this.customerForm.get('mesInicio').touched
+    );
+  }
   get marca(): FormArray {
     return this.customerForm.get('marca') as FormArray;
   }
-  get regionMercado(){
+  get regionMercado(): FormArray{
     return this.customerForm.get('regionMercado') as FormArray;
   }
   get localizacionPantalla(){
@@ -99,8 +141,15 @@ export class CustomerComponent implements OnInit {
   get codigo(){
     return this.customerForm.get('codigo') as FormArray;
   } 
-
+  get horario(){
+    return this.customerForm.get('horario') as FormArray;
+  }
+  get weekly(){
+     return this.horario.controls[this.ordenHorario].get('weekly') as FormArray;
+  }
   
+
+
   crearFormulario() {
     this.customerForm = this.fb.group({
       identification: ['',
@@ -110,25 +159,22 @@ export class CustomerComponent implements OnInit {
       ],this.customerServices.existsIdCustomer.bind(this.customerServices) // validador asincrono
     ],
     nombre: ['', Validators.required],
-    fechaAlta:[{value:'',disabled:true}],
+    nombreContacto:['', Validators.required],
+    // fechaAlta:[{value:'',disabled:true}],
     telefono: ['', [Validators.required, Validators.pattern('[0-9]*'),Validators.maxLength(18)]],
     marca: this.fb.array([]),
     regionMercado:this.fb.array([]),
     localizacionPantalla:this.fb.array([]),
-    codigo:this.fb.array([])
+    codigo:this.fb.array([]),
+    horario:this.fb.array([]),   
   });
+
+
 }
-// crearListeners(){
-    
-
-  //   this.customerForm.valueChanges.subscribe(valor=>{
-
-  //   })
-  // }
 
   loadData(customer:Customer){  
-    let mr=[], ls=[], co=[], br=[];
-    
+    let mr=[], ls=[], co=[], br=[],sc=[],scw=[];
+
     customer.brands.forEach((elem,index)=>{
       br.push(this.newMarca(elem.description,elem.image,elem.color,elem.id))
       if (elem.image){
@@ -146,18 +192,39 @@ export class CustomerComponent implements OnInit {
     customer.sitesComercialCodes.forEach(elem=>{
         co.push(this.newCodigo(elem.id,elem.acronym))
     });
-   
+
+    customer.schedules.forEach((elem,ind)=>{
+      sc.push(this.newHorario(elem.id,elem.description,elem.startDate.id.substring(0,2).replace(/^0+/, ''),elem.startDate.id.substring(2).replace(/^0+/, '')))    
+      scw.push(new Array())
+      elem.weekly.forEach(e=>{
+        scw[ind].push(this.newHorarioSemanal(e.day,e.descriptionDay,e.openingTime1,e.closingTime1,e.openingTime2,e.closingTime2))
+      })
+  
+    });
+
+
     this.customerForm.get('identification').patchValue(customer.identification);
     this.customerForm.get('nombre').patchValue(customer.name);
-    this.customerForm.get('fechaAlta').patchValue(customer.entryDate);
+    this.customerForm.get('nombreContacto').patchValue(customer.contactName);
+  //  this.customerForm.get('fechaAlta').patchValue(customer.entryDate);
     this.customerForm.get('telefono').patchValue(customer.phoneNumber);
   
     this.customerForm.setControl('marca',this.fb.array(br||[]));
     this.customerForm.setControl('regionMercado',this.fb.array(mr||[]));
     this.customerForm.setControl('localizacionPantalla',this.fb.array(ls||[]));
     this.customerForm.setControl('codigo',this.fb.array(co||[]));
+    this.customerForm.setControl('horario',this.fb.array(sc||[]));
+   
+ 
+    this.horario.controls.forEach((elem,ind) => {
+      this.ordenHorario=ind;
+      scw[ind].forEach(element => {
+        this.weekly.push(element)
+      });
+    });
   return
   }
+
   newMarca(a:string|null,b:string|null,c:string|null,d: number|null): FormGroup {
     return this.fb.group({
       nombreMarca: [a, Validators.required],
@@ -184,7 +251,39 @@ export class CustomerComponent implements OnInit {
   newCodigo(a:number|null,b:string|null): FormGroup {
     return this.fb.group({
       idCodigo: [a],
-      acronymCodigo: [b, [Validators.required,Validators.maxLength(5)]],
+      acronymCodigo: [b, [Validators.required,Validators.maxLength(5)]]// validador asincrono],
+    });
+  }
+
+
+  newHorario(a:number|null,b:string|null,c:string|null,d:string|null): FormGroup {
+    return this.fb.group({
+      idHorario:           [a],
+      descripcionHorario:  [b,Validators.required],
+      diaInicio:           [c,[Validators.required,
+                              Validators.pattern('[0-9]*'),
+                              Validators.maxLength(2)]],
+      mesInicio:           [d,Validators.required],
+      weekly:              this.fb.array([]),
+                              
+    },{
+      validators: this.customerServices.dateStartCorrect('diaInicio','mesInicio')
+    });
+  }
+
+  newHorarioSemanal(a:string|null,b:string|null,c:string|null,
+                    d:string|null,e:string|null,f:string|null): FormGroup {
+    return this.fb.group({
+      idDiaSemana:           [a],
+      descripcionDiaSemana:  [b],
+      horaApertura1:         [c,[Validators.required]],
+      horaCierre1:           [d,[Validators.required]],
+      horaApertura2:         [e],
+      horaCierre2:           [f],
+    },{
+      validators: this.customerServices.timeCloseCorrect('horaApertura1','horaCierre1',
+                                                          'horaApertura2','horaCierre2')
+
     });
   }
 
@@ -193,7 +292,6 @@ export class CustomerComponent implements OnInit {
     this.binariosImagenMarca.push(null);
   }
   addRegionMercado(){
-  //  this.customerForm.get('regionMercado').markAsUntouched();
     this.regionMercado.push(this.newRegionMercado(null,null));
   }
   addLocalizacionPantalla(){
@@ -202,6 +300,19 @@ export class CustomerComponent implements OnInit {
   addCodigo(){
     this.codigo.push(this.newCodigo(null,null));
   }
+  addHorario(){
+    let we=[];
+  //  const num:number=Math.random()*50+1;
+    const horarioGroup=this.newHorario(null,null,'1',null)
+    // creamos horario semanal
+    this.week.forEach(elem=>{    
+      we.push(this.newHorarioSemanal(elem.id,elem.description,null,null,null,null))
+    });
+ 
+    horarioGroup.setControl('weekly',this.fb.array(we||[]));
+    this.horario.push(horarioGroup);
+  }
+
   removeMarca(marcaIndex: number) {
     this.marca.removeAt(marcaIndex);
     this.customerForm.markAsTouched();
@@ -220,31 +331,131 @@ export class CustomerComponent implements OnInit {
   this.customerForm.markAsTouched();
   }
 
+  removeHorario(i:number){
+    this.horario.removeAt(i);
+    this.customerForm.markAsTouched();
+  }
+  selectMesHorario(elem:number,i:number){
+     return elem==this.horario.at(i).get('mesInicio').value?true:false;
+  }
+  
+  // setHorario(i:number,a:FormGroup){
+  setHorario(content:any,i:number){
+    this.ordenHorario=i;
+    this.indiceHorario=i;
+  
+    let prevScheduler=[];
+    // Guardamos los valores iniciales por si pulsa el boton X
+    this.weekly.controls.forEach((elem,indice) => {
+      prevScheduler.push({
+        horaInicio1:elem.get('horaApertura1').value,
+        horaFin1:elem.get('horaCierre1').value,
+        horaInicio2:elem.get('horaApertura2').value,
+        horaFin2:elem.get('horaCierre2').value
+      });
+    });
+
+    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title',  size: 'lg' }).result.then((result) => {
+      if(this.weekly.invalid){
+        Swal.fire({
+          title: 'El horario no esta bien configurado',
+          text:`Por favor revise los datos introducidos`,
+          confirmButtonColor: '#007bff',
+          icon:'warning'
+        });
+
+      }
+      this.closeResult = `Closed with: ${result}`;
+    }, (reason) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+      if(reason=='Cross click'){
+        // cargamos los horarios inciales por pulsa X
+        for (let ind=0;ind<7;ind++){
+          this.weekly.controls[ind].get('horaApertura1').patchValue(prevScheduler[ind].horaInicio1);
+          this.weekly.controls[ind].get('horaCierre1').patchValue(prevScheduler[ind].horaFin1);
+          this.weekly.controls[ind].get('horaApertura2').patchValue(prevScheduler[ind].horaInicio2);
+          this.weekly.controls[ind].get('horaCierre2').patchValue(prevScheduler[ind].horaFin2); 
+        }
+      }
+    });
+
+  }
+
+  private getDismissReason(reason: any): string {
+    if (reason === ModalDismissReasons.ESC) {
+      return 'by pressing ESC';
+    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      return 'by clicking on a backdrop';
+    } else {
+      return `with: ${reason}`;
+    }
+  }
+
+  repetirHorarioDia(i:number){
+
+    for (let ind=i+1;ind<7;ind++){
+      this.weekly.controls[ind].get('horaApertura1').patchValue(this.weekly.controls[i].get('horaApertura1').value);
+      this.weekly.controls[ind].get('horaCierre1').patchValue(this.weekly.controls[i].get('horaCierre1').value);
+      this.weekly.controls[ind].get('horaApertura2').patchValue(this.weekly.controls[i].get('horaApertura2').value);
+      this.weekly.controls[ind].get('horaCierre2').patchValue(this.weekly.controls[i].get('horaCierre2').value); 
+    }
+    return
+  }
+
+  borrarHorarioDia(i:number){
+      this.weekly.controls[i].get('horaApertura1').patchValue(null);
+      this.weekly.controls[i].get('horaCierre1').patchValue(null);
+      this.weekly.controls[i].get('horaApertura2').patchValue(null);
+      this.weekly.controls[i].get('horaCierre2').patchValue(null); 
+
+      this.weekly.controls[i].get('horaApertura1').markAsTouched();  
+      this.weekly.controls[i].get('horaCierre1').markAsTouched();
+      this.weekly.controls[i].get('horaApertura2').markAsTouched();
+      this.weekly.controls[i].get('horaCierre2').markAsTouched(); 
+
+    return
+  }
   
   onSubmit() {
-    
+    let hi:string;
+    console.log('lo que voy a grabar del customer',this.customerForm)
     if (this.customerForm.touched){
+      
       if( this.customerForm.invalid){
-        console.log('MENSAJE DATOS ERRONEOS MENSAJE Y SIGO');
+        let mensajeError='Datos Incorrectos';       
+        if(this.customerForm.get('horario').invalid){
+          let horarioIncorrecto=this.horario.controls.find(elem=>elem.invalid);
+          hi=horarioIncorrecto.get('descripcionHorario').value==null?'':horarioIncorrecto.get('descripcionHorario').value
+          mensajeError = 'Falta completar el horario ' + hi;
+        }
+        Swal.fire({
+        title: mensajeError,
+        text:'por favor revise la información introducida',
+        confirmButtonColor: '#007bff',
+        icon:'error'
+        });
+
       } else{
         let peticionHtml: Observable <any>;
-        let mr=[], ls=[], co=[], br=[];    
+        let mr=[], ls=[], co=[], br=[], sc=[];    
         // Preparar los datos
         br=this.respMarca();
         mr=this.respRegionMercado();
         ls=this.respLocalizacionPantalla();
         co=this.respCodigo();
-
+        sc=this.respHorario();
         let respuesta:Customer ={
               id                  :this.customerId==='nuevo'?null:Number(this.customerId),
               identification      :this.customerForm.get('identification').value,
               name                :this.customerForm.get('nombre').value,
+              contactName         :this.customerForm.get('nombreContacto').value,
               phoneNumber         :this.customerForm.get('telefono').value,
               entryDate           :this.customerForm.get('fechaAlta').value,
               brands              :br,
               marketRegions       :mr,
               locationsScreen     :ls,
-              sitesComercialCodes :co
+              sitesComercialCodes :co,
+              schedules           :sc
         }
         if (this.customerId==='nuevo'){
           peticionHtml=this.customerServices.saveCustomer(respuesta);
@@ -439,7 +650,7 @@ export class CustomerComponent implements OnInit {
     this.codigo.controls.forEach((elem,index) => {
       r.push({
         id:elem.get('idCodigo').value,
-        acronym:elem.get('acronymCodigo').value,
+        acronym:elem.get('acronymCodigo').value.trim(),
         deleted:false
       })
     });
@@ -455,8 +666,54 @@ export class CustomerComponent implements OnInit {
         }
       });
     }  
+    return r;
+  }
+
+
+  respHorario(){
+    let r=[]
+    this.horario.controls.forEach((elem,index) => {
+      let rr=[];
+      this.ordenHorario=index;
+      this.weekly.controls.forEach(e=>{
+          rr.push({
+            day:           e.get('idDiaSemana').value,
+            descriptionDay:e.get('descripcionDiaSemana').value,
+            openingTime1:  e.get('horaApertura1').value,
+            closingTime1:  e.get('horaCierre1').value,
+            openingTime2:  e.get('horaApertura2').value,
+            closingTime2:  e.get('horaCierre2').value,
+          })
+      })
+      r.push({
+        id:elem.get('idHorario').value,
+        description:elem.get('descripcionHorario').value,
+        startDate:{
+          id: this.utilService.zeroFill(elem.get('diaInicio').value,2)+this.utilService.zeroFill(elem.get('mesInicio').value,2),
+          description: null
+        },      
+        weekly:rr,
+        deleted:false
+      })
+    });
+    if (this.customerId!='nuevo'){  
+      this.currentCustomer.schedules.forEach((elem,index) => {    
+        let resultado = r.find(a=>a.id===elem.id)
+        if(resultado===undefined){
+          r.push({
+            id:elem.id,
+            description:elem.description,    
+            startDate:elem.startDate,
+            weekly:elem.weekly,
+            deleted:true
+          })
+        }
+      });
+    }  
 
     return r;
+
+
   }
 
   msgError(campo: string): string {
@@ -468,7 +725,7 @@ export class CustomerComponent implements OnInit {
     if(this.customerForm.get(campo).hasError('minlength'))
       return `La longitud mínima del campo ${campo} es ${this.customerForm.get(campo).errors.minlength.requiredLength}`;
     if(this.customerForm.get(campo).hasError('maxlength'))
-      return `La longitud máxima del campo ${campo} es ${this.customerForm.get(campo).errors.maxlength.requiredLength}`;
+      return `La longitud máxima del campo es ${this.customerForm.get(campo).errors.maxlength.requiredLength}`;
 
     return message;
 }
@@ -490,12 +747,41 @@ export class CustomerComponent implements OnInit {
       case 'acronymCodigo':
         controlElementoArray=this.codigo.at(i).get('acronymCodigo');
         break;
+      case 'descripcionHorario':
+        controlElementoArray=this.horario.at(i).get('descripcionHorario');
+        break;
+      case 'diaInicio':
+          controlElementoArray=this.horario.at(i).get('diaInicio');
+      break;
+      case 'mesInicio':
+        controlElementoArray=this.horario.at(i).get('mesInicio');
+        break;
+      case 'horaApertura1':
+        controlElementoArray=this.weekly.at(i).get('horaApertura1');
+        break;
+      case 'horaCierre1':
+        controlElementoArray=this.weekly.at(i).get('horaCierre1');
+        break;
+      case 'horaApertura2':
+        controlElementoArray=this.weekly.at(i).get('horaApertura2');
+        break;
+      case 'horaCierre2':
+        controlElementoArray=this.weekly.at(i).get('horaCierre2');
+        break;
       default:
         return;
     }
     if (controlElementoArray.hasError('required')) return 'El campo es obligatorio';  
     if (controlElementoArray.hasError('maxlength'))   
-        return `La longitud máxima del campo ${campo} es ${controlElementoArray.errors.maxlength.requiredLength}`;
+        return `La longitud máxima del campo es ${controlElementoArray.errors.maxlength.requiredLength}`;
+    if (controlElementoArray.hasError('pattern')) return 'Formato incorrecto';  
+    if (controlElementoArray.hasError('wrongStartDay')) return 'NUNCA SALTO';  
+    if (controlElementoArray.hasError('wrongStartDate')) return 'El dia de inicio del periodo es incorrecto';  
+    if (controlElementoArray.hasError('wrongEndTime')) return 'La hora de cierre es incorrecta';  
+    
+    if (controlElementoArray.hasError('wrongStartTime')) return 'La hora de apertura es incorrecta';  
+    
+    
     
     return message;
   }
