@@ -3,14 +3,14 @@
     <!-- Bloque de botones -->
     <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">
       <h4 class="col"> {{tituloPagina}} <small class="text-muted">(#{{currentSite.id}})</small></h4>  
-      <button type="button" class="btn btn-danger btn-block"
+      <button type="button"  class="btn btn-outline-primary btn-block"
         (click)="abandonarPagina()"> 
         <i class="fas fa-arrow-left"></i>
         Regresar
       </button>
       <!-- Boton guardar formulario-->
       <label class="col-form-label">&nbsp;</label>
-      <button type="submit" class="btn btn-outline-primary btn-block">
+      <button type="submit"  class="btn btn-success btn-block">
         Guardar
       </button>
     </div>
@@ -22,7 +22,7 @@
     </div>
     <div class="row datosVenue">
       <div class="col-3 imagenVenue">
-        <img id="fileVenue" class="img-fluid"  width="300" [src]="binariosImagenVenue">  
+        <img id="fileVenue" class="img-fluid rounded-3"  width="300" [src]="binariosImagenVenue">  
       </div>    
       <div class="col-6">
         <div class="row">
@@ -58,7 +58,7 @@
         </div>      
       </div>    
       <div class="col-3 imagenMap">
-        <img id="fileVenue" class="img-fluid"  width="300" src="../../../../assets/img/maps.jpeg">  
+        <img id="fileVenue" class="img-fluid rounded-3"  width="300" src="../../../../assets/img/maps.jpeg">  
       </div>      
     </div>
     <!-- Fin segunda linea bloque datos del local-->
@@ -66,11 +66,15 @@
   <!-- Fin Bloque visualizacion datos de local -->
   <!-- Bloque formulario datos del emplazamiento -->
   <div class="row mt-4">
-    <div class="col">
-      <p class="h5">Código de emplazamiento: {{currentSite.siteComercialId}}</p>  
+    <div class="col-4">
+      <p class="fs-5">Código de emplazamiento: {{currentSite.siteComercialId}}</p>  
     </div>
-    <div class="col text-end">
-      <p class="h5">Estado: {{currentSite.status.description}}</p>  
+    <div class="col-2">
+      <p class="fs-5">Estado: {{currentSite.status.description}}</p>  
+    </div>
+    <div class="col-2">
+      <p *ngIf="currentSite.player.license.valid" class="text-success fs-5">{{currentSite.player.license.text}}</p>  
+      <p *ngIf="!currentSite.player.license.valid" class="text-danger fs-5"><strong>{{currentSite.player.license.text}}</strong></p>  
     </div>
   </div>
   <!--1 linea -->
@@ -125,7 +129,7 @@
     <!-- Fin input imagen del local -->       
     <!-- Imagen del local-->
     <div class="col-3 mt-2">
-      <img id="fileSite" class="img-fluid"  width="200"  [src]="binariosImagenEmplazamiento">
+      <img id="fileSite" class="img-fluid rounded-3"  width="200"  [src]="binariosImagenEmplazamiento">
     </div>
     <!-- Fin Imagen del local-->
    
@@ -361,6 +365,10 @@
                         <table>
                           <tbody>
                             <tr>
+                              <td *ngIf="currentSite.player.license.valid" class="text-success fs-5"><strong>Licencia activa</strong></td>
+                              <td *ngIf="!currentSite.player.license.valid" class="text-danger fs-5"><strong>Licencia expirada</strong></td>
+                            </tr>
+                            <tr>
                               <td><strong>Número de licencia:</strong></td>
                               <td>{{currentSite.player.license.licenseNumber}}</td>  
                             </tr>
@@ -383,6 +391,7 @@
                   </div>
         </div>
       </div>
+
       <!-- Fin Pestaña player  -->
 
     </div>    <!-- Fin Contenidos pestañas -->

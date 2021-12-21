@@ -18,17 +18,18 @@ export interface Site {
   on_off:              boolean;
   text:                null;
   screenLocation:      ScreenLocation;
+  screen:              Screen;
+  player:              Player;
   category?:           Category[];
   filter?:             boolean    ;
   location?:           Location[];
-  roadType?:            RoadType;
-  address?:             string;
-  streetNumber?:        string;
-  postalCode?:          string;
-  latitude?:            string;
-  longitude?:           string;
-  screen:              Screen;
-  player:              Player;
+  roadType?:           RoadType;
+  address?:            string;
+  streetNumber?:       string;
+  postalCode?:         string;
+  latitude?:           string;
+  longitude?:          string;
+  descriptionLocation?:string;
 }
 
 
@@ -152,5 +153,11 @@ export interface License {
   durationMonths:    number
   licenseNumber:     string;
   valid:             boolean;
+  text:              string | null;
+}
+
+export interface siteStatus {
+  siteId:         number;
+  newStatus:      number;
 }
 

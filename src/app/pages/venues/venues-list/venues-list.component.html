@@ -17,20 +17,20 @@
           placeholder="Buscar por ID, nombre, localidad, cliente, ..." 
           aria-label="Search">
 </div>
-<table class="table table-condensed table-striped" *ngIf="!cargando && venues.length>0" >
+<table  matSort (matSortChange)="sortData($event)" class="table table-condensed table-striped" *ngIf="!cargando && sortedData.length>0" >
   <thead>
     <!-- [ngStyle]="{'width':'100px'}" -->
     <tr>
-      <th scope="col" class="col-sm-1">#ID</th>
-      <th scope="col" class="col-sm-3">Nombre</th>
-      <th scope="col" class="col-sm-3">Localidad</th>
-      <th scope="col" class="col-sm-3">Dirección</th>
+      <th scope="col" class="col-sm-1" mat-sort-header="id">#ID</th>
+      <th scope="col" class="col-sm-3" mat-sort-header="nombre">Nombre</th>
+      <th scope="col" class="col-sm-3" mat-sort-header="localizacion">Localidad</th>
+      <th scope="col" class="col-sm-3" mat-sort-header="direccion">Dirección</th>
       <th scope="col" class="col-sm-2">Acciones</th>
     </tr>
   </thead>
 
   <tbody>
-    <tr *ngFor="let venue of venues | venue:filterVenue:page:linesPages:venues.length; let i =index">
+    <tr *ngFor="let venue of sortedData | venue:filterVenue:page:linesPages:sortedData.length; let i =index">
       <td >{{venue.id}} <span *ngIf="venue.filter" class="badge bg-warning text-dark">{{venue.customer.name}}</span></td>
       <td>{{venue.name}}</td>
       <td>{{venue.location[venue.location.length-1].territorialEntityName}} ({{venue.location[venue.location.length-2].territorialEntityName}})</td>
@@ -52,7 +52,7 @@
         &nbsp;
         <button type="button" 
                 class="btn btn-light btn-sm position-relative" 
-                (click)="sitesList(venue)"
+                (click)="sitesList(content,i)"
                 placement="bottom" ngbTooltip="Emplazamientos" [openDelay]="300">
                 <i class="fas fa-tv"></i>
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
@@ -60,6 +60,65 @@
                 </span>
         </button>    
        </td>
+
+   <!-- Modal  Lista de emplazamientos ng-bootstrap-->
+   <ng-template #content let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-horarios">Emplazamientos del local {{venue.name}}</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <table class="table">
+        <thead class=table-light>
+          <tr>
+            <th class="col-1">#ID</th>
+            <th class="col-1">Código</th>
+            <th class="col-3">Localización</th>
+            <th class="col-1">Estado</th>
+            <th class="col-1">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let d of venue.sites">       
+                <th>{{d.id}}</th>
+                <td>{{d.siteComercialId}}</td>
+                <td>{{d.screenLocation.description}}</td>
+
+                <td>   
+                  <i *ngIf="d.status.id===1" class="bi bi-cone-striped" style="font-size: 1rem;"
+                    placement="bottom" ngbTooltip="{{d.status.description}}" [openDelay]="300"></i>
+                  <i *ngIf="d.status.id===2" class="bi bi-check-circle" style="font-size: 1rem;"
+                    placement="bottom" ngbTooltip="{{d.status.description}}" [openDelay]="300"></i>
+                  <i *ngIf="d.status.id===3" class="bi bi-exclamation-circle" style="font-size: 1rem;"
+                    placement="bottom" ngbTooltip="{{d.status.description}}" [openDelay]="300"></i>
+                  <i *ngIf="d.status.id===4" class="bi bi-x-circle" style="font-size: 1rem;"
+                    placement="bottom" ngbTooltip="{{d.status.description}}" [openDelay]="300"></i>
+                  &nbsp;
+                  <span *ngIf="d.player.license.valid" class="text-white bg-success fs-5"
+                        placement="bottom" ngbTooltip="{{d.player.license.text}}" [openDelay]="300">
+                        <strong>L</strong></span>
+                  <span *ngIf="!d.player.license.valid" class="text-white bg-danger fs-5"
+                        placement="bottom" ngbTooltip="{{d.player.license.text}}" [openDelay]="300">
+                        <strong>L</strong></span>
+                </td>
+                <td>
+                  <button type="button" 
+                    class="btn btn-light btn-sm mr-1" 
+                    (click)="editSite(d.id)" 
+                    placement="bottom" ngbTooltip="Editar emplazamiento" [openDelay]="300">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                </td>
+            </tr>   
+        </tbody>
+      </table>
+    </div>
+  </ng-template>
+    <!-- Fin Modal  Horario semanal-->
+
+
     </tr> 
   </tbody>
 </table>
@@ -72,7 +131,7 @@
 </div>
 
 <div class="d-grid text-center d-md-block" 
-  *ngIf="venues.length>linesPages">
+  *ngIf="sortedData.length>linesPages">
   <button class="btn btn-outline-secondary btn-sm"
           (click)="prevPage()"
           [disabled]="page===0">
@@ -81,7 +140,7 @@
   &nbsp;
   <button class="btn btn-outline-secondary btn-sm"
           (click)="nextPage()"
-          [disabled]="(venues |venue:filterVenue:page:linesPages).length<linesPages"> 
+          [disabled]="(sortedData |venue:filterVenue:page:linesPages).length<linesPages"> 
     Pag. Siguiente
   </button>
 </div>

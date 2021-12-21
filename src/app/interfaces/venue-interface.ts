@@ -129,12 +129,12 @@ export interface NewSite {
   licenseDuration: number;
 }
 export interface Network {
-  id:          string;
+  id:          number;
   description: string;
 }
 
 export interface Status {
-  id:          string;
+  id:          number;
   description: string;
 }
 
@@ -180,6 +180,7 @@ export interface License {
   durationMonths:    number
   licenseNumber:     string;
   valid:             boolean;
+  text:              string| null;
 }
 
 export interface Week {

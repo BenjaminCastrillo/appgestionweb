@@ -329,6 +329,7 @@ export class UserComponent implements OnInit {
           title: invalidListCustomer?'Falta seleccionar el cliente':'Datos incorrectos' ,
           text:'por favor revise la información introducida',
           confirmButtonColor: '#007bff',
+          allowOutsideClick:false,
           icon:'error'
         });
       } else{
@@ -368,6 +369,7 @@ export class UserComponent implements OnInit {
           Swal.fire({
             title: `El registro ${resp.data.name}`,
             text:'se actualizó correctamente',
+            allowOutsideClick:false,
             confirmButtonColor: '#007bff',
             icon:'success'
           });
@@ -393,6 +395,7 @@ export class UserComponent implements OnInit {
         icon: 'info',
         confirmButtonColor: '#007bff',
         cancelButtonText:'Cancelar',
+        allowOutsideClick:false,
         showConfirmButton:true,
         showCancelButton:true,
       }).then(resp=>{

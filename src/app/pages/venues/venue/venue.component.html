@@ -2,14 +2,14 @@
   <!-- Bloque de botones -->
   <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">
     <h4 class="col"> {{tituloPagina}} <span *ngIf="!newVenue"><small class="text-muted">(#{{currentVenue.id}})</small></span></h4>  
-    <button type="button" class="btn btn-danger btn-block"
+    <button type="button" class="btn btn-outline-primary btn-block"
       (click)="abandonarPagina()"> 
       <i class="fas fa-arrow-left"></i>
       Regresar
     </button>
     <!-- Boton guardar formulario-->
     <label class="col-form-label">&nbsp;</label>
-    <button type="submit" class="btn btn-outline-primary btn-block">
+    <button type="submit" class="btn btn-success btn-block">
       Guardar
     </button>
   </div>
@@ -148,7 +148,7 @@
       <!-- Inicio columna derecha-->
       <!-- Imagen del local-->
       <div class="col-3">
-         <img id="fileVenue" class="img-fluid"  width="300"  [src]="binariosImagenLocal">
+         <img id="fileVenue" class="img-fluid rounded-3"  width="300"  [src]="binariosImagenLocal">
       </div>
       <!-- Fin Imagen del local-->
       <!-- Fin columna derecha-->
@@ -205,23 +205,6 @@
     </div>
     <!-- Fin linea direccion-->   
     <!-- Fin 3 linea -->    
-
-    <!-- Inicio 4 linea -->
-    <!-- <div class="form-group row mb-5">
-      <div class="col-3">
-        <label class="form-label" for="inputCodigoPostal">Horarios del local</label>
-        <ng-multiselect-dropdown
-          [placeholder]="'hola'"
-          [settings]="dropdownSettings"
-          [data]="b"
-          [(ngModel)]="a"
-          (onSelect)="onItemSelect($event)"
-          (onSelectAll)="onSelectAll($event)"
-          (onDeSelect)="onItemDeselect($event)">
-        </ng-multiselect-dropdown>
-      </div>
-    </div> -->
-<!-- Fin 3 linea -->   
   </div> 
   <!-- Fin Bloque datos de cliente --> 
 <hr>
@@ -283,7 +266,7 @@
                     <button type="button" class="btn btn-light"
                             placement="bottom" ngbTooltip="Ver horario" [openDelay]="300"
                             (click)="showHorario(content,i)">
-                       <i class="far fa-clock"></i>
+                       <i class="far fa-clock"></i> 
                     </button>
                   </td>
 

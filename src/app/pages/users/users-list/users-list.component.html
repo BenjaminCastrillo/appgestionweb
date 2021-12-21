@@ -15,22 +15,21 @@
           type="search" 
           placeholder="Buscar por ID, nombre, apellido, email, cliente, ..." 
           aria-label="Search">
-</div>
-<table class="table table-condensed table-striped" *ngIf="!cargando && users.length>0">
+</div> 
+<table matSort (matSortChange)="sortData($event)" class="table table-condensed table-striped" *ngIf="!cargando && sortedData.length>0">
   <thead>
-    <!-- [ngStyle]="{'width':'100px'}" -->
-    <tr>
-      <th scope="col" class="col-sm-1">#ID</th>
-      <th scope="col" class="col-sm-2">Nombre</th>
-      <th scope="col" class="col-sm-3">Apellidos</th>
-      <th scope="col" class="col-sm-3">Correo electrónico</th>
-      <th scope="col" class="col-sm-1">Rol</th>
+    <tr> 
+      <th scope="col" class="col-sm-1" mat-sort-header="id">#ID</th>
+      <th scope="col" class="col-sm-2" mat-sort-header="nombre">Nombre</th>
+      <th scope="col" class="col-sm-3" mat-sort-header="apellidos">Apellidos</th>
+      <th scope="col" class="col-sm-3" mat-sort-header="correo">Correo electrónico</th>
+      <th scope="col" class="col-sm-1" mat-sort-header="rol">Rol</th>
       <th scope="col" class="col-sm-2">Acciones</th>
     </tr>
   </thead>
 
   <tbody>
-    <tr *ngFor="let user of users |user:filterUser:page:linesPages:users.length; let i =index">
+    <tr *ngFor="let user of sortedData |user:filterUser:page:linesPages:sortedData.length; let i =index">
       <td >{{user.id}} <span *ngIf="user.filter" class="badge bg-warning text-dark">cli</span></td>
       <td>{{user.name}}</td>
       <td>{{user.surname}}</td>
@@ -83,7 +82,7 @@
 </div>
 
 <div class="d-grid text-center d-md-block" 
-  *ngIf="users.length>linesPages">
+  *ngIf="sortedData.length>linesPages">
   <button class="btn btn-outline-secondary btn-sm"
           (click)="prevPage()"
           [disabled]="page===0">
@@ -92,7 +91,7 @@
   &nbsp;
   <button class="btn btn-outline-secondary btn-sm"
           (click)="nextPage()"
-          [disabled]="(users |user:filterUser:page:linesPages).length<linesPages"> 
+          [disabled]="(sortedData |user:filterUser:page:linesPages).length<linesPages"> 
     Pag. Siguiente
   </button>
 </div>

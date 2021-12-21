@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { SitesResponse, Site, ScreenLocation, ScreenBrand, ScreenType, ScreenModel, Orientation } from '../interfaces/site-interface';
+import { SitesResponse, Site, ScreenLocation, ScreenBrand, ScreenType, ScreenModel, Orientation, siteStatus } from '../interfaces/site-interface';
 import { Observable } from 'rxjs';
 import { map, delay } from 'rxjs/operators';
 
@@ -25,6 +25,10 @@ export class SiteService {
 
   deleteSite(id:string):Observable<any>{
     return this.http.delete(`${this.url}/sites/${id}`);
+  }
+
+  updateStatusSite(a:siteStatus):Observable<any>{
+    return this.http.put(`${this.url}/statusites/`,a);
   }
 
   getScreenLocations(id:number):Observable<ScreenLocation[]>{

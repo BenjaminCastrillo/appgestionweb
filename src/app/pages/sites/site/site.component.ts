@@ -4,6 +4,7 @@ import { Observable,forkJoin} from 'rxjs';
 import Swal from 'sweetalert2';
 import {FormBuilder, FormGroup,Validators, FormControl,FormArray} from '@angular/forms';
 
+
 import { Site, ScreenLocation, Orientation, ScreenType, ScreenModel } from '../../../interfaces/site-interface';
 import { Venue, ScreenBrand } from '../../../interfaces/venue-interface';
 
@@ -291,6 +292,8 @@ console.log('salgo de cargar datos');
           
           this.altoPantalla=this.siteForm.get('modulosAlto').value*res.measureHeight
           this.resolucionAlto=this.siteForm.get('modulosAlto').value*rh;
+
+          // this.siteForm.value.modulos.alto
   
           this.pixelesPantalla=res.panel?Number(res.pixel):null;
           this.pulgadasPantalla=res.panel?Math.round(Math.sqrt(Math.pow(this.anchoPantalla,2)+Math.pow(this.altoPantalla,2))/25.4):Number(res.inches);
@@ -462,8 +465,6 @@ get observacionesNoValido(){
   }
 
 
-
-
   onSubmit(){
     let mensajeError:string='Datos incorrectos'
     let peticionHtml: Observable <any>;
@@ -477,6 +478,7 @@ get observacionesNoValido(){
         title: mensajeError ,
         text:'por favor revise la información introducida',
         confirmButtonColor: '#007bff',
+        allowOutsideClick:false,
         icon:'error'
         });
       } else{
@@ -561,6 +563,7 @@ get observacionesNoValido(){
           title: `El registro ${resp.data.siteComercialId}`,
           text:'se actualizó correctamente',
           confirmButtonColor: '#007bff',
+          allowOutsideClick:false,
           icon:'success'
         });
   
@@ -589,6 +592,7 @@ get observacionesNoValido(){
         icon: 'info',
         confirmButtonColor: '#007bff',
         cancelButtonText:'Cancelar',
+        allowOutsideClick:false,
         showConfirmButton:true,
         showCancelButton:true,
       }).then(resp=>{

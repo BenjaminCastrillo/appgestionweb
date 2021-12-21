@@ -17,21 +17,21 @@
           placeholder="Buscar por ID, localidad, cliente, ..." 
           aria-label="Search">
 </div>
-<table class="table table-condensed table-striped" *ngIf="!cargando && listSites.length>0" >
+<table matSort (matSortChange)="sortData($event)" class="table table-condensed table-striped" *ngIf="!cargando && sortedData.length>0" >
   <thead>
     <tr>
-      <th scope="col" class="col-sm-1">#ID</th>
-      <th scope="col" class="col-sm-2">Codigo</th>
-      <th scope="col" class="col-sm-2">Local</th>
-      <th scope="col" class="col-sm-3">Localizacion</th>
-      <th scope="col" class="col-sm-2">Situación pantalla</th>
-      <th scope="col" class="col-sm-1">Estado</th>
-      <th scope="col" class="col-sm-1">Acciones</th>
+      <th scope="col" class="col-sm-1" mat-sort-header="id">#ID</th>
+      <th scope="col" class="col-sm-1" mat-sort-header="codigo">Codigo</th>
+      <th scope="col" class="col-sm-2" mat-sort-header="local">Local</th>
+      <th scope="col" class="col-sm-3" mat-sort-header="localizacion">Localizacion</th>
+      <th scope="col" class="col-sm-2" mat-sort-header="situacion">Situación pantalla</th>
+      <th scope="col" class="col-sm-1" mat-sort-header="estado">Estado</th>
+      <th scope="col" class="col-sm-2">Acciones</th>
     </tr>
   </thead>
 
   <tbody>
-    <tr *ngFor="let site of listSites | site:filterSite:page:linesPages:listSites.length;  let i =index">
+    <tr *ngFor="let site of sortedData | site:filterSite:page:linesPages:sortedData.length;  let i =index">
       <td >{{site.id}}<span *ngIf="site.filter" class="badge bg-warning text-dark">{{site.customer.name}}</span></td>
       <td>{{site.siteComercialId}}</td>
       <td>{{site.name}}</td>
@@ -40,12 +40,20 @@
       <td>   
         <i *ngIf="site.status.id===1" class="bi bi-cone-striped" style="font-size: 1rem;"
         placement="bottom" ngbTooltip="{{site.status.description}}" [openDelay]="300"></i>
-        <i *ngIf="site.status.id===2" class="bi bi-check-circle" style="font-size: 1rem;"
+        <i *ngIf="site.status.id===2" class="bi bi-check-circle" style="font-size: 1rem;color:aquamarine"
         placement="bottom" ngbTooltip="{{site.status.description}}" [openDelay]="300"></i>
         <i *ngIf="site.status.id===3" class="bi bi-exclamation-circle" style="font-size: 1rem;"
         placement="bottom" ngbTooltip="{{site.status.description}}" [openDelay]="300"></i>
         <i *ngIf="site.status.id===4" class="bi bi-x-circle" style="font-size: 1rem;"
         placement="bottom" ngbTooltip="{{site.status.description}}" [openDelay]="300"></i>
+        &nbsp;
+        <span *ngIf="site.player.license.valid" class="text-white bg-success fs-5"
+        placement="bottom" ngbTooltip="{{site.player.license.text}}" [openDelay]="300">
+        <strong>L</strong></span>
+        <span *ngIf="!site.player.license.valid" class="text-white bg-danger fs-5"
+        placement="bottom" ngbTooltip="{{site.player.license.text}}" [openDelay]="300">
+        <strong>L</strong></span> 
+        
       </td>
       <td>
         <button type="button" 
@@ -55,11 +63,17 @@
           <i class="fas fa-edit"></i>
         </button>
         &nbsp;
-        <button type="button" 
+        <button *ngIf="site.status.id===1" type="button" 
                 class="btn btn-light btn-sm" 
                 (click)="removeSite(site)"
                 placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
           <i class="far fa-trash-alt"></i>
+        </button>
+        <button *ngIf="site.status.id!=1 &&  site.status.id!=4" type="button" 
+                class="btn btn-light btn-sm" 
+                (click)="unsubscribeSite(site,i)"
+                placement="bottom" ngbTooltip="Baja servicio" [openDelay]="300">
+          <i class="far fa-times-circle"></i>
         </button>
       </td>
     </tr> 
@@ -74,7 +88,7 @@
 </div>
 
 <div class="d-grid text-center d-md-block" 
-  *ngIf="listSites.length>linesPages">
+  *ngIf="sortedData.length>linesPages">
   <button class="btn btn-outline-secondary btn-sm"
           (click)="prevPage()"
           [disabled]="page===0">
@@ -83,7 +97,7 @@
   &nbsp;
   <button class="btn btn-outline-secondary btn-sm"
           (click)="nextPage()"
-          [disabled]="(listSites |site:filterSite:page:linesPages).length<linesPages"> 
+          [disabled]="(sortedData |site:filterSite:page:linesPages).length<linesPages"> 
     Pag. Siguiente
   </button>
 </div>

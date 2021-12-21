@@ -2,14 +2,14 @@
   <!-- Bloque de botones -->
   <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">
     <h4 class="col"> {{pageTitle}} <span *ngIf="!newUser"><small class="text-muted">(#{{currentUser.id}})</small></span></h4>
-    <button type="button" class="btn btn-danger btn-block"
+    <button type="button" class="btn btn-outline-primary btn-block"
       (click)="abandonarPagina()"> 
       <i class="fas fa-arrow-left"></i>
       Regresar
     </button>
     <!-- Boton guardar formulario-->
     <label class="col-form-label">&nbsp;</label>
-    <button type="submit" class="btn btn-outline-primary btn-block">
+    <button type="submit" class="btn btn-success btn-block">
       Guardar
     </button>
   </div>

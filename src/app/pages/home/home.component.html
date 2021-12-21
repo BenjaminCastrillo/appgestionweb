@@ -1,143 +1,74 @@
-<h1>home work</h1>>
-<div class="row mb-3">
-  <!-- Marca del local 
-  <div class="col-2">
-    <label class="form-label" for="inputMarca">Marca Comercial</label>
+<h1>home work</h1>
+
+<div class="d-grid gap-2 d-md-flex justify-content-md-end mb-2 mt-2">
+  <h4>Listado de clientes</h4>
+  <div class="col text-end">
+    <button routerLink="/customer/nuevo" class="btn btn-primary">
+      <i class="fas fa-plus"></i>
+      Nuevo
+    </button>
+  </div>
+</div>
+<div class="form-group me-2">
+  <input  name="filterCustomer"
+          [(ngModel)]="filterCustomer"
+          (keyup)="buscar(filterCustomer)"
+          class="form-control" 
+          type="search" 
+          placeholder="Buscar por ID, CIF, nombre" 
+          aria-label="Search">
+</div>
+
+
+
+<table matSort (matSortChange)="sortData($event)" class="table table-condensed table-striped" *ngIf="!cargando && customers.length>0">
+  <thead>
+    <tr>
+      <th scope="col" class="col-sm-1" mat-sort-header="id">#ID</th>
+      <th scope="col" class="col-sm-2" mat-sort-header="cif">CIF/NIF</th>
+      <th scope="col" class="col-sm-5" mat-sort-header="nombre">Nombre</th>
+      <th scope="col" class="col-sm-2">Teléfono</th>
+      <tr>
+    </tr>
+  </thead>
+
+  <tbody>
+   <tr *ngFor="let customer of sortedData |home:filterCustomer:pageNumber:pageSize:sortedData.length; let i =index">
+      <td >{{customer.id}} {{i}}</td>
+      <td>{{customer.identification}}</td>
+      <td>{{customer.name}}</td>
+      <td>{{customer.phoneNumber}}</td>
+    </tr>
   
-    <select class="form-select" formControlName="marca">
-      <option value="{{a.id}}" *ngFor="let a of brands | notdeletedbrands:marcaBorrada" 
-              [selected]="selectMarca(a.id)" 
-              [class.is-invalid]="marcaNoValido">
-              {{a.description}}  <span class="text-danger" *ngIf="a.deleted">(deleted)</span></option> 
+  </tbody>
+</table>
+<div class="text-center mt-3" *ngIf="cargando">
+  <div class="spinner-border" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+<div >
+
+
+  <!-- <div class="d-flex justify-content-between p-2">
+
+  
+    <select class="custom-select" style="width: auto" [(ngModel)]="pageSize" (ngModelChange)="refreshTable()">
+      <option [ngValue]="2">2 items per page</option>
+      <option [ngValue]="4">4 items per page</option>
+      <option [ngValue]="6">6 items per page</option>
     </select>
-    <small *ngIf="marcaNoValido" class="text-danger">{{msgError('marca')}}</small>
+  </div> -->
 
-  </div>
-   Fin marca del local -->
-  <!-- Imagen Marca del local 
-  <div  class="col-1 mt-3">
-    <img id="fileMarca" class="img-thumbnail" width="100" [src]="binariosImagenMarca">  
-  </div>
-   Fin Imagen Marca del local -->
-  <!-- Región de mercado
-  <div class="col-3">
-    <label class="form-label" for="inputRegionComercial">Región Comercial</label>
-    <select class="form-select" formControlName="regionComercial">
-      <option value="{{a.id}}" *ngFor="let a of marketRegions | notdeletedmarketregion:regionComercialBorrada" 
-              [selected]="selectRegionComercial(a.id)" 
-              [class.is-invalid]="regionComercialNoValido">
-              {{a.description}} <span class="text-danger" *ngIf="a.deleted">(deleted)</span></option>
-    </select>
-    <small *ngIf="regionComercialNoValido" class="text-danger">{{msgError('regionComercial')}}</small>
-  </div>
-   Fin Región de mercado -->
+ <mat-paginator [length]="sortedData.length"
+  showFirstLastButtons
+  [pageSize]="pageSize"
+  [pageSizeOptions]="pageSizeOptions"
+  (page)="handlePage($event)"
+  aria-label="Select page">
+</mat-paginator>
+  
+</div>
 
-  <!-- Imagen del local
-  <div class="col-3">     
-    <label class="form-label" for="inputImagenLocal">Imagen del local</label>  
-    <input (change)="capturarFile($event)"
-      class="form-control"
-      type="file"
-      accept="image/png/jpeg"
-      formControlName="imagenLocal">         
-  </div>
-<div class="col-3 mt-3">
-    <img id="fileMarca" class="img-fluid"  width="300"  [src]="binariosImagenLocal">
-</div>
-       Fin  Imagen del local-->
 
-</div>
-<!-- Fin 2 linea -->
 
-<!-- Localización     style="background-color: #F2F2F2;"  -->
-<hr>
-<div class="form-group row mb-2">
-<h5>Dirección</h5>
-<!-- Pais 
-<div class="col-2">
-  <label class="form-label" for="inputPais">Pais</label>
-  <select class="form-select" formControlName="pais">
-    <option  value="{{a.id}}" *ngFor="let a of countries" 
-            [selected]="selectPais(a.id)" 
-            [class.is-invalid]="paisNoValido">{{a.name}}</option>
-  </select>
-  <small *ngIf="paisNoValido" class="text-danger">{{msgError('pais')}}</small>
-</div>
- Fin Pais -->
-<!-- Organizacion territorial
-<div class="row mt-2">
-  <div class="col-8">
-    <div class="col-9">
-      <table class="table table-borderless">
-        <thead class=table-light>
-        </thead>
-        <tbody formArrayName="localizacion">
-          <tr *ngFor="let a of localizacion.controls; let localizacionIndex=index" [formGroupName]="localizacionIndex">
-            <td>
-              {{a.get('nombreOrganizacionTerritorial').value}}:    
-            </td>
-            <td>      
-              <select class="form-select" formControlName="idEntidadTerritorial">
-                <option value="{{b.id}}" *ngFor="let b of location | territorialentities:localizacionIndex; let locationIndex=index" 
-                        [selected]="selectEntidadTerritorial(b.id,localizacionIndex,locationIndex)">
-                        {{b.territorialEntityName}}</option>
-              </select>
-            </td>  
-          </tr>
-        </tbody>
-      </table>  
-    </div>
-  </div>
-</div>
-Fin organizacion territorial -->
-<!--linea dirección -->
-<div class="form-group row mb-2">
-    <!-- Tipo de via
-    <div class="col-2">
-      <label class="form-label" for="inputTipoVia">Tipo de via</label>
-      <select class="form-select" formControlName="tipoVia">
-        <option   value="{{a.id}}" *ngFor="let a of roadTypes" 
-                  [selected]="selectTipoVia(a.id)" 
-                  [class.is-invalid]="tipoViaNoValido">{{a.description}}</option>
-      </select>
-      <small *ngIf="tipoViaNoValido" class="text-danger">{{msgError('tipoVia')}}</small>
-    </div>
-    Fin tipo de via -->
-<!-- Calle de local 
-<div class="col-6">
-  <label class="form-label" for="inputCalle">Dirección</label>
-  <input class="form-control"
-        id="inputCalle"
-        type="text"
-          formControlName="calle"
-        [class.is-invalid]="calleNoValido">
-  <small *ngIf="calleNoValido" class="text-danger">{{msgError('calle')}}</small>
-</div>
- Fin calle de local -->
-<!-- número Calle de local
-  <div class="col-2">
-  <label class="form-label" for="inputNumero">Número</label>
-  <input class="form-control"
-        id="inputNumero"
-        type="text"
-          formControlName="numero"
-        [class.is-invalid]="numeroNoValido">
-  <small *ngIf="numeroNoValido" class="text-danger">{{msgError('numero')}}</small>
-</div>
- Fin número calle de local -->
-<!-- Código postal de local
-<div class="col-2">
-  <label class="form-label" for="inputCodigoPostal">Código Postal</label>
-  <input class="form-control"
-        id="inputCodigoPostal"
-        type="text"
-        formControlName="codigoPostal"
-        [class.is-invalid]="codigoPostalNoValido">
-  <small *ngIf="codigoPostalNoValido" class="text-danger">{{msgError('codigoPostal')}}</small>
-</div>
-Fin número calle de local -->
-
-</div>
-<!-- Fin linea direccion-->   
-</div>
-<!-- Fin localizacion-->   

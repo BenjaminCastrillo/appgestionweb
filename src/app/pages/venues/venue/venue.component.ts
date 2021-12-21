@@ -805,6 +805,7 @@ export class VenueComponent implements OnInit {
         Swal.fire({
         title: mensajeError ,
         text:'por favor revise la información introducida',
+        allowOutsideClick:false,
         confirmButtonColor: '#007bff',
         icon:'error'
         });
@@ -874,6 +875,7 @@ export class VenueComponent implements OnInit {
           Swal.fire({
             title: `El registro ${resp.data.name}`,
             text:'se actualizó correctamente',
+            allowOutsideClick:false,
             confirmButtonColor: '#007bff',
             icon:'success'
           });
@@ -1080,6 +1082,7 @@ export class VenueComponent implements OnInit {
         text: 'los cambios realizados se perderán',
         icon: 'info',
         confirmButtonColor: '#007bff',
+        allowOutsideClick:false,
         cancelButtonText:'Cancelar',
         showConfirmButton:true,
         showCancelButton:true,

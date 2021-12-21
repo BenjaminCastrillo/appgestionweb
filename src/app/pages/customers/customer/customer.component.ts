@@ -12,8 +12,6 @@ import { UploadService  } from '../../../services/upload.service';
 import { Customer,Week, Month } from '../../../interfaces/customer-interface';
 import { UtilService } from '../../../services/util.service';
 
-
-
 interface ErrorValidate{
   [s:string]:boolean
 }
@@ -78,7 +76,6 @@ export class CustomerComponent implements OnInit {
       this.customerServices.getCustomerById(this.customerId)
       .subscribe(resp=>{
           this.currentCustomer=resp.data[0];
-          console.log('el customer:',this.currentCustomer);
           this.loadData(this.currentCustomer);
         })
     }      
@@ -432,7 +429,8 @@ export class CustomerComponent implements OnInit {
         title: mensajeError,
         text:'por favor revise la información introducida',
         confirmButtonColor: '#007bff',
-        icon:'error'
+        icon:'error',
+        allowOutsideClick:false,
         });
 
       } else{
@@ -444,13 +442,14 @@ export class CustomerComponent implements OnInit {
         ls=this.respLocalizacionPantalla();
         co=this.respCodigo();
         sc=this.respHorario();
+
         let respuesta:Customer ={
               id                  :this.customerId==='nuevo'?null:Number(this.customerId),
               identification      :this.customerForm.get('identification').value,
               name                :this.customerForm.get('nombre').value,
               contactName         :this.customerForm.get('nombreContacto').value,
               phoneNumber         :this.customerForm.get('telefono').value,
-              entryDate           :this.customerForm.get('fechaAlta').value,
+              entryDate           :this.currentCustomer.entryDate,
               brands              :br,
               marketRegions       :mr,
               locationsScreen     :ls,
@@ -469,6 +468,7 @@ export class CustomerComponent implements OnInit {
           Swal.fire({
             title: `El registro ${resp.data.name}`,
             text:'se actualizó correctamente',
+            allowOutsideClick:false,
             confirmButtonColor: '#007bff',
             icon:'success'
           });
@@ -496,6 +496,7 @@ export class CustomerComponent implements OnInit {
         cancelButtonText:'Cancelar',
         showConfirmButton:true,
         showCancelButton:true,
+        allowOutsideClick:false,
       }).then(resp=>{
         if (resp.value){
           this.customerForm.reset();

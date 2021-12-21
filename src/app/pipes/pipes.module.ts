@@ -10,6 +10,7 @@ import { SchedulesPipe } from './schedules.pipe';
 import { SitePipe } from './site.pipe';
 import { NotdeletedscreenlocationPipe } from './notdeletedscreenlocation.pipe';
 import { ModelscreenPipe } from './modelscreen.pipe';
+import { HomePipe } from './home.pipe';
 
 
 
@@ -22,7 +23,9 @@ import { ModelscreenPipe } from './modelscreen.pipe';
     TerritorialentitiesPipe, 
     SchedulesPipe, 
     SitePipe, 
-    NotdeletedscreenlocationPipe, ModelscreenPipe],
+    NotdeletedscreenlocationPipe, 
+    ModelscreenPipe, 
+    HomePipe],
   imports: [
     CommonModule
   ],
@@ -36,7 +39,8 @@ import { ModelscreenPipe } from './modelscreen.pipe';
     NotdeletedscreenlocationPipe,
     SchedulesPipe,
     SitePipe,
-    ModelscreenPipe
+    ModelscreenPipe,
+    HomePipe
   ]
 })
 export class PipesModule { }

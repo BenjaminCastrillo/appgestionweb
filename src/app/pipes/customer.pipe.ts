@@ -8,8 +8,9 @@ export class CustomerPipe implements PipeTransform {
 
   transform(customers: any, text: string,page:number,linesPage:number,longArray:number): Customer[] {
     if (text==='') return customers.slice(page,page+linesPage) 
-    
-    const resultado=[];
+
+
+    let resultado=[];
     for(let customer of customers){
       if (customer.id.toString().toLowerCase().indexOf(text.toLowerCase())>-1 ||
           customer.name.toLowerCase().indexOf(text.toLowerCase())>-1 ||

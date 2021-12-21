@@ -10,8 +10,13 @@ import {VenueComponent} from './pages/venues/venue/venue.component';
 import {HomeComponent} from './pages/home/home.component';
 import {SitesListComponent} from './pages/sites/sites-list/sites-list.component';
 import {SiteComponent} from './pages/sites/site/site.component';
+import {LoginComponent} from './login/login.component';
 
 const routes: Routes = [
+  {
+    path:'login',
+    component:LoginComponent
+  },
   {
     path:'home',
     component:HomeComponent
