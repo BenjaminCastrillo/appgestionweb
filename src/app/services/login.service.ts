@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, Subject} from 'rxjs';
-import { LoginUser } from '../interfaces/loginUser-interface';
+import { LoginResponse ,LoginUser } from '../interfaces/loginUser-interface';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -13,26 +13,31 @@ export class LoginService {
   private token:string;
 
   constructor( private http:HttpClient ) { 
-    this.token=localStorage.getItem('token')
+  //  this.token=localStorage.getItem('token')
   }
 
   loginUser(user:LoginUser):Observable<any>{ 
-    return this.http.post(`${this.url}/login/`,user,{observe:'response'})
-    .pipe(
-      map(resp=>{
-        console.log(resp)
-    //    this.saveToken(resp.idToken)
-      })
-    );
+    return this.http.post(`${this.url}/login/`,user)
+  
   }
-  private saveToken(idToken:string){
+  deleteToken(){
+    
+    // let headers = new HttpHeaders({
+      //   'Content-Type':'form-data',
+      //   'token':this.token
+      // })
+      
+      localStorage.setItem('token','');
+      localStorage.setItem('user','');
+      localStorage.setItem('userId','');
+      
+  }
 
-    let headers = new HttpHeaders({
-      'Content-Type':'form-data',
-      'token':this.token
-    })
-
-    localStorage.setItem('token',idToken);
+  saveToken(token,user,userId){
+      
+    localStorage.setItem('token',token);
+    localStorage.setItem('user',user);
+    localStorage.setItem('userId',userId);
 
   }
 }

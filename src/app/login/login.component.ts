@@ -70,7 +70,13 @@ export class LoginComponent implements OnInit {
         peticionHtml=this.loginServices.loginUser(respuesta);
   
         peticionHtml.subscribe(resp=>{     
-          this.router.navigate(['/user-list']);
+
+          console.log(resp);
+          const name=resp.data.name+' '+resp.data.surname;
+          if (resp.result){
+            this.loginServices.saveToken(resp.token,name,resp.data.id);
+            this.router.navigate(['/user-list']);
+          }
         },
         error=>{
           console.log(error);
@@ -82,4 +88,6 @@ export class LoginComponent implements OnInit {
   
     return;
   }
+
+ 
 }

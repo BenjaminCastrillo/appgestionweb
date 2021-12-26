@@ -1,6 +1,7 @@
 export interface LoginResponse {
   result:  boolean;
   data:    LoginUser[];
+  token?:   string;
   message: null;
 }
 

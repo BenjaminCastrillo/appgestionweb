@@ -17,7 +17,7 @@ import { TranslateService , TranslateModule, TranslateLoader} from '@ngx-transla
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
-import { ComponentsModule } from './components/components.module';
+// import { ComponentsModule } from './components/components.module';
 import { PagesModule} from  './pages/pages.module';
 
 
@@ -31,6 +31,7 @@ import { LoginService } from './services/login.service';
 import { LanguageService } from './services/language.service';
 
 import { LoginComponent } from './login/login.component';
+import { PagenofoundComponent } from './pagenofound/pagenofound.component';
 
 
 // import {TranslateHttpLoader} from '@ngx-translate/http-loader;
@@ -42,6 +43,7 @@ import { LoginComponent } from './login/login.component';
   declarations: [
     AppComponent,
     LoginComponent,
+    PagenofoundComponent,
   ],
   imports: [
     BrowserModule,
@@ -49,7 +51,7 @@ import { LoginComponent } from './login/login.component';
     ReactiveFormsModule,
     HttpClientModule,
     NgbModule,
-    ComponentsModule,
+    // ComponentsModule,
     PagesModule,
     TranslateModule.forRoot(),
     BrowserAnimationsModule,

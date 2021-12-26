@@ -4,12 +4,11 @@ import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-// import {MatButtonModule} from '@angular/material/button';
-import {MatPaginatorModule, MatPaginatorIntl} from '@angular/material/paginator';
+import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatSortModule} from '@angular/material/sort';
-
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
+import { ComponentsModule } from '../components/components.module';
 import { PipesModule } from '../pipes/pipes.module';
 
 import { HomeComponent } from './home/home.component';
@@ -21,6 +20,7 @@ import { VenueComponent } from './venues/venue/venue.component';
 import { VenuesListComponent } from './venues/venues-list/venues-list.component';
 import { SitesListComponent } from './sites/sites-list/sites-list.component';
 import { SiteComponent } from './sites/site/site.component';
+import { PagesComponent } from './pages.component';
 
 
 @NgModule({
@@ -33,9 +33,10 @@ import { SiteComponent } from './sites/site/site.component';
     VenueComponent, 
     VenuesListComponent, 
     SitesListComponent, 
-    SiteComponent, 
+    SiteComponent, PagesComponent, 
     ],
   imports: [
+
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
@@ -44,6 +45,7 @@ import { SiteComponent } from './sites/site/site.component';
     PipesModule,
     NgMultiSelectDropDownModule.forRoot(),
     MatPaginatorModule,
+    ComponentsModule,
   
     MatSortModule,
    // MatButtonModule,
