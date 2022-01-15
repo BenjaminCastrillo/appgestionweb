@@ -1,16 +1,18 @@
 <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-
-<div class="container">
+  
+  <div class="container">
+  <h2>Gestión Yedra</h2>
   <div class="row justify-content-center align-items-center" style="height: 500px">
   
 
       <div class="col-sm-4 cuadro">
         <div>
-          <label class="form-label" for="inputUsuario">Usuario</label>
+          <label class="form-label" for="inputUsuario">Email</label>
           <input class="form-control"
                   id="inputUsuario"
                   autocomplete="off"
                   type="text"
+                  placeholder="tu@email.com"
                   formControlName="user"
                   [class.is-invalid]="usuarioNoValido">
           <small *ngIf="usuarioNoValido" class="text-danger">{{msgError('user')}}</small>
@@ -21,12 +23,22 @@
                   id="inputPassword"
                   autocomplete="off"
                   type="password"
+                  placeholder="Por favor, introduzca su password"
                   formControlName="password"
                   [class.is-invalid]="passwordNoValido">
           <small *ngIf="passwordNoValido" class="text-danger">{{msgError('password')}}</small>
         </div>
+        <div class="form-check mt-2">
+          <input class="form-check-input" type="checkbox" 
+          formControlName="rememberUser"
+          id="flexCheckDefault">
+          <label class="form-check-label" for="flexCheckDefault">
+            Recordar usuario
+          </label>
+        </div>
         <div class="row mt-4 ms-2 me-2">
-          <button type="submit" class=" btn btn-primary">
+          <button type="submit" class=" btn btn-primary" 
+                  [disabled]="loginForm.invalid">
             Acceder
           </button>
         </div>

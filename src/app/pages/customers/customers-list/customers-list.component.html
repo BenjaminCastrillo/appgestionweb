@@ -1,7 +1,7 @@
 <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-2 mt-2">
   <h4>Listado de clientes</h4>
   <div class="col text-end">
-    <button routerLink="/customer/nuevo" class="btn btn-primary">
+    <button routerLink="/home/customer/nuevo" class="btn btn-primary">
       <i class="fas fa-plus"></i>
       Nuevo
     </button> 
@@ -30,7 +30,7 @@
 
   <tbody>
     <tr *ngFor="let customer of sortedData |customer:filterCustomer:page:linesPages:sortedData.length; let i =index">
-      <td >{{customer.id}}</td>
+      <td >{{customer.id}}</td> 
       <td>{{customer.identification}}</td>
       <td>{{customer.name}}</td>
       <td>{{customer.phoneNumber}}</td>
@@ -68,9 +68,8 @@
   &nbsp;
   <button class="btn btn-outline-secondary btn-sm"
           (click)="nextPage()"
-          [disabled]="(sortedData |customer:filterCustomer:page:linesPages).length<linesPages"> 
+          [disabled]="(sortedData |customer:filterCustomer:page:linesPages).length<linesPages || sortedData.length=== page+linesPages"> 
     Pag. Siguiente
   </button>
-  
 </div>
 

@@ -11,6 +11,7 @@ import { SitePipe } from './site.pipe';
 import { NotdeletedscreenlocationPipe } from './notdeletedscreenlocation.pipe';
 import { ModelscreenPipe } from './modelscreen.pipe';
 import { HomePipe } from './home.pipe';
+import { ListsitesPipe } from './listsites.pipe';
 
 
 
@@ -25,10 +26,12 @@ import { HomePipe } from './home.pipe';
     SitePipe, 
     NotdeletedscreenlocationPipe, 
     ModelscreenPipe, 
-    HomePipe],
+    HomePipe, ListsitesPipe],
+
   imports: [
     CommonModule
   ],
+  
   exports:[
     CustomerPipe,
     UserPipe,
@@ -40,7 +43,8 @@ import { HomePipe } from './home.pipe';
     SchedulesPipe,
     SitePipe,
     ModelscreenPipe,
-    HomePipe
+    HomePipe,
+    ListsitesPipe
   ]
 })
 export class PipesModule { }

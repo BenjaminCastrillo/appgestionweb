@@ -12,6 +12,7 @@ import { SiteService } from '../../../services/site.service';
 import { VenueService } from '../../../services/venue.service';
 import { UploadService  } from '../../../services/upload.service';
 import { UtilService } from '../../../services/util.service';
+import { GlobalDataService } from '../../../services/global-data.service';
 
 
 interface ImagenesFile{
@@ -26,8 +27,11 @@ interface ImagenesFile{
 })
 export class SiteComponent implements OnInit {
 
-  private urlImage='http://192.168.1.42:3700/';
-  private imageDefault='../../../../assets/img/noimage.png';
+ 
+  private imageDefault=this.globalData.getUrlImageDefault();
+  private urlImageVenue=this.globalData.getUrlImageVenue();
+  private urlImageBrand=this.globalData.getUrlImageBrand();
+  private urlImageSite=this.globalData.getUrlImageSite();
 
   public siteForm: FormGroup;
   public currentSite: Site;
@@ -38,7 +42,7 @@ export class SiteComponent implements OnInit {
   public screenTypes:ScreenType[]=[];
   public screenOrientations:Orientation[]=[];
  
-
+ 
   public siteId:string;
   public tituloPagina='Modificación datos del emplazamiento'; 
   public binariosImagenVenue:string;
@@ -69,6 +73,7 @@ export class SiteComponent implements OnInit {
     private ActivatedRoute:ActivatedRoute,
     private uploadServices:UploadService,
     private utilService:UtilService,
+    private globalData:GlobalDataService,
     private router:Router,) 
     {
       this.crearFormulario();
@@ -83,9 +88,9 @@ export class SiteComponent implements OnInit {
         this.venueServices.getVenueById(this.currentSite.venueId.toString())
         .subscribe(resp=>{
           this.currentVenue=resp.data[0];
-          this.binariosImagenVenue=(this.currentVenue.image)?this.urlImage+'venueimage/'+this.currentVenue.image:this.imageDefault;
-          this.binariosImagenMarca=(this.currentVenue.brand.image)?this.urlImage+'brandimage/'+this.currentVenue.brand.image:this.imageDefault;
-          this.binariosImagenEmplazamiento=(this.currentSite.image)?this.urlImage+'siteimage/'+this.currentSite.image:this.imageDefault;
+          this.binariosImagenVenue=(this.currentVenue.image)?this.urlImageVenue+this.currentVenue.image:this.imageDefault;
+          this.binariosImagenMarca=(this.currentVenue.brand.image)?this.urlImageBrand+this.currentVenue.brand.image:this.imageDefault;
+          this.binariosImagenEmplazamiento=(this.currentSite.image)?this.urlImageSite+this.currentSite.image:this.imageDefault;
           
           console.log('el venue', this.currentVenue);
         });
@@ -155,10 +160,12 @@ export class SiteComponent implements OnInit {
 
   loadData(site:Site){
     
+
+console.log('22222',site)
+
     this.tipoPantallaPanelLed=site.screen.screenType.panel;
    
     this.siteForm.get('localizacionPantalla').patchValue(site.screenLocation.id);
-   // this.siteForm.get('fechaAlta').patchValue(site.entryDate);
     this.siteForm.get('texto').patchValue(site.text);
     this.siteForm.get('nombreArchivo').patchValue(site.image);
     this.siteForm.get('tipoPantalla').patchValue(site.screen.screenType.id);
@@ -175,6 +182,7 @@ export class SiteComponent implements OnInit {
     
     this.localizacionPantallaBorrada=site.screenLocation.deleted;
 
+    console.log('XX',site.screen.resolutionHeight);
     // Datos calculados para visualización
     this.anchoPantalla=site.screen.screenWidth;
     this.altoPantalla=site.screen.screenHeight;
@@ -305,7 +313,6 @@ console.log('salgo de cargar datos');
     this.siteForm.get('modulosAncho').valueChanges.subscribe(ancho=>{
       console.log('detecto cambios en número modulos de ancho del led',this.modeloPantallaSeleccionado);
       if (this.modeloPantallaSeleccionado!= undefined){
-        console.log('datos ancho',this.modeloPantallaSeleccionado.measureWidth,Number(this.modeloPantallaSeleccionado.pixel))
         this.anchoPantalla=ancho*this.modeloPantallaSeleccionado.measureWidth;
         if (this.tipoPantallaPanelLed){
           this.pulgadasPantalla= Math.round(Math.sqrt(Math.pow(this.anchoPantalla,2)+Math.pow(this.altoPantalla,2))/25.4);
@@ -314,14 +321,11 @@ console.log('salgo de cargar datos');
           this.resolucionAncho=ancho*(this.modeloPantallaSeleccionado.resolutionWidth);  
         }
       } 
-      console.log('salgo modulosAncho',this.anchoPantalla,this.resolucionAncho);
-
     });
     
     this.siteForm.get('modulosAlto').valueChanges.subscribe(alto=>{
       console.log('detecto cambios en número modulos de alto del led',this.modeloPantallaSeleccionado);
       if (this.modeloPantallaSeleccionado!= undefined){
-        console.log('datos alto',this.modeloPantallaSeleccionado.measureHeight,Number(this.modeloPantallaSeleccionado.pixel))
         
         this.altoPantalla=alto*this.modeloPantallaSeleccionado.measureHeight;
         if (this.tipoPantallaPanelLed){
@@ -331,10 +335,8 @@ console.log('salgo de cargar datos');
           this.resolucionAlto=alto*(this.modeloPantallaSeleccionado.resolutionHeight);
         }
       }
-      console.log('salgo modulosAlto',this.altoPantalla,this.resolucionAlto);
     });
 
-    console.log('salgo listener');
   }
 
 
@@ -568,7 +570,7 @@ get observacionesNoValido(){
         });
   
           //this.venueForm.reset();
-          this.router.navigate(['/site-list']);
+          this.router.navigate(['/home/site-list']);
         },
         error=>{
           console.log(error);
@@ -597,12 +599,12 @@ get observacionesNoValido(){
         showCancelButton:true,
       }).then(resp=>{
         if (resp.value){
-          this.router.navigate(['/venue-list']);          
+          this.router.navigate(['/home/site-list/todos']);          
         }
       });
     }else{
  
-      this.router.navigate(['/site-list']);          
+      this.router.navigate(['/home/site-list/todos']);          
     }
     return;
   }

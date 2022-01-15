@@ -1,29 +1,32 @@
-
+<!-- 
 <nav class="navbar navbar-expand-lg navbar-inverse bg-inverse" style="background-color: #6ab04c;">
+ -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
-    <a class="navbar-brand" [routerLink]= "['home']">
-        <img src="assets/img/letra y.png" width="30" height="30" alt="">
+    <a class="navbar-brand" [routerLink]= "['']">
+      <img src="assets/img/letra y.png" width="30" height="30" alt="">
     </a>
-    <!-- <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
-    </button> -->
-
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <!-- active -->
-        <li class="nav-item" routerLinkActive="active"> 
-          <a class="nav-link active" [routerLink]= "['customer-list']">Clientes</a>
-        </li>
-        <li class="nav-item" routerLinkActive="active">
-          <a class="nav-link" [routerLink]= "['user-list']">Usuarios</a>
-        </li>  
-        <li class="nav-item" routerLinkActive="active">
-          <a class="nav-link" [routerLink]= "['venue-list']">Locales</a>
-        </li>
-        <li class="nav-item" routerLinkActive="active">
-          <a class="nav-link" [routerLink]= "['site-list']">Emplazamientos</a>
-        </li>
-      </ul>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item" routerLinkActive="active"> 
+            <a class="nav-link active" [routerLink]= "['customer-list']">Clientes</a>
+          </li>
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" [routerLink]= "['user-list']">Usuarios</a>
+          </li>  
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" [routerLink]= "['venue-list']">Locales</a>
+          </li>
+          <li class="nav-item" routerLinkActive="active">
+            <a class="nav-link" [routerLink]= "['site-list/todos']">Emplazamientos</a>
+          </li>
+        </ul>
+      </div>
     </div>
+    <span><i class="fas fa-user"></i>   {{userName}}</span>
   </div>
 </nav>

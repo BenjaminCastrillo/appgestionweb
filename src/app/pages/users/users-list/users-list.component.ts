@@ -44,7 +44,7 @@ export class UsersListComponent implements OnInit {
   }
 
   editUser(user:User){
-    this.router.navigate(['/user',user.id]);
+    this.router.navigate(['/home/user',user.id]);
   }
   removeUser(user:User,i:number){
     Swal.fire({
@@ -61,9 +61,10 @@ export class UsersListComponent implements OnInit {
         this.userServices.deleteUser(user.id.toString())
         .subscribe(resp=>{
           console.log('estoy aqui')
-          this.users.splice(this.users.findIndex(e=> e.id===user.id),1);
+         // this.users.splice(this.users.findIndex(e=> e.id===user.id),1);
           this.sortedData.splice(this.sortedData.findIndex(e=> e.id===user.id),1);
-          },
+          if(this.page===this.sortedData.length) this.page -=this.linesPages;  
+        },
           error=>{
             Swal.fire({
               title: 'Lo siento tuvimos un problema',
@@ -80,8 +81,9 @@ export class UsersListComponent implements OnInit {
     return
   }
 
-  exceptionsUser(user:User){
-    this.router.navigate(['/user-exceptions',user.id]);
+  sitessUser(user:User){
+ //   this.router.navigate(['/home/user-exceptions',user.id]);
+    this.router.navigate(['/home/site-list',user.id]);
   }
 
   sortData(sort: Sort) {

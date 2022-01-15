@@ -15,7 +15,9 @@ export class LanguageService {
 
     const userLanguage= this.translate.getBrowserLang();
     console.log('en el serviceLanguage',userLanguage)
-    return this.supportedLanguages.includes(userLanguage)?userLanguage:this.defaultLanguage;
+    const validLanguage=this.supportedLanguages.includes(userLanguage)?userLanguage:this.defaultLanguage;
+    localStorage.setItem('language',validLanguage);
+    return validLanguage;
 
   }
 }

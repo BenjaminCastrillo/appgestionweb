@@ -1,22 +1,28 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { SitesResponse, Site, ScreenLocation, ScreenBrand, ScreenType, ScreenModel, Orientation, siteStatus } from '../interfaces/site-interface';
+import { SitesListResponse } from '../interfaces/user-interface';
 import { Observable } from 'rxjs';
 import { map, delay } from 'rxjs/operators';
+import { GlobalDataService } from './global-data.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SiteService {
 
-  private url='http://192.168.1.42:3700';
-  private user=47; // obtener en un futuro del usuario de la aplicación
-  private lang=2;  // obtener en un futuro del usuario de la aplicación
+  private url=this.globalData.getUrlServer();
+  private lang=this.globalData.getUserLanguage();
+  private user=this.globalData.getUserId();
 
-  constructor(private http:HttpClient) { }
+  constructor(private http:HttpClient,
+    private globalData:GlobalDataService) { }
 
   getSiteById(id:string):Observable<SitesResponse>{
     return this.http.get<SitesResponse>(`${this.url}/sitesbyid/${id}/${this.user}/${this.lang}`);                                                  
+  }
+  getSiteByIdCustomer(id:number):Observable<SitesListResponse>{
+    return this.http.get<SitesListResponse>(`${this.url}/sitesbycustomer/${id}/${this.lang}`);                                                  
   }
 
   updateSite(site:Site):Observable<any>{

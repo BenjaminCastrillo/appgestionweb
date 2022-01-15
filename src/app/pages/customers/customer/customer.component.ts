@@ -9,8 +9,9 @@ import {NgbModal, NgbModalConfig,ModalDismissReasons, NgbActiveModal} from '@ng-
 
 import { CustomerService } from '../../../services/customer.service';
 import { UploadService  } from '../../../services/upload.service';
-import { Customer,Week, Month } from '../../../interfaces/customer-interface';
+import { Customer,Week, Month ,SitesComercialCode} from '../../../interfaces/customer-interface';
 import { UtilService } from '../../../services/util.service';
+import { GlobalDataService } from '../../../services/global-data.service';
 
 interface ErrorValidate{
   [s:string]:boolean
@@ -40,13 +41,13 @@ export class CustomerComponent implements OnInit {
   public month:Month[]=[];
   public ordenHorario:number=0;
   public indiceHorario:number=0;
+  public sitesCodes:SitesComercialCode[]=[];
   
   public closeResult = '';
 
-  private urlImage='http://192.168.1.42:3700/brandimage/';
-  private imageDefault='../../../../assets/img/noimage.png';
-
-
+  private imageDefault=this.globalData.getUrlImageDefault();
+  private urlImage=this.globalData.getUrlImageBrand();
+  
 
   public horarioArray: FormArray;
   
@@ -56,12 +57,12 @@ export class CustomerComponent implements OnInit {
               private utilService:UtilService,
               private ActivatedRoute:ActivatedRoute,
               private router:Router,
+              private globalData:GlobalDataService,
               config: NgbModalConfig, private modalService: NgbModal) 
   {               
       config.backdrop = 'static';
       config.keyboard = false; 
       this.crearFormulario();
-
   }
   ngOnInit(): void {
    
@@ -87,6 +88,9 @@ export class CustomerComponent implements OnInit {
     .subscribe(resp=>{
       this.month=resp;
     });  
+
+
+    
   }
 
   get IDNoValido() {
@@ -154,16 +158,16 @@ export class CustomerComponent implements OnInit {
         Validators.minLength(6),
         Validators.pattern('[A-Za-z]?[0-9]*[A-Za-z]$'),        
       ],this.customerServices.existsIdCustomer.bind(this.customerServices) // validador asincrono
-    ],
-    nombre: ['', Validators.required],
-    nombreContacto:['', Validators.required],
-    // fechaAlta:[{value:'',disabled:true}],
-    telefono: ['', [Validators.required, Validators.pattern('[0-9]*'),Validators.maxLength(18)]],
-    marca: this.fb.array([]),
-    regionMercado:this.fb.array([]),
-    localizacionPantalla:this.fb.array([]),
-    codigo:this.fb.array([]),
-    horario:this.fb.array([]),   
+      ],
+      nombre: ['', Validators.required],
+      nombreContacto:['', Validators.required],
+      // fechaAlta:[{value:'',disabled:true}],
+      telefono: ['', [Validators.required, Validators.pattern('[0-9]*'),Validators.maxLength(18)]],
+      marca: this.fb.array([]),
+      regionMercado:this.fb.array([]),
+      localizacionPantalla:this.fb.array([]),
+      codigo:this.fb.array([]),
+      horario:this.fb.array([]),   
   });
 
 
@@ -213,6 +217,12 @@ export class CustomerComponent implements OnInit {
     this.customerForm.setControl('horario',this.fb.array(sc||[]));
    
  
+ //   Bloqueamos los codigos iniciales
+    this.codigo.controls.forEach((elem,ind) => {
+      elem.get('acronymCodigo').disable();
+    });
+
+
     this.horario.controls.forEach((elem,ind) => {
       this.ordenHorario=ind;
       scw[ind].forEach(element => {
@@ -248,7 +258,9 @@ export class CustomerComponent implements OnInit {
   newCodigo(a:number|null,b:string|null): FormGroup {
     return this.fb.group({
       idCodigo: [a],
-      acronymCodigo: [b, [Validators.required,Validators.maxLength(5)]]// validador asincrono],
+      acronymCodigo: [b, [Validators.required,Validators.maxLength(5)],
+      this.customerServices.existsCode.bind(this.customerServices) // validador asincrono
+    ],
     });
   }
 
@@ -336,7 +348,6 @@ export class CustomerComponent implements OnInit {
      return elem==this.horario.at(i).get('mesInicio').value?true:false;
   }
   
-  // setHorario(i:number,a:FormGroup){
   setHorario(content:any,i:number){
     this.ordenHorario=i;
     this.indiceHorario=i;
@@ -360,7 +371,6 @@ export class CustomerComponent implements OnInit {
           confirmButtonColor: '#007bff',
           icon:'warning'
         });
-
       }
       this.closeResult = `Closed with: ${result}`;
     }, (reason) => {
@@ -416,8 +426,9 @@ export class CustomerComponent implements OnInit {
   onSubmit() {
     let hi:string;
     console.log('lo que voy a grabar del customer',this.customerForm)
+
     if (this.customerForm.touched){
-      
+
       if( this.customerForm.invalid){
         let mensajeError='Datos Incorrectos';       
         if(this.customerForm.get('horario').invalid){
@@ -442,19 +453,19 @@ export class CustomerComponent implements OnInit {
         ls=this.respLocalizacionPantalla();
         co=this.respCodigo();
         sc=this.respHorario();
-
+   
         let respuesta:Customer ={
-              id                  :this.customerId==='nuevo'?null:Number(this.customerId),
-              identification      :this.customerForm.get('identification').value,
-              name                :this.customerForm.get('nombre').value,
-              contactName         :this.customerForm.get('nombreContacto').value,
-              phoneNumber         :this.customerForm.get('telefono').value,
-              entryDate           :this.currentCustomer.entryDate,
-              brands              :br,
-              marketRegions       :mr,
-              locationsScreen     :ls,
-              sitesComercialCodes :co,
-              schedules           :sc
+          id                  :this.customerId==='nuevo'?null:Number(this.customerId),
+          identification      :this.customerForm.get('identification').value,
+          name                :this.customerForm.get('nombre').value,
+          contactName         :this.customerForm.get('nombreContacto').value,
+          phoneNumber         :this.customerForm.get('telefono').value,
+          entryDate           :this.customerId==='nuevo'?null:this.currentCustomer.entryDate,
+          brands              :br,
+          marketRegions       :mr,
+          locationsScreen     :ls,
+          sitesComercialCodes :co,
+          schedules           :sc
         }
         if (this.customerId==='nuevo'){
           peticionHtml=this.customerServices.saveCustomer(respuesta);
@@ -473,7 +484,7 @@ export class CustomerComponent implements OnInit {
             icon:'success'
           });
           this.customerForm.reset();
-          this.router.navigate(['/customer-list']);
+          this.router.navigate(['/home/customer-list']);
         },
         error=>{
           console.log(error);
@@ -500,12 +511,12 @@ export class CustomerComponent implements OnInit {
       }).then(resp=>{
         if (resp.value){
           this.customerForm.reset();
-          this.router.navigate(['/customer-list']);          
+          this.router.navigate(['/home/customer-list']);          
         }
       });
     }else{
       this.customerForm.reset();
-      this.router.navigate(['/customer-list']);          
+      this.router.navigate(['/home/customer-list']);          
 
     }
 
@@ -539,7 +550,6 @@ export class CustomerComponent implements OnInit {
       }) 
       this.uploadServices.uploadImage(fd,'B')
         .subscribe(res=>{
-          console.log(res);
         },
         err=>{
           console.log(err);
@@ -781,7 +791,7 @@ export class CustomerComponent implements OnInit {
     if (controlElementoArray.hasError('wrongEndTime')) return 'La hora de cierre es incorrecta';  
     
     if (controlElementoArray.hasError('wrongStartTime')) return 'La hora de apertura es incorrecta';  
-    
+    if (controlElementoArray.hasError('exists'))   return 'El código introducido ya existe';
     
     
     return message;

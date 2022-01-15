@@ -29,12 +29,15 @@ export class VenuesListComponent implements OnInit {
   constructor(private venueServices:VenueService,
     private UtilService:UtilService,
     private router:Router,
-    config: NgbModalConfig, 
-    private modalService: NgbModal) { }
+    config: NgbModalConfig,  
+    private modalService: NgbModal) {
+      config.backdrop = 'static';
+      config.keyboard = false; 
+     }
 
   ngOnInit(): void {
     this.cargando=true;
-    this.venueServices.getVenues()
+    this.venueServices.getVenues(null)
     .subscribe(resp=>{    
       if (resp.result===true){ 
         this.venues=resp.data;     
@@ -45,7 +48,7 @@ export class VenuesListComponent implements OnInit {
   }
 
   editVenue(venue:Venue){
-    this.router.navigate(['/venue',venue.id]);
+    this.router.navigate(['/home/venue',venue.id]);
   }
 
   removeVenue(venue:Venue){
@@ -55,7 +58,6 @@ export class VenuesListComponent implements OnInit {
     // comprobamos que todos los sites del venue esta de baja o no instalados
     for (let i=0;i<venue.sites.length;i++){
       
-      console.log(venue.sites[i].status.id);
       if (venue.sites[i].status.id==2 || venue.sites[i].status.id==3) {
         unsubscribeSites=false;
         i=venue.sites.length
@@ -76,8 +78,9 @@ export class VenuesListComponent implements OnInit {
         if (resp.value){
           this.venueServices.deleteVenue(venue.id.toString())
           .subscribe(resp=>{
-            this.venues.splice(this.venues.findIndex(e=> e.id===venue.id),1);
+       //     this.venues.splice(this.venues.findIndex(e=> e.id===venue.id),1);
             this.sortedData.splice(this.sortedData.findIndex(e=> e.id===venue.id),1);
+            if(this.page===this.sortedData.length) this.page -=this.linesPages;
           });
       }
       })
@@ -108,7 +111,7 @@ export class VenuesListComponent implements OnInit {
   }
   editSite(id:number){
     this.modalReference.close();
-    this.router.navigate(['/site',id]);
+    this.router.navigate(['/home/site',id]);
   }
 
 
@@ -121,7 +124,6 @@ export class VenuesListComponent implements OnInit {
     }
 
     this.sortedData = data.sort((a, b) => {
-      console.log(a,b)
       const isAsc = sort.direction === 'asc';
       switch (sort.active) {
         case 'id':

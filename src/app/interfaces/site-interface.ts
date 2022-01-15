@@ -95,13 +95,13 @@ export interface Screen {
 }
 
 export interface ScreenBrand {
-  id:          number;
-  description: string;
+  id:               number;
+  description:      string;
 }
 
 export interface Model{
-  id:          number;
-  description: string;
+  id:               number;
+  description:      string;
 }
 
 export interface ScreenModel {
@@ -120,30 +120,30 @@ export interface ScreenModel {
 }
 
 export interface ScreenType {
-  id:          number ;
-  description: string ;
-  panel:       boolean;
+  id:              number ;
+  description:     string ;
+  panel:           boolean;
 } 
 
 export interface Orientation {
-  id:          number;
-  description: string;
+  id:              number;
+  description:     string;
 }
 
 export interface Player {
-  id:            number;
-  serialNumber:  string;
-  mac:           string;
-  orientation:   Orientation;
-  os:            Os;
-  osVersion:     string;
-  appVersion:    string;
-  license:       License;
+  id:                number;
+  serialNumber:      string;
+  mac:               string;
+  orientation:       Orientation;
+  os:                Os;
+  osVersion:         string;
+  appVersion:        string;
+  license:           License;
 }
 
 export interface Os {
-  id:          number;
-  description: string;
+  id:                number;
+  description:       string;
 }
 
 export interface License {
@@ -157,7 +157,7 @@ export interface License {
 }
 
 export interface siteStatus {
-  siteId:         number;
-  newStatus:      number;
+  siteId:           number;
+  newStatus:        number;
 }
 

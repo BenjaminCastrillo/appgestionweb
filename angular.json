@@ -130,5 +130,10 @@
       }
     }
   },
-  "defaultProject": "appgestionweb"
+  "defaultProject": "appgestionweb",
+  "cli": {
+    "warnings": {
+      "versionMismatch": false
+    }
+  }
 }

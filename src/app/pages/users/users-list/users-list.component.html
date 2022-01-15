@@ -1,7 +1,7 @@
 <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-2 mt-2">
   <h4>Listado de usuarios</h4>
   <div class="col text-end">
-    <button routerLink="/user/nuevo" class="btn btn-primary">
+    <button routerLink="/home/user/nuevo" class="btn btn-primary">
       <i class="fas fa-plus"></i>
       Nuevo
     </button>
@@ -64,9 +64,9 @@
         &nbsp;
         <button type="button" 
                 class="btn btn-light btn-sm" 
-                (click)="exceptionsUser(user)"
-                placement="bottom" ngbTooltip="Excepciones" [openDelay]="300">
-                <i class="fas fa-crosshairs"></i>
+                (click)="sitessUser(user)"
+                placement="bottom" ngbTooltip="Emplazamientos accesibles" [openDelay]="300">
+                <i class="fas fa-tv"></i>
         </button>
         </div>
        </td>
@@ -91,7 +91,7 @@
   &nbsp;
   <button class="btn btn-outline-secondary btn-sm"
           (click)="nextPage()"
-          [disabled]="(sortedData |user:filterUser:page:linesPages).length<linesPages"> 
+          [disabled]="(sortedData |user:filterUser:page:linesPages).length<linesPages  || sortedData.length=== page+linesPages"> 
     Pag. Siguiente
   </button>
 </div>

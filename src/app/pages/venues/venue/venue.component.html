@@ -132,7 +132,7 @@
                         <option value="{{b.id}}" *ngFor="let b of location | territorialentities:localizacionIndex; let locationIndex=index" 
                                 [selected]="selectEntidadTerritorial(b.id,localizacionIndex,locationIndex)">
                                 <!-- [class.is-invalid]="entidadTerritoriallNoValido"> -->
-                                {{b.territorialEntityName}}</option>
+                                {{b.territorialEntityName}}</option> 
                       </select>
                     </td>  
                   </tr>
@@ -229,7 +229,7 @@
       <!-- Pestaña Horarios  -->
       <div class="tab-pane fade show active mt-3" id="horario" role="tabpanel" aria-labelledby="horario-tab">  
         
-        <div class="container-fluid row mb-3">
+        <div class="row container-fluid">
           <!-- lista de horarios del cliente -->  
           <div class="col-5"> 
             <label class="form-label">Seleccione los horarios asociados al local</label>
@@ -270,38 +270,38 @@
                     </button>
                   </td>
 
-                  <!-- Modal  Horario semanal ng-bootstrap-->
-                  <ng-template #content let-modal>
-                    <div class="modal-header">
-                      <h4 class="modal-title" id="modal-horarios"> {{a.description}}</h4>
-                      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                    </div>
-                    <div class="modal-body">
-                      <table class="table">
-                        <thead class=table-light>
-                          <tr>
-                            <th class="col-1">Día de la semana</th>
-                            <th class="col-1">Apertura</th>
-                            <th class="col-1">Cierre</th>
-                            <th class="col-1">Apertura</th>
-                            <th class="col-1">Cierre</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let d of a.weekly">       
-                                <th>{{d.descriptionDay}}</th>
-                                <td>{{d.openingTime1}}</td>
-                                <td>{{d.closingTime1}}</td>
-                                <td>{{d.openingTime2}}</td>
-                                <td>{{d.closingTime2}}</td>            
-                            </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </ng-template>
-                    <!-- Fin Modal  Horario semanal-->
+<!-- Modal  Horario semanal ng-bootstrap-->
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-horarios"> {{a.description}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <table class="table table-sm">
+      <thead class=table-light>
+        <tr>
+          <th class="col-1">Día de la semana</th>
+          <th class="col-1">Apertura</th>
+          <th class="col-1">Cierre</th>
+          <th class="col-1">Apertura</th>
+          <th class="col-1">Cierre</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr *ngFor="let d of a.weekly">       
+              <th>{{d.descriptionDay}}</th>
+              <td>{{d.openingTime1}}</td>
+              <td>{{d.closingTime1}}</td>
+              <td>{{d.openingTime2}}</td>
+              <td>{{d.closingTime2}}</td>            
+          </tr>
+      </tbody>
+    </table>
+  </div>
+</ng-template>
+<!-- Fin Modal  Horario semanal-->
 
                 </tr>
               </tbody>
@@ -365,7 +365,7 @@
 
       <!-- Pestaña contactos -->
       <div class="tab-pane fade mt-3" id="contacto" role="tabpanel" aria-labelledby="contacto-tab">  
-        <div class="row container">
+        <div class="row container-fluid">
           <div class="col">
             <table class="table">
               <thead class="table-light">
@@ -424,61 +424,61 @@
                    </button>             
                   </td>
 <!-- Modal  teléfonos-->
-                  <ng-template #content let-modal>
-                    <div class="modal-header">
-                      <h4 class="modal-title" id="modal-basic-title">Teléfonos de contacto de {{a.get('nombre').value}}</h4>
-                      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                    </div>
-                    <div class="modal-body">
-                      
-                      <table class="table">
-                        <thead class=table-light>
-                          <tr>
-                            <th class="col-2">Teléfono</th>
-                            <th class="col-6">Notas</th>
-                            <th class="col-2">Acciones</th>
-                          </tr>
-                        </thead>
-                        <tbody formArrayName="telefonos">
-                          <tr *ngFor="let d of telefonos.controls; let telefonosIndex=index" [formGroupName]="telefonosIndex">       
-                          <td>
-                            <input class="form-control"
-                                  type="text"           
-                                  formControlName="numeroTelefono"
-                                  [class.is-invalid]="d.get('numeroTelefono').invalid && d.get('numeroTelefono').touched">
-                            <small *ngIf="d.get('numeroTelefono').invalid && d.get('numeroTelefono').touched" class="text-danger">{{msgErrorArray('numeroTelefono',telefonosIndex)}}</small> 
-                          </td> 
-                          <td>
-                            <input class="form-control"
-                                  type="text"        
-                                  formControlName="notasTelefono"
-                                  [class.is-invalid]="d.get('notasTelefono').invalid && d.get('notasTelefono').touched">
-                            <small *ngIf="d.get('notasTelefono').invalid && d.get('notasTelefono').touched" class="text-danger">{{msgErrorArray('notasTelefono',telefonosIndex)}}</small> 
-                          </td>
-                          <td>
-                            <button type="button" class="btn btn-light" (click)="removeTelefono(telefonosIndex)"
-                                    placement="bottom" ngbTooltip="Borrar número de teléfono" [openDelay]="300">
-                              <i class="far fa-trash-alt"></i>                    
-                             </button>    
-                          </td>
-                        </tr>
-                        </tbody>
-                      </table>   
-                    </div>
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Teléfonos de contacto de {{a.get('nombre').value}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    
+    <table class="table">
+      <thead class=table-light>
+        <tr>
+          <th class="col-2">Teléfono</th>
+          <th class="col-6">Notas</th>
+          <th class="col-2">Acciones</th>
+        </tr>
+      </thead>
+      <tbody formArrayName="telefonos">
+        <tr *ngFor="let d of telefonos.controls; let telefonosIndex=index" [formGroupName]="telefonosIndex">       
+        <td>
+          <input class="form-control"
+                type="text"           
+                formControlName="numeroTelefono"
+                [class.is-invalid]="d.get('numeroTelefono').invalid && d.get('numeroTelefono').touched">
+          <small *ngIf="d.get('numeroTelefono').invalid && d.get('numeroTelefono').touched" class="text-danger">{{msgErrorArray('numeroTelefono',telefonosIndex)}}</small> 
+        </td> 
+        <td>
+          <input class="form-control"
+                type="text"        
+                formControlName="notasTelefono"
+                [class.is-invalid]="d.get('notasTelefono').invalid && d.get('notasTelefono').touched">
+          <small *ngIf="d.get('notasTelefono').invalid && d.get('notasTelefono').touched" class="text-danger">{{msgErrorArray('notasTelefono',telefonosIndex)}}</small> 
+        </td>
+        <td>
+          <button type="button" class="btn btn-light" (click)="removeTelefono(telefonosIndex)"
+                  placement="bottom" ngbTooltip="Borrar número de teléfono" [openDelay]="300">
+            <i class="far fa-trash-alt"></i>                    
+            </button>    
+        </td>
+      </tr>
+      </tbody>
+    </table>   
+  </div>
 
-                    <div class="d-grid gap-2 col-4 mx-auto">  
-                      <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addTelefono(contactoIndex)">
-                        Añadir teléfono
-                      </button>
-                    </div>
+  <div class="d-grid gap-2 col-4 mx-auto">  
+    <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addTelefono(contactoIndex)">
+      Añadir teléfono
+    </button>
+  </div>
 
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-outline-primary btn-block" 
-                            (click)="modal.close('Save click')">Guardar</button>
-                    </div>
-                  </ng-template>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-primary btn-block" 
+          (click)="modal.close('Save click')">Guardar</button>
+  </div>
+</ng-template>
 <!-- Fin Modal telefonos-->
                 </tr>
               </tbody>
@@ -495,7 +495,7 @@
       <!-- Pestaña emplazamientos   -->
 
       <div class="tab-pane fade mt-3" id="emplazamiento" role="tabpanel" aria-labelledby="emplazamiento-tab">  
-        <div class="row container">
+        <div class="row container-fluid">
           <div class="col">
             <div *ngIf="!newVenue && currentVenue.sites.length>0">
               <table class="table">

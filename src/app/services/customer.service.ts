@@ -1,10 +1,10 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, FormArray } from '@angular/forms';
-import { Observable, Subject} from 'rxjs';
-import { map, delay } from 'rxjs/operators';
+import { Observable, Subject, throwError} from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { CustomersResponse, Customer, Brand, MarketRegion, Week, Month, SitesComercialCode } from '../interfaces/customer-interface';
-
+import { GlobalDataService } from './global-data.service';
 
 interface ErrorValidate{
   [s:string]:boolean
@@ -15,20 +15,22 @@ interface ErrorValidate{
 })
 export class CustomerService {
   
+  private header= new HttpHeaders();
 
-  private url='http://192.168.1.42:3700';
-  private lang=1;
+  private url=this.globalData.getUrlServer();
+  private lang=this.globalData.getUserLanguage();
 
-  constructor(private http:HttpClient) {
-
-   }
-
+  constructor(private http:HttpClient,
+    private globalData:GlobalDataService) {
+   } 
 
   getCustomers():Observable<CustomersResponse>{
 
-    return this.http.get<CustomersResponse>(`${this.url}/customers/${this.lang}`);
+    return this.http.get<CustomersResponse>(`${this.url}/customers/${this.lang}`)
   }
   
+
+
   getCustomerById(id:string){
     return this.http.get<CustomersResponse>(`${this.url}/customers/${id}/${this.lang}`);
   }
@@ -36,6 +38,7 @@ export class CustomerService {
   getCustomersByIdentification(id:string):Observable<CustomersResponse>{
     return this.http.get<CustomersResponse>(`${this.url}/customerbyidentification/${id}/${this.lang}`);
   }
+ 
   
   saveCustomer(customer:Customer):Observable<any>{
     return this.http.post(`${this.url}/customers/`,customer);
@@ -45,63 +48,69 @@ export class CustomerService {
     return this.http.put(`${this.url}/customers/`,customer);
   }
 
-  updateImageBrand(file:any):Observable<any>{
+  deleteCustomer(id:string):Observable<any>{
+    return this.http.delete(`${this.url}/customers/${id}`);
+  }
 
-    const id='11'
-    const httpHeaders = new HttpHeaders({
-      'enctype':'multipart/form-data'
-    })
-     return this.http.post(`${this.url}/customerbrandimage/${id}/ZZ`,file,{headers:httpHeaders});
-    }
+  getBrandsBytIdCustomer(id:number):Observable<Brand[]>{
+    return this.http.get<any>(`${this.url}/brands/${id}`)
+    .pipe(
+      map (resp=>{
+        if (resp.result===true)
+            return resp.data
+        else  
+            return []
+      }),
+      map(marcas=>{
+          return marcas
+      })
+    )
+  }
 
-    deleteCustomer(id:string):Observable<any>{
-      return this.http.delete(`${this.url}/customers/${id}`);
-    }
+  getMarketRegionsBytIdCustomer(id:number):Observable<MarketRegion[]>{
+    return this.http.get<any>(`${this.url}/marketregions/${id}`)
+    .pipe(
+      map (resp=>{
+        if (resp.result===true)
+            return resp.data
+        else 
+            return []
+      }),
+      map(regionesMercado=>{
+          return regionesMercado
+      })
+    )
+  }
 
-    getBrandsBytIdCustomer(id:number):Observable<Brand[]>{
-      return this.http.get<any>(`${this.url}/brands/${id}`)
-      .pipe(
-        map (resp=>{
-          if (resp.result===true)
-              return resp.data
-          else 
-              return []
-        }),
-        map(marcas=>{
-            return marcas
-        })
-      )
-    }
-  
-    getMarketRegionsBytIdCustomer(id:number):Observable<MarketRegion[]>{
-      return this.http.get<any>(`${this.url}/marketregions/${id}`)
-      .pipe(
-        map (resp=>{
-          if (resp.result===true)
-              return resp.data
-          else 
-              return []
-        }),
-        map(regionesMercado=>{
-            return regionesMercado
-        })
-      )
-    }
+  getComercialCodeBytIdCustomer(id:number):Observable<SitesComercialCode[]>{
+    return this.http.get<any>(`${this.url}/sitescode/${id}`)
+    .pipe(
+      map (resp=>{
+        if (resp.result===true)
+            return resp.data
+        else 
+            return []
+      }),
+      map(comercialCodes=>{
+          return comercialCodes
+      })
+    )
+  }
 
-    getComercialCodeBytIdCustomer(id:number):Observable<SitesComercialCode[]>{
-      return this.http.get<any>(`${this.url}/sitescode/${id}`)
-      .pipe(
-        map (resp=>{
-          if (resp.result===true)
-              return resp.data
-          else 
-              return []
-        }),
-        map(comercialCodes=>{
-            return comercialCodes
-        })
-      )
-    }
+  getComercialCodeByAcronym(acro:string):Observable<SitesComercialCode[]>{
+    return this.http.get<any>(`${this.url}/sitecodebyacronym/${acro}`)
+    .pipe(
+      map (resp=>{
+        if (resp.result===true)
+            return resp.data
+        else 
+            return []
+      }),
+      map(comercialCodes=>{
+          return comercialCodes
+      })
+    )
+  }
 
   getWeek():Observable<Week[]>{
     return this.http.get<any>(`${this.url}/weekdays/${this.lang}`)
@@ -222,12 +231,12 @@ timeCloseCorrect(timeStart1:string,timeEnd1:string,timeStart2:string,timeEnd2:st
   }
 }
 
-
+ 
   // Validaciones asíncronas 
 
   existsIdCustomer(control:FormControl):Promise<ErrorValidate>|Observable<ErrorValidate>{
     let identification=control.value;
-
+console.log('voy a validar dni');
     if (!control.value){
       return Promise.resolve(null);
     }
@@ -246,5 +255,29 @@ timeCloseCorrect(timeStart1:string,timeEnd1:string,timeStart2:string,timeEnd2:st
           })
      });
   }
+ 
+  
+  existsCode(control:FormControl):Promise<ErrorValidate>|Observable<ErrorValidate>{
+    let code=control.value;
+
+    if (!control.value){
+      return Promise.resolve(null);
+    }
+     return new Promise ((resolve,reject)=>{
+
+      this.getComercialCodeByAcronym(code)
+      .subscribe(
+        resp=>{
+           if (resp.length>0) 
+           {
+             resolve ({exists:true});
+        }
+           else resolve(null);
+         },
+         error=>{
+           resolve(null);
+         })
+    });
+    }
   
 }

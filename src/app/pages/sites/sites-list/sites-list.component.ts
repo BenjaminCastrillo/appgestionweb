@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router ,ActivatedRoute } from '@angular/router';
 import { Venue } from '../../../interfaces/venue-interface';
 import { Site, siteStatus } from '../../../interfaces/site-interface';
 import { VenueService } from '../../../services/venue.service';
 import { SiteService } from '../../../services/site.service';
 import { UtilService } from '../../../services/util.service';
+import { UserService } from '../../../services/user.service';
 import Swal from 'sweetalert2';
 import {Sort} from '@angular/material/sort';
 
@@ -24,27 +25,46 @@ export class SitesListComponent implements OnInit {
   public linesPages:number=10;
   public listSites:Site[];
   public sortedData:Site[];
+  public userId:string;
+  public userName:string;
 
 
   constructor(private venueServices:VenueService,
               private siteServices:SiteService,
+              private userServices:UserService,
               private UtilService:UtilService,
-              private router:Router
+              private router:Router,
+              private ActivatedRoute:ActivatedRoute,
   ) { }
 
   ngOnInit(): void {
+
+    this.userId= this.ActivatedRoute.snapshot.paramMap.get('id');
+
     this.cargando=true;
-    this.venueServices.getVenues()
+    this.venueServices.getVenues(this.userId==='todos'?null:this.userId)
     .subscribe(resp=>{    
       if (resp.result===true){ 
         this.venues=resp.data;     
         // Cargamos array de sites
-        this.listSites=this.cargarSites(this.venues)
+        this.listSites=this.cargarSites(this.venues);
+        if (this.userId==='todos'){
+          this.userName=null;
+        }else{
+          this.userServices.getUserById(this.userId)
+          .subscribe(resp=>{
+            this.userName=` del usuario ${resp.data[0].name} ${resp.data[0].surname} (#${resp.data[0].id})`;
+            console.log(this.userId,resp.data[0].id);
+
+       //     this.userName=resp.data.id;
+          });  
+        }
+ 
         this.cargando=false;   
         this.sortedData=this.listSites.slice();
       }
     });
-  }
+  } 
   
   cargarSites(venues:Venue[]){
 
@@ -137,7 +157,7 @@ export class SitesListComponent implements OnInit {
 
   editSite(site:Site){
   
-    this.router.navigate(['/site',site.id]);
+    this.router.navigate(['/home/site',site.id]);
   }
 
   removeSite(site:Site){
@@ -156,9 +176,10 @@ export class SitesListComponent implements OnInit {
         if (resp.value){
           this.siteServices.deleteSite(site.id.toString())
           .subscribe(resp=>{
-            this.listSites.splice(this.listSites.findIndex(e=> e.id===site.id),1);
+        //    this.listSites.splice(this.listSites.findIndex(e=> e.id===site.id),1);
             this.sortedData.splice(this.sortedData.findIndex(e=> e.id===site.id),1);
-            },
+            if(this.page===this.sortedData.length) this.page -=this.linesPages; 
+          },
             error=>{
               Swal.fire({
                 title: 'Lo siento tuvimos un problema',

@@ -9,7 +9,6 @@ export class HomePipe implements PipeTransform {
   transform(customers: any, text: string,page_number:number,page_size:number,longArray:number): Customer[] {
     if (text==='') return customers.slice(page_number*page_size,(page_number+1)*page_size) 
     
-    console.log('en el pipe:page_number, page_size',page_number,page_size,longArray)
     let resultado=[];
     for(let customer of customers){
       if (customer.id.toString().toLowerCase().indexOf(text.toLowerCase())>-1 ||

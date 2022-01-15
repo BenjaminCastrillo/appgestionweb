@@ -6,6 +6,9 @@ import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatSortModule} from '@angular/material/sort';
+import {MatRadioModule} from '@angular/material/radio';
+import {MatIconModule} from '@angular/material/icon';
+
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 import { ComponentsModule } from '../components/components.module';
@@ -14,10 +17,10 @@ import { PipesModule } from '../pipes/pipes.module';
 import { HomeComponent } from './home/home.component';
 import { CustomerComponent } from './customers/customer/customer.component';
 import { CustomersListComponent } from './customers/customers-list/customers-list.component';
-import { UsersListComponent } from './users/users-list/users-list.component';
 import { UserComponent } from './users/user/user.component';
-import { VenueComponent } from './venues/venue/venue.component';
+import { UsersListComponent } from './users/users-list/users-list.component';
 import { VenuesListComponent } from './venues/venues-list/venues-list.component';
+import { VenueComponent } from './venues/venue/venue.component';
 import { SitesListComponent } from './sites/sites-list/sites-list.component';
 import { SiteComponent } from './sites/site/site.component';
 import { PagesComponent } from './pages.component';
@@ -26,12 +29,12 @@ import { PagesComponent } from './pages.component';
 @NgModule({
   declarations: [
     HomeComponent, 
-    UserComponent, 
-    UsersListComponent,
-    CustomerComponent, 
     CustomersListComponent,
-    VenueComponent, 
+    CustomerComponent, 
+    UsersListComponent,
+    UserComponent, 
     VenuesListComponent, 
+    VenueComponent, 
     SitesListComponent, 
     SiteComponent, PagesComponent, 
     ],
@@ -46,16 +49,18 @@ import { PagesComponent } from './pages.component';
     NgMultiSelectDropDownModule.forRoot(),
     MatPaginatorModule,
     ComponentsModule,
+    MatRadioModule,
+    MatIconModule,
   
     MatSortModule,
    // MatButtonModule,
   ],
   exports:[
     HomeComponent, 
-    UserComponent,
-    UsersListComponent,
-    CustomerComponent, 
     CustomersListComponent,
+    CustomerComponent, 
+    UsersListComponent,
+    UserComponent,
     VenueComponent, 
     VenuesListComponent,
     ]

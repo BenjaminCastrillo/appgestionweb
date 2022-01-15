@@ -12,6 +12,7 @@ import { VenueService } from '../../../services/venue.service';
 import { CustomerService } from '../../../services/customer.service';
 import { UploadService  } from '../../../services/upload.service';
 import { UtilService } from '../../../services/util.service';
+import { GlobalDataService } from '../../../services/global-data.service';
 
 
 interface ImagenesFile{
@@ -31,8 +32,10 @@ interface ImagenesFile{
 })
 export class VenueComponent implements OnInit {
 
-  private urlImage='http://192.168.1.42:3700/';
-  private imageDefault='../../../../assets/img/noimage.png';
+  private imageDefault=this.globalData.getUrlImageDefault();
+  private urlImageBrand=this.globalData.getUrlImageBrand();
+  private urlImageVenue=this.globalData.getUrlImageVenue();
+
 
   public venueForm: FormGroup;
   public currentVenue:Venue=null;
@@ -44,19 +47,9 @@ export class VenueComponent implements OnInit {
   public location:any[]=[];
   public week:Week[]=[];
   public schedules:Schedule[]=[];
- // public selectedSchedules:Schedule[]=[];
   public comercialCodes:SitesComercialCode[]=[];
   public monthsLicense:number[];
-  // public a:MultiselectSchedule[]=[
-  //   {
-  //     item_id:1,
-  //     item_text:'verano'
-  //   },{
-  //     item_id:2,
-  //     item_text:'invierno'
-  //   }
-  // ];
-  // public b:MultiselectSchedule[];
+ 
 
 
 
@@ -86,6 +79,7 @@ export class VenueComponent implements OnInit {
     private ActivatedRoute:ActivatedRoute,
     private uploadServices:UploadService,
     private utilService:UtilService,
+    private globalData:GlobalDataService,
     private router:Router,
     config: NgbModalConfig, private modalService: NgbModal
 
@@ -144,16 +138,6 @@ export class VenueComponent implements OnInit {
     .subscribe(resp=>{   
       this.monthsLicense=resp;
     }); 
-
-    // this.dropdownSettings = {
-    //   singleSelection: false,
-    //   idField: 'item_id',
-    //   textField: 'item_text',
-    //   selectAllText: 'Seleccionar todos',
-    //   unSelectAllText: 'Deseleccionar todos',
-    //   itemsShowLimit: 5,
-    //   allowSearchFilter: false
-    // };
   
   }
 
@@ -191,8 +175,6 @@ export class VenueComponent implements OnInit {
       schedulesSearch:  [],
     });
 
-    console.log('formulario creado');
-//   this.crearListeners();
   }
 
   loadData(venue:Venue){
@@ -207,7 +189,6 @@ export class VenueComponent implements OnInit {
     });
 
     venue.schedule.forEach(elem=>{
- //     this.selectedSchedules.push(elem);
       sc.push(this.newHorario(elem.id,elem.description,elem.startDate,elem.weekly,elem.idCustomerSchedule))
     });
 
@@ -221,8 +202,8 @@ export class VenueComponent implements OnInit {
    
 
 
-    this.binariosImagenMarca=(venue.brand.image)?this.urlImage+'brandimage/'+venue.brand.image:this.imageDefault;
-    this.binariosImagenLocal=(venue.image)?this.urlImage+'venueimage/'+venue.image:this.imageDefault;
+    this.binariosImagenMarca=(venue.brand.image)?this.urlImageBrand+venue.brand.image:this.imageDefault;
+    this.binariosImagenLocal=(venue.image)?this.urlImageVenue+venue.image:this.imageDefault;
 
     this.prevCountry=venue.country.id;
   //  this.venueForm.get('id').patchValue(venue.id);
@@ -278,7 +259,7 @@ export class VenueComponent implements OnInit {
           // Si vuelve a seleccionar el cliente inicial cargo la marca y region comercial iniciales
           this.venueForm.get('marca').patchValue(this.currentVenue.brand.id);
            // Cambiamos la imagen de la marca
-          this.binariosImagenMarca=(this.currentVenue.brand.image)?this.urlImage+'brandimage/'+this.currentVenue.brand.image:this.imageDefault;
+          this.binariosImagenMarca=(this.currentVenue.brand.image)?this.urlImageBrand+this.currentVenue.brand.image:this.imageDefault;
           this.venueForm.get('regionComercial').patchValue(this.currentVenue.marketRegion.id);
           // Cargamos los horarios del cliente inicial
           let sc=[];
@@ -303,7 +284,7 @@ export class VenueComponent implements OnInit {
       if (this.brands.length>0){
         let b=this.brands.find(elem=>elem.id==a)
         // Cambiamos la imagen de la marca
-        this.binariosImagenMarca=(b===undefined)?this.imageDefault:this.urlImage+'brandimage/'+b.image;
+        this.binariosImagenMarca=(b===undefined)?this.imageDefault:this.urlImageBrand+b.image;
       }
       if (this.marcaBorrada) this.marcaBorrada=false;
     });
@@ -818,44 +799,44 @@ export class VenueComponent implements OnInit {
         // Preparar los datos
        
         let respuesta:Venue ={
-          id:      this.venueId==='nuevo'?null:Number(this.venueId),
+          id:                  this.venueId==='nuevo'?null:Number(this.venueId),
           customer:{
-                id:              this.venueForm.get('cliente').value,
-                identification:  null,
-                name:            null
+                id:            this.venueForm.get('cliente').value,
+                identification:null,
+                name:          null
               },
-          name:         this.venueForm.get('nombre').value,
-          image:        this.venueForm.get('tocado').value?this.venueForm.get('codigoImagen').value:this.venueForm.get('nombreArchivo').value,
+          name:                this.venueForm.get('nombre').value,
+          image:               this.venueForm.get('tocado').value?this.venueForm.get('codigoImagen').value:this.venueForm.get('nombreArchivo').value,
           country:{
-                id:          this.venueForm.get('pais').value,
-                description: null
+                id:            this.venueForm.get('pais').value,
+                description:   null
           },
-          location:     lo,
-          roadType:     {           
-                id:          this.venueForm.get('tipoVia').value,
-                description: null
+          location:            lo,
+          roadType:{           
+                id:            this.venueForm.get('tipoVia').value,
+                description:   null
           },         
-          address:      this.venueForm.get('calle').value,  
-          streetNumber: this.venueForm.get('numero').value,
-          postalCode:   this.venueForm.get('codigoPostal').value,
-          latitude:     null,
-          longitude:    null,
+          address:             this.venueForm.get('calle').value,  
+          streetNumber:        this.venueForm.get('numero').value,
+          postalCode:          this.venueForm.get('codigoPostal').value,
+          latitude:            null,
+          longitude:           null,
           marketRegion:{
-            id:this.venueForm.get('regionComercial').value,
-            description: null,
-            deleted:null
+                id:            this.venueForm.get('regionComercial').value,
+                description:   null,
+                deleted:       null
           },        
           brand:   {
-                id:          this.venueForm.get('marca').value,
-                description: null,
-                color:       null,
-                image:       null,
-                deleted:     null
+                id:            this.venueForm.get('marca').value,
+                description:   null,
+                color:         null,
+                image:         null,
+                deleted:       null
           }, 
-          contact:      co,
-          schedule:     sc,
-          sites:        null,
-          newSite:      si,
+          contact:             co,
+          schedule:            sc,
+          sites:               null,
+          newSite:               si,
         }
 
         console.log('respuesta',respuesta);
@@ -881,7 +862,7 @@ export class VenueComponent implements OnInit {
           });
   
           //this.venueForm.reset();
-          this.router.navigate(['/venue-list']);
+          this.router.navigate(['/home/venue-list']);
         },
         error=>{
           console.log(error);
@@ -903,11 +884,11 @@ export class VenueComponent implements OnInit {
         idCustomerSchedule: elem.get('idRelacionHorario').value,
         description:        elem.get('descripcionHorario').value,
         startDate:{
-                id: null,
+                id:         null,
                 description:elem.get('diaInicio').value,
         },      
         weekly:             elem.get('weekly').value,
-        deleted:false      
+        deleted:            false      
       })
     });
     if (this.venueId!='nuevo'){    // buscamos los borrados y los incluimos en el array
@@ -1088,11 +1069,11 @@ export class VenueComponent implements OnInit {
         showCancelButton:true,
       }).then(resp=>{
         if (resp.value){
-          this.router.navigate(['/venue-list']);          
+          this.router.navigate(['/home/venue-list']);          
         }
       });
     }else{
-      this.router.navigate(['/venue-list']);          
+      this.router.navigate(['/home/venue-list']);          
     }
     return;
   }

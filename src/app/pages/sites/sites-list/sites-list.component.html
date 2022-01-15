@@ -1,5 +1,5 @@
 <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-2 mt-2">
-  <h4>Listado de emplazamientos</h4>
+  <h4>Listado de emplazamientos <small *ngIf="userName" class="text-muted">{{userName}}</small></h4>
   <!-- <div class="col text-end">
     <button routerLink="/site/nuevo" class="btn btn-primary">
       <i class="fas fa-plus"></i>
@@ -34,25 +34,29 @@
     <tr *ngFor="let site of sortedData | site:filterSite:page:linesPages:sortedData.length;  let i =index">
       <td >{{site.id}}<span *ngIf="site.filter" class="badge bg-warning text-dark">{{site.customer.name}}</span></td>
       <td>{{site.siteComercialId}}</td>
-      <td>{{site.name}}</td>
+      <td>{{site.name}}</td>   
       <td>{{site.descriptionLocation}}</td>
       <td>{{site.screenLocation.description}}</td> 
       <td>   
         <i *ngIf="site.status.id===1" class="bi bi-cone-striped" style="font-size: 1rem;"
         placement="bottom" ngbTooltip="{{site.status.description}}" [openDelay]="300"></i>
-        <i *ngIf="site.status.id===2" class="bi bi-check-circle" style="font-size: 1rem;color:aquamarine"
+        <i *ngIf="site.status.id===2" class="bi bi-check-circle" style="font-size: 1rem;color:#198754"
         placement="bottom" ngbTooltip="{{site.status.description}}" [openDelay]="300"></i>
         <i *ngIf="site.status.id===3" class="bi bi-exclamation-circle" style="font-size: 1rem;"
         placement="bottom" ngbTooltip="{{site.status.description}}" [openDelay]="300"></i>
         <i *ngIf="site.status.id===4" class="bi bi-x-circle" style="font-size: 1rem;"
         placement="bottom" ngbTooltip="{{site.status.description}}" [openDelay]="300"></i>
         &nbsp;
-        <span *ngIf="site.player.license.valid" class="text-white bg-success fs-5"
-        placement="bottom" ngbTooltip="{{site.player.license.text}}" [openDelay]="300">
-        <strong>L</strong></span>
-        <span *ngIf="!site.player.license.valid" class="text-white bg-danger fs-5"
-        placement="bottom" ngbTooltip="{{site.player.license.text}}" [openDelay]="300">
-        <strong>L</strong></span> 
+
+        <span *ngIf="site.player.license.valid" class="text-success"
+              placement="bottom" ngbTooltip="{{site.player.license.text}}" [openDelay]="300">
+          <!-- <mat-icon aria-hidden="false" aria-label="License icon">workspace_premium</mat-icon>  -->
+          <i class="fas fa-medal"></i>
+        </span>  
+        <span *ngIf="!site.player.license.valid" class="text-danger" 
+              placement="bottom" ngbTooltip="{{site.player.license.text}}" [openDelay]="300">
+          <i class="fas fa-medal"></i>
+        </span> 
         
       </td>
       <td>
@@ -97,7 +101,7 @@
   &nbsp;
   <button class="btn btn-outline-secondary btn-sm"
           (click)="nextPage()"
-          [disabled]="(sortedData |site:filterSite:page:linesPages).length<linesPages"> 
+          [disabled]="(sortedData |site:filterSite:page:linesPages).length<linesPages  || sortedData.length=== page+linesPages"> 
     Pag. Siguiente
   </button>
 </div>

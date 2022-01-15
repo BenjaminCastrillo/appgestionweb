@@ -3,16 +3,18 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, Subject} from 'rxjs';
 import { LoginResponse ,LoginUser } from '../interfaces/loginUser-interface';
 import { map } from 'rxjs/operators';
+import { GlobalDataService } from './global-data.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LoginService {
-  private url='http://192.168.1.42:3700';
-  private lang=1;
-  private token:string;
+  private url=this.globalData.getUrlServer();
+  private lang=this.globalData.getUserLanguage();
+ // private token:string;
 
-  constructor( private http:HttpClient ) { 
+  constructor( private http:HttpClient,
+               private globalData:GlobalDataService ) { 
   //  this.token=localStorage.getItem('token')
   }
 
@@ -33,12 +35,21 @@ export class LoginService {
       
   }
 
-  saveToken(token,user,userId){
+  saveToken(token:string,user:string,userId:string){
       
     localStorage.setItem('token',token);
     localStorage.setItem('user',user);
     localStorage.setItem('userId',userId);
 
+  }
+  logout(){
+      
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('language');
+
+    return
   }
 }
 

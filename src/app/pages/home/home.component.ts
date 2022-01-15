@@ -58,7 +58,6 @@ export class HomeComponent implements OnInit {
     }
 
     this.sortedData = data.sort((a, b) => {
-      console.log(a,b)
       const isAsc = sort.direction === 'asc';
       switch (sort.active) {
         case 'id':

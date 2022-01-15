@@ -4,6 +4,7 @@ import { Observable, Subject} from 'rxjs';
 import { FormControl } from '@angular/forms';
 import { UsersResponse, User } from '../interfaces/user-interface';
 import { map, delay } from 'rxjs/operators';
+import { GlobalDataService } from './global-data.service';
 
 
 interface ErrorValidate{
@@ -16,10 +17,11 @@ export class UserService {
 
 
 
-  private url='http://192.168.1.42:3700';
-  private lang=1;
+  private url=this.globalData.getUrlServer();
+  private lang=this.globalData.getUserLanguage();
   
-  constructor(private http:HttpClient) { }
+  constructor(private http:HttpClient,
+    private globalData:GlobalDataService) { }
 
   getUsers():Observable<UsersResponse>{
     return this.http.get<UsersResponse>(`${this.url}/users/${this.lang}`)

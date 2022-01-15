@@ -17,8 +17,11 @@ interface Login{
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  
+ 
+  public remember=false;
+  public email='';
   public loginForm: FormGroup;
+
 
   constructor(private fb: FormBuilder,
     private loginServices:LoginService,
@@ -26,9 +29,16 @@ export class LoginComponent implements OnInit {
     ) { }
 
   ngOnInit(): void {
+
+    if (localStorage.getItem('email')){
+      this.remember=true;
+      this.email=localStorage.getItem('email')
+    }
+
     this.loginForm = this.fb.group({
-      user: ['', Validators.required],
-      password: ['', Validators.required] 
+      user: [this.email, Validators.required],
+      password: ['', Validators.required],
+      rememberUser:[this.remember]
     });  
   }
 
@@ -68,18 +78,53 @@ export class LoginComponent implements OnInit {
         }
 
         peticionHtml=this.loginServices.loginUser(respuesta);
+
+        Swal.fire({
+          icon: 'info',
+          title: 'Espere por favor...',
+          allowOutsideClick:false
+        })
+        Swal.showLoading();
   
         peticionHtml.subscribe(resp=>{     
+          console.log('respuesta ',resp);
 
-          console.log(resp);
+          if (this.loginForm.get('rememberUser').value){
+            localStorage.setItem('email',this.loginForm.get('user').value)
+          }else{
+
+         // localStorage.setItem('email','');
+          localStorage.removeItem('email');
+          }
+          Swal.close();
           const name=resp.data.name+' '+resp.data.surname;
           if (resp.result){
             this.loginServices.saveToken(resp.token,name,resp.data.id);
-            this.router.navigate(['/user-list']);
+            this.router.navigate(['/home']);
+          }else{
+            console.log('usuario incorrecto');
           }
+
         },
         error=>{
-          console.log(error);
+          console.log('error', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Usuario o password incorrecto',
+            text: 'Por favor, inténtelo de nuevo',
+            allowOutsideClick:false
+          })
+
+          // restituyo la situación inicial
+          if (localStorage.getItem('email')){
+            this.loginForm.get('user').patchValue(localStorage.getItem('email'));
+            this.loginForm.get('rememberUser').patchValue(true);
+          }else{
+            this.loginForm.get('user').patchValue('');           
+          }
+          this.loginForm.get('password').patchValue('');
+          // this.loginForm.reset();
+
         })
       };
     }else{

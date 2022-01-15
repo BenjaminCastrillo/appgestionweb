@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, Subject} from 'rxjs';
+import { GlobalDataService } from './global-data.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,13 +10,15 @@ export class UploadService {
 
   private url='http://192.168.1.42:3700';
 
-  constructor(private http:HttpClient) { }
+  constructor(private http:HttpClient,
+    private globalData:GlobalDataService) { }
 
   uploadImage(file:any,imageType:String):Observable<any>{
     let metodo:string;
     const httpHeaders = new HttpHeaders({
       'enctype':'multipart/form-data'
     });
+    console.log('aqui............');
     switch (imageType){
     case 'B':
       metodo='brandimage';

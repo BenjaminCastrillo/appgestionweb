@@ -1,7 +1,7 @@
 <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-2 mt-2">
   <h4>Listado de locales</h4>
   <div class="col text-end">
-    <button routerLink="/venue/nuevo" class="btn btn-primary">
+    <button routerLink="/home/venue/nuevo" class="btn btn-primary">
       <i class="fas fa-plus"></i>
       Nuevo
     </button>
@@ -61,62 +61,67 @@
         </button>    
        </td>
 
-   <!-- Modal  Lista de emplazamientos ng-bootstrap-->
-   <ng-template #content let-modal>
-    <div class="modal-header">
-      <h4 class="modal-title" id="modal-horarios">Emplazamientos del local {{venue.name}}</h4>
-      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-    <div class="modal-body">
-      <table class="table">
-        <thead class=table-light>
-          <tr>
-            <th class="col-1">#ID</th>
-            <th class="col-1">Código</th>
-            <th class="col-3">Localización</th>
-            <th class="col-1">Estado</th>
-            <th class="col-1">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let d of venue.sites">       
-                <th>{{d.id}}</th>
-                <td>{{d.siteComercialId}}</td>
-                <td>{{d.screenLocation.description}}</td>
+<!-- Modal  Lista de emplazamientos ng-bootstrap-->
+  <ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-horarios">Emplazamientos del local {{venue.name}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <table class="table table-sm">
+      <thead class=table-light>
+        <tr>
+          <th class="col-1">#ID</th>
+          <th class="col-1">Código</th>
+          <th class="col-3">Localización pantalla</th>
+          <th class="col-1">Estado</th>
+          <th class="col-1">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr *ngFor="let d of venue.sites">       
+              <th>{{d.id}}</th>
+              <td>{{d.siteComercialId}}</td>
+              <td>{{d.screenLocation.description}}</td>
 
-                <td>   
-                  <i *ngIf="d.status.id===1" class="bi bi-cone-striped" style="font-size: 1rem;"
-                    placement="bottom" ngbTooltip="{{d.status.description}}" [openDelay]="300"></i>
-                  <i *ngIf="d.status.id===2" class="bi bi-check-circle" style="font-size: 1rem;"
-                    placement="bottom" ngbTooltip="{{d.status.description}}" [openDelay]="300"></i>
-                  <i *ngIf="d.status.id===3" class="bi bi-exclamation-circle" style="font-size: 1rem;"
-                    placement="bottom" ngbTooltip="{{d.status.description}}" [openDelay]="300"></i>
-                  <i *ngIf="d.status.id===4" class="bi bi-x-circle" style="font-size: 1rem;"
-                    placement="bottom" ngbTooltip="{{d.status.description}}" [openDelay]="300"></i>
-                  &nbsp;
-                  <span *ngIf="d.player.license.valid" class="text-white bg-success fs-5"
-                        placement="bottom" ngbTooltip="{{d.player.license.text}}" [openDelay]="300">
-                        <strong>L</strong></span>
-                  <span *ngIf="!d.player.license.valid" class="text-white bg-danger fs-5"
-                        placement="bottom" ngbTooltip="{{d.player.license.text}}" [openDelay]="300">
-                        <strong>L</strong></span>
-                </td>
-                <td>
-                  <button type="button" 
-                    class="btn btn-light btn-sm mr-1" 
-                    (click)="editSite(d.id)" 
-                    placement="bottom" ngbTooltip="Editar emplazamiento" [openDelay]="300">
-                    <i class="fas fa-edit"></i>
-                  </button>
-                </td>
-            </tr>   
-        </tbody>
-      </table>
-    </div>
-  </ng-template>
-    <!-- Fin Modal  Horario semanal-->
+              <td>   
+                <i *ngIf="d.status.id===1" class="bi bi-cone-striped" style="font-size: 1rem;"
+                  placement="bottom" ngbTooltip="{{d.status.description}}" [openDelay]="300"></i>
+                <i *ngIf="d.status.id===2" class="bi bi-check-circle" style="font-size: 1rem;"
+                  placement="bottom" ngbTooltip="{{d.status.description}}" [openDelay]="300"></i>
+                <i *ngIf="d.status.id===3" class="bi bi-exclamation-circle" style="font-size: 1rem;"
+                  placement="bottom" ngbTooltip="{{d.status.description}}" [openDelay]="300"></i>
+                <i *ngIf="d.status.id===4" class="bi bi-x-circle" style="font-size: 1rem;"
+                  placement="bottom" ngbTooltip="{{d.status.description}}" [openDelay]="300"></i>
+                &nbsp;
+     
+                <span *ngIf="d.player.license.valid" class="text-success"
+                      placement="bottom" ngbTooltip="{{d.player.license.text}}" [openDelay]="300">
+                  <!-- <mat-icon aria-hidden="false" aria-label="License icon">workspace_premium</mat-icon>  -->
+                  <i class="fas fa-medal"></i>
+                </span>  
+                <span *ngIf="!d.player.license.valid" class="text-danger" 
+                      placement="bottom" ngbTooltip="{{d.player.license.text}}" [openDelay]="300">
+                  <i class="fas fa-medal"></i>
+                </span> 
+
+              </td>
+              <td>
+                <button type="button" 
+                  class="btn btn-light btn-sm mr-1" 
+                  (click)="editSite(d.id)" 
+                  placement="bottom" ngbTooltip="Editar emplazamiento" [openDelay]="300">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </td>
+          </tr>   
+      </tbody>
+    </table>
+  </div>
+</ng-template>
+<!-- Fin Modal lista emplazamientos  -->
 
 
     </tr> 
@@ -140,7 +145,7 @@
   &nbsp;
   <button class="btn btn-outline-secondary btn-sm"
           (click)="nextPage()"
-          [disabled]="(sortedData |venue:filterVenue:page:linesPages).length<linesPages"> 
+          [disabled]="(sortedData |venue:filterVenue:page:linesPages).length<linesPages  || sortedData.length=== page+linesPages"> 
     Pag. Siguiente
   </button>
 </div>

@@ -5,6 +5,7 @@ import { map, delay } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
 import { VenuesResponse, Country, TerritorialOrganization, TerritorialEntities, RoadType, Week, Schedule, Venue } from '../interfaces/venue-interface';
 import { CustomerService } from './customer.service';
+import { GlobalDataService } from './global-data.service';
 // import * as moment from 'moment';
 // import 'moment/locale/es';
 
@@ -13,15 +14,18 @@ import { CustomerService } from './customer.service';
   providedIn: 'root'
 })
 export class VenueService {
-  private url='http://192.168.1.42:3700';
-  private user=47; // obtener en un futuro del usuario de la aplicación
-  private lang=2;  // obtener en un futuro del usuario de la aplicación
+  private url=this.globalData.getUrlServer();
+  private lang=this.globalData.getUserLanguage();
+  private user=this.globalData.getUserId();
 
   constructor(private http:HttpClient,
-    private customerServices:CustomerService,) { }
+    private customerServices:CustomerService,
+    private globalData:GlobalDataService) { }
 
-  getVenues():Observable<VenuesResponse>{
-    return this.http.get<VenuesResponse>(`${this.url}/venuesandsitesbyuser/${this.user}/${this.lang}`);
+  getVenues(userId:string|null):Observable<VenuesResponse>{
+
+    const usuario=!userId?this.user:userId;
+    return this.http.get<VenuesResponse>(`${this.url}/venuesandsitesbyuser/${usuario}/${this.lang}`);
   }
   getVenueAndSiteById(id:string):Observable<VenuesResponse>{
     return this.http.get<VenuesResponse>(`${this.url}/venueandsitesbyid/${id}/${this.user}/${this.lang}`);                                                  
@@ -102,7 +106,7 @@ export class VenueService {
   
   getWeek():Observable<Week[]>{
     // moment.locale('es');
-    // console.log(moment.weekdays());
+
     return this.http.get<any>(`${this.url}/weekdays/${this.lang}`)
     .pipe(
       map (resp=>{

@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 import {Sort} from '@angular/material/sort';
 
 
-
+ 
 
 @Component({
   selector: 'app-customers-list',
@@ -20,7 +20,7 @@ export class CustomersListComponent implements OnInit {
   public cargando:boolean=false;
   public filterCustomer:string='';
   public page:number=0;
-  public linesPages:number=10;
+  public linesPages:number=9;
   public sortedData:Customer[];
  
 
@@ -44,8 +44,6 @@ export class CustomersListComponent implements OnInit {
 
   removeCustomer(customer:Customer,i:number){
 
-  
-
     Swal.fire({
       title:'¿Desea borrar el registro?',
       text: `${customer.name}`,
@@ -58,22 +56,23 @@ export class CustomersListComponent implements OnInit {
     }).then(resp=>{
       if (resp.value){
         
-
         this.customerServices.deleteCustomer(customer.id.toString())
         .subscribe(resp=>{
-          this.customers.splice(this.customers.findIndex(e=> e.id===customer.id),1);
+      //    this.customers.splice(this.customers.findIndex(e=> e.id===customer.id),1);
           this.sortedData.splice(this.sortedData.findIndex(e=> e.id===customer.id),1);
-          },
-          error=>{
-            Swal.fire({
-              title: 'Lo siento tuvimos un problema',
-              text:`El registro de ${customer.name} no se eliminó`,
-              confirmButtonColor: '#007bff',
-              icon:'error',
-              allowOutsideClick:false
-            });
-            console.log(error.error.result);
+    
+          if(this.page===this.sortedData.length) this.page -=this.linesPages;
+          
+        },
+        error=>{
+          Swal.fire({
+            title: 'Lo siento tuvimos un problema',
+            text:`El registro de ${customer.name} no se eliminó`,
+            confirmButtonColor: '#007bff',
+            icon:'error',
+            allowOutsideClick:false
           });
+        });
       }
     })
 
@@ -81,7 +80,7 @@ export class CustomersListComponent implements OnInit {
   }
   editCustomer(customer:Customer){
 
-    this.router.navigate(['/customer',customer.id]);
+    this.router.navigate(['/home/customer',customer.id]);
   }
 
   sortData(sort: Sort) {
@@ -93,7 +92,6 @@ export class CustomersListComponent implements OnInit {
     }
 
     this.sortedData = data.sort((a, b) => {
-      console.log(a,b)
       const isAsc = sort.direction === 'asc';
       switch (sort.active) {
         case 'id':
@@ -110,7 +108,6 @@ export class CustomersListComponent implements OnInit {
 
 
   buscar(tecla:string){
-
     this.page=0;
     return  
   }

@@ -1,17 +1,40 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {FormBuilder, FormGroup, Validators, FormArray, FormControl} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { Observable} from 'rxjs';
 import Swal from 'sweetalert2';
+import {NgbModal, NgbModalConfig,ModalDismissReasons, NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {Sort} from '@angular/material/sort';
 
-
-import { User, Rol, SitesList } from '../../../interfaces/user-interface';
+import { Site, ScreenLocation } from '../../../interfaces/site-interface';
+import { User, Rol, SitesList, CustomerUserList } from '../../../interfaces/user-interface';
 import { Customer } from '../../../interfaces/customer-interface';
 import {UserService } from '../../../services/user.service';
 import { CustomerService } from '../../../services/customer.service';
+import { SiteService } from '../../../services/site.service';
+import { UtilService } from '../../../services/util.service';
 
 interface ErrorValidate{
   [s:string]:boolean
+}
+interface excepcionesType{
+  id:number;
+  description:string
+}
+
+interface ExcepcionesBorradas{
+  idRelacion:      number;
+  idEmplazamiento:number
+}
+
+interface ListaExcepciones{
+
+  idEmplazamiento:     number;
+  codigoComercial:     string;
+  nombreLocal:         string;
+  idCliente:           number;
+  nombreCliente:       string;
+  excepcion:           number;  
 }
 
 @Component({
@@ -20,31 +43,57 @@ interface ErrorValidate{
   styleUrls: ['./user.component.css']
 })
 export class UserComponent implements OnInit {
-
-
-  public userForm: FormGroup;
+  
+  
   public currentUser:User;
+  public userForm: FormGroup;
   public userId:string;
-  public newUser:boolean;
-  public pageTitle:string;
-  public languages: any[];
-  public roles: any[];
   public customers:Customer[];
   public filterCustomer:string='';
-  public page:number=0;
-  public linesPages:number=8;
   public filterLines:number=0;
+  public filterSite:string='';
+  public languages: any[];
+  public linesPages:number=6;
+  public linesPages2:number=6;
+  public newUser:boolean;
+  public page:number=0;
+  public page2:number=0;
+  public pageTitle:string;
   public prevRelationship:string='';
+  public roles: any[];
+  public sites: SitesList[]=[];
+  public tiposExcepciones:excepcionesType[]=[
+    {
+      id:1,
+      description:'Solo los sites indicados'
+    },
+    {
+      id:2,
+      description:'Excepto los sites indicados'
+    }
+  ];
+  public excepcionesCliente:SitesList[];
+  public excepcionesBorradas:ExcepcionesBorradas[];
+  public codigoCliente:number=0;
+  public closeResult = '';
+  public rolAnterior:number=0;
+  public sortedData:SitesList[];
+  public listaExcepcionesActiva:SitesList[];
+
   
-
-  constructor(private fb: FormBuilder,
-    private userServices:UserService,
-    private customerServices:CustomerService,
+  constructor(
     private ActivatedRoute:ActivatedRoute,
-    private router:Router
-
-  ) {
-    this.crearFormulario();
+    private fb: FormBuilder,
+    private router:Router,
+    private customerServices:CustomerService,
+    private siteServices:SiteService,
+    private userServices:UserService,
+    private UtilService:UtilService,
+    config: NgbModalConfig, private modalService: NgbModal  
+    ) {
+      config.backdrop = 'static';
+      config.keyboard = false; 
+      this.crearFormulario();
   }
 
   ngOnInit(): void {
@@ -58,20 +107,20 @@ export class UserComponent implements OnInit {
       this.pageTitle='Modificación datos de usuario';
       this.userServices.getUserById(this.userId)
       .subscribe(resp=>{
-        this.currentUser=resp.data[0];
-        this.loadData(resp.data[0]);
-        
+          this.currentUser=resp.data[0];
+          this.rolAnterior=this.currentUser.rol.id;
+          console.log('el usuario recibido',this.currentUser);
+          this.loadData(resp.data[0]);      
         })
     }   
     this.userServices.getLanguages()
       .subscribe(resp=>{
         if (resp.result===true) this.languages=resp.data;
-  
-        })
+        });
     this.userServices.getRoles()
       .subscribe(resp=>{
         if (resp.result===true) this.roles=resp.data;
-        })
+        });
     this.customerServices.getCustomers()
       .subscribe(resp=>{
         if (resp.result===true) this.customers=resp.data;
@@ -105,7 +154,13 @@ export class UserComponent implements OnInit {
   }
   get relacionUsuarioNoValido(){
     return this.userForm.get('relacionUsuario').invalid 
-            && this.userForm.get('relacionUsuario').touched;
+    && this.userForm.get('relacionUsuario').touched;
+  }
+  get clienteForSitesNoValido(){
+    return this.userForm.get('customerSearch2').invalid && this.userForm.get('customerSearch2').touched;
+  }
+  get excepcionNoValido(){
+    return this.userForm.get('excepcion').invalid && this.userForm.get('excepcion').touched;
   }
   get categoria(){
     return this.userForm.get('categoria') as FormArray;
@@ -113,6 +168,16 @@ export class UserComponent implements OnInit {
   get cliente(){
     return this.userForm.get('cliente') as FormArray;
   }
+  get excepciones(){
+    return this.userForm.get('excepciones') as FormArray;
+  }
+  get rolOtros(){
+    return this.userForm.get('rol').value===3?true:false
+  }
+  get rolSuperuser(){
+    return this.userForm.get('rol').value===0?true:false
+  }
+
   // get exceptionsSites(){
   //   return this.userForm.get('excepciones') as FormArray;
   // }
@@ -122,7 +187,6 @@ export class UserComponent implements OnInit {
       nombre:         ['', Validators.required],
       apellido:       ['', Validators.required],
       ultimoAcceso:   [{value:'',disabled:true}],
-   //   fechaAlta:      [{value:'',disabled:true}],
       email:          ['', [Validators.required,
                       Validators.pattern('[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$')]
                       ,this.existsEmailUser.bind(this)],
@@ -136,29 +200,39 @@ export class UserComponent implements OnInit {
       notas:          [],
       cliente: this.fb.array([]),
       categoria: this.fb.array([]),
- //     excepciones: this.fb.array([]),
-      customerSearch:  [],
+      excepciones: this.fb.array([]),
+      customerSearch: [],
+      siteSearch: [],
+      // customerSearch2:[],
+      exceptionType:  []
+  
+
     });
 
    // ^(?=.*[a-z]) al menos una letra minuscula
    // (?=.*[A-Z]) al menos una letra mayuscula
    // (?=.*[0-9]) al menos un número
    // [a-zA-Z0-9]{8,}$ Caracteres validos y longitud minima
-
-
   }
 
 
 // 
   loadData(user:User){  
-    let cat=[], cus=[];
+    let cat=[], cus=[], exc=[]
   
     user.categories.forEach(elem=>{
       cat.push(this.newCategoria(elem.id,elem.description,elem.color))
     });
     user.customerUserList.forEach(elem=>{
-      cus.push(this.newCliente(elem.id,elem.id_customer,elem.name,elem.exception))
+      cus.push(this.newCliente(elem.id,elem.customerId,elem.customerName,elem.exception))
     });
+    user.sitesList.forEach(elem=>{
+      exc.push(this.newExceptionEmplazamiento(elem.id,elem.siteId,elem.siteComercialId,
+              elem.venueName,elem.customer.id,elem.customer.name,
+              user.customerUserList.find(e=>e.customerId==elem.customer.id).exception))
+       //       elem.screenLocation.description))
+    });
+
 
     this.userForm.get('nombre').patchValue(user.name);
     this.userForm.get('apellido').patchValue(user.surname);
@@ -178,7 +252,8 @@ export class UserComponent implements OnInit {
     
     this.userForm.setControl('categoria',this.fb.array(cat||[]));
     this.userForm.setControl('cliente',this.fb.array(cus||[]));
-
+    this.userForm.setControl('excepciones',this.fb.array(exc||[]));
+    this.sortedData=this.listaExcepcionesActiva=this.cargarExcepciones(null);
 
   return
   }
@@ -199,6 +274,15 @@ export class UserComponent implements OnInit {
         this.prevRelationship=this.userForm.get('relacionUsuario').value;
         this.userForm.get('relacionUsuario').patchValue(null);
       }
+      if ((a==0 && this.rolAnterior==3) || 
+          (a==1 && this.rolAnterior==3) || 
+          (a==0 && this.rolAnterior==1)){
+        console.log('vamos a borrar clientes y excepciones');
+        // eliminamos clientes y excepciones 
+        this.cliente.controls.splice(0);
+        this.excepciones.controls.splice(0);
+      }
+      this.rolAnterior=a;
     });
     this.userForm.get('nuevaPassword').valueChanges.subscribe(a=>{
      if (this.userForm.get('nuevaPassword').value){
@@ -206,10 +290,26 @@ export class UserComponent implements OnInit {
       }  
       else{
         this.userForm.get('password').disable();
-        this.userForm.get('password').patchValue(null)
+        this.userForm.get('password').patchValue(null);
     }
     });
+       
+    this.userForm.get('siteSearch').valueChanges.subscribe(a=>{  
+      this.filterSite=a;
+      this.page=0;
+    });
+    this.userForm.get('exceptionType').valueChanges.subscribe(a=>{  
+   // actualizamos el tipo de excepcion a todos los emplazamientos
+       if (this.excepcionesCliente != undefined) {   
+        this.excepcionesCliente.forEach(elem=>{
+          elem.exception=a;
+        });
+        const i=this.cliente.controls.findIndex(b=>b.get('idCliente').value=== this.codigoCliente);
+        this.cliente.controls[i].get('excepcion').patchValue(a);
+       }
 
+    });
+    return
   }
 
   newCategoria(a:number|null,b:string|null,c:string|null): FormGroup {
@@ -228,51 +328,99 @@ export class UserComponent implements OnInit {
       excepcion: [d,Validators.required],
     });
   }
+  newExceptionEmplazamiento(a:number|null,b:number,c:string,d:string,e:number,f:string,g:number): FormGroup {
+    return this.fb.group({
+      id:                  [a],
+      idEmplazamiento:     [b,Validators.required],
+      codigoComercial:     [c,Validators.required],
+      nombreLocal:         [d,Validators.required],
+      idCliente:           [e,Validators.required],
+      nombreCliente:       [f,Validators.required],
+      excepcion:           [g],     
+    });
+  }
 
   addCategoria(){
       this.categoria.push(this.newCategoria(null,null,null));
     }
 
-  addCliente(){
-       this.cliente.push(this.newCliente(null,null,null,null));
-  }
+  // addCliente(){
+  //      this.cliente.push(this.newCliente(null,null,null,null));
+  // }
 
   removeCategoria(i:number){
     this.categoria.removeAt(i);
     this.userForm.markAsTouched();
   }
+
   removeCliente(i:number){
+    const codCliente=this.cliente.controls[i].get('idCliente').value;
     this.cliente.removeAt(i);
+    //this.userForm.get('customerSearch2').reset();
+    //this.userForm.get('customerSearch2').patchValue(this.cliente.length>0?this.customersChoice[0].customerId:null);
+    this.userForm.get('exceptionType').patchValue(0);
     this.userForm.markAsTouched();
+    this.removeExcepcionesByCustomer(codCliente);
+    return;
   }
   
-  selectCliente(id:number,name:string){
-    const rol= this.roles.find(a=> a.id==this.userForm.get('rol').value);
+  removeExcepcion(i:number){
 
-// Comprobamos que el customer no esta ya seleccionado
-   if (this.cliente.controls.find(a=>a.get('idCliente').value==id)){
-    Swal.fire({
-      title: `El cliente ${name}`,
-      text:'ya esta seleccionado',
-      confirmButtonColor: '#007bff',
-      icon:'info'
+    this.excepcionesBorradas.push({
+        idRelacion:      this.excepcionesCliente[i].id,
+        idEmplazamiento:this.excepcionesCliente[i].siteId
     });
-    return
+ 
+    this.excepcionesCliente.splice(i,1);
+
+    console.log(this.excepcionesBorradas);
+
+  }
+
+  removeExcepcionesByCustomer(idCliente:number){
+
+    const newExc=this.excepciones.controls.filter(elem=>(elem.get('idCliente').value!=idCliente));
+    this.userForm.setControl('excepciones',this.fb.array(newExc||[]))
+    return;
+
+  }
+
+  selectIdioma(elem:number){
+    return elem==this.userForm.get('idioma').value?true:false;
+  }
+
+  selectRol(elem:number){
+    return elem==this.userForm.get('rol').value?true:false;
+  }
+
+  selectCliente(id:number,name:string){
+    const rol = this.roles.find(a=> a.id==this.userForm.get('rol').value);  
+    // Comprobamos si el customer esta seleccionado
+    if (this.cliente.controls.find(a=>a.get('idCliente').value==id)){
+      Swal.fire({
+        title: `El cliente ${name}`,
+        text:'ya esta seleccionado',
+        confirmButtonColor: '#007bff',
+        icon:'info'
+      });
+      return
    }
     switch (Number(this.userForm.get('rol').value)){
       case 0:
+       console.log('x',this.userForm.get('rol').value, typeof this.userForm.get('rol').value)
         Swal.fire({
-          title: this.userForm.get('rol').touched?`El rol ${rol.description}`:'Es necesario elegir un rol',
-          text:this.userForm.get('rol').touched?'no permite seleccionar clientes':'para seleccionar clientes',
+          title: this.userForm.get('rol').value=='0'?`El rol ${rol.description}`:'Es necesario elegir un rol',
+          text:this.userForm.get('rol').value=='0'?'no permite seleccionar clientes':'para seleccionar clientes',
           confirmButtonColor: '#007bff',
           icon:'info'
         });
         break;
-      case 1:
+      case 1:  
         if (this.cliente.controls.length==0){
-          this.cliente.push(this.newCliente(null,id,name,0));
+          this.cliente.push(this.newCliente(null,id,name,1));
           this.cliente.controls[this.cliente.controls.length-1].get('nombre').markAsTouched();
-          
+          this.userForm.get('exceptionType').patchValue(1);
+
         }else{
           Swal.fire({
             title: `El rol ${rol.description}`,
@@ -283,40 +431,207 @@ export class UserComponent implements OnInit {
         }
         break;
         case 3:
-          this.cliente.push(this.newCliente(null,id,name,0));
+          this.cliente.push(this.newCliente(null,id,name,1));
           this.cliente.controls[this.cliente.controls.length-1].get('nombre').markAsTouched();
-      break; 
+       //   this.userForm.get('customerSearch2').patchValue(null);
+          this.userForm.get('exceptionType').patchValue(1);
+          break; 
     }
     return
   }
 
-  selectIdioma(elem:number){
-    return elem===this.userForm.get('idioma').value?true:false;
+  selectExcepcion(elem:number){
+    return elem==this.userForm.get('excepcion').value?true:false; 
   }
 
-  selectRol(elem:number){
-    return elem===this.userForm.get('rol').value?true:false;
+  setExcepciones(content:any,codCliente:number,i:number){
+ 
+    this.codigoCliente=codCliente;
+    i = this.cliente.controls.findIndex(a=>a.get('idCliente').value==codCliente);
+
+    this.userForm.get('exceptionType').patchValue(this.cliente.controls[i].get('excepcion').value);
+
+    this.cargarSites(codCliente);
+    this.excepcionesBorradas=[];
+    this.excepcionesCliente=this.cargarExcepciones(codCliente);
+    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title',  size: 'xl' }).result.then((result) => {
+      this.actualizarFormExcepciones();
+      this.excepciones.markAsTouched();
+      this.closeResult = `Closed with: ${result}`;
+    }, (reason) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+      if(reason=='Cross click'){
+        // cargamos las excepciones inciales por pulsar X
+       
+      }
+    });
+
+  }  
+
+  private getDismissReason(reason: any): string {
+    if (reason === ModalDismissReasons.ESC) {
+      return 'by pressing ESC';
+    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      return 'by clicking on a backdrop';
+    } else {
+      return `with: ${reason}`;
+    }
   }
 
-  rolOtros(){
-  return this.userForm.get('rol').value===3?true:false
+  cargarSites(cod:number){
+
+    this.siteServices.getSiteByIdCustomer(cod)
+    .subscribe(resp=>{
+      this.sites=resp.data;
+    });
   }
 
-  rolSuperuser(){
-  return this.userForm.get('rol').value===0?true:false
+  cargarExcepciones(cod:number|null){
+
+    let exc:SitesList[]=[];
+  
+    this.excepciones.controls.forEach(elem=>{   
+      if (cod===null || elem.get('idCliente').value==cod){
+        exc.push(          
+            {id:            elem.get('id').value,
+              siteId:        elem.get('idEmplazamiento').value,
+              siteComercialId: elem.get('codigoComercial').value, 
+              venueName:     elem.get('nombreLocal').value,
+              customer:{ id:elem.get('idCliente').value,
+                        identification:null,
+                        name:elem.get('nombreCliente').value,
+            },
+              exception:elem.get('excepcion').value,
+              deleted: false
+            });
+      }
+    });
+    return exc
+  }
+
+  actualizarFormExcepciones(){
+
+      // cargamos y actualizamos la lista de excepciones en el formulario
+      this.excepcionesCliente.forEach(elem => {
+        let i = this.excepciones.controls.findIndex(a=>a.get('idEmplazamiento').value==elem.siteId);
+        if (i===-1){
+          console.log('es nuevo',elem);
+          // insertamos el nuevo
+          this.excepciones.push(this.newExceptionEmplazamiento(elem.id,elem.siteId,elem.siteComercialId,
+            elem.venueName,elem.customer.id,elem.customer.name,elem.exception));
+        }else{
+          console.log('ya existia',elem);
+          // actualizamos el tipo de excepcion
+          this.excepciones.controls[i].get('excepcion').patchValue(elem.exception);
+        }
+      });
+       // borramos y actualizamos la lista de excepciones en el formulario
+       
+       if( this.excepcionesBorradas.length>0){
+        this.excepcionesBorradas.forEach(elem => {
+          let i = this.excepciones.controls.findIndex(a=>a.get('idEmplazamiento').value==elem.idEmplazamiento);
+          if (i!=-1){
+            this.excepciones.removeAt(i);
+          }        
+        })     
+      }
+      console.log('el formulario',this.excepciones.controls);
+      this.sortedData=this.listaExcepcionesActiva=this.cargarExcepciones(null);
+      console.log('la sort',this.sortedData);
+    return
+  }
+
+  selectSite(idSite:number,siteComercialId:string,venueName:string,customerId:number,customerName:string){
+    
+     // Comprobamos si el emplazamiento esta seleccionado
+    if (this.excepcionesCliente.find(a=>a.siteId==idSite)){
+      Swal.fire({
+        title: `El emplazamiento ${siteComercialId}`,
+        text:'ya esta seleccionado',
+        confirmButtonColor: '#007bff',
+        icon:'info'
+      });      
+    }else{
+
+      // Comprobamos que no lo hallamos borrado previamente para obtener el codigo de relacion que tenia
+      let codRelacion:number=null;
+      const i= this.excepcionesBorradas.findIndex(a=>a.idEmplazamiento==idSite);
+      if (i!=-1){
+        codRelacion=this.excepcionesBorradas[i].idRelacion;
+        this.excepcionesBorradas.splice(i,1);
+      }
+
+      this.excepcionesCliente.push(          
+        {id:             codRelacion,
+          siteId:        idSite,
+          siteComercialId: siteComercialId, 
+          venueName:     venueName,
+          customer:{ id:customerId,
+                    identification:null,
+                    name:customerName,
+        },
+          exception:this.userForm.get('exceptionType').value,
+          deleted: false
+        });
+
+
+    }
+    return
   }
 
   buscar(tecla:string){
     this.page=0;
+    this.page2=0;
     return  
   }
-  nextPage(){
-    this.page +=this.linesPages;
+  nextPage(num:number){
+    switch (num){
+      case 1:
+        this.page +=this.linesPages; 
+        break;
+      case 2:
+        this.page2 +=this.linesPages2;
+        break;
+    }
     return  
   }
-  prevPage(){
-    this.page -=this.linesPages;
+  prevPage(num:number){
+    switch (num){
+      case 1:
+        this.page -=this.linesPages;
+        break;
+      case 2:
+        this.page2 -=this.linesPages2;
+        break;
+    }
     return  
+  }
+
+  sortData(sort: Sort) {
+    const data = this.listaExcepcionesActiva.slice(); 
+    console.log(data);
+    if (!sort.active || sort.direction === '') {
+      this.sortedData = data;
+      return;
+    }
+
+    this.sortedData = data.sort((a, b) => {
+      const isAsc = sort.direction === 'asc';
+      switch (sort.active) {
+        case 'id':
+          return this.UtilService.compare(a.siteId, b.siteId, isAsc);
+        case 'idComercial':
+          return this.UtilService.compare(a.siteComercialId, b.siteComercialId, isAsc);
+        case 'nombreLocal':
+          return this.UtilService.compare(a.venueName, b.venueName, isAsc);
+        case 'nombreCliente':
+          return this.UtilService.compare(a.customer.name, b.customer.name, isAsc);         
+        case 'excepcion':
+          return this.UtilService.compare(a.exception, b.exception, isAsc);  
+        default:
+          return 0;          
+      }
+    });
   }
 
   onSubmit() {
@@ -334,11 +649,12 @@ export class UserComponent implements OnInit {
         });
       } else{
         let peticionHtml: Observable <any>;
-        let cat=[], cus=[], sit=[];    
+        let cat=[], cus=[], sit=[],exc=[];    
         // Preparar los datos
         cat=this.respCategoria();
         cus=this.respCliente();
-        sit=this.userId!='nuevo'?this.currentUser.sitesLists:[];
+        exc=this.respExcepciones();
+        sit=this.userId!='nuevo'?this.currentUser.sitesList:[];
         let objectRol:Rol= this.roles.find(a=>a.id==Number(this.userForm.get('rol').value));
 
         let respuesta:User ={
@@ -356,9 +672,10 @@ export class UserComponent implements OnInit {
               lastAccess          :this.userForm.get('ultimoAcceso').value,
               categories          :cat,
               customerUserList    :cus,
-              sitesLists          :sit
+              sitesList           :exc,
         }
 
+        console.log('enviamos al servidor',respuesta);
         if (this.userId==='nuevo'){
           peticionHtml=this.userServices.saveUser(respuesta);
         }else{
@@ -374,7 +691,7 @@ export class UserComponent implements OnInit {
             icon:'success'
           });
           this.userForm.reset();
-          this.router.navigate(['/user-list']);
+          this.router.navigate(['/home/user-list']);
         },
         error=>{
           console.log(error);
@@ -401,12 +718,12 @@ export class UserComponent implements OnInit {
       }).then(resp=>{
         if (resp.value){
           this.userForm.reset();
-          this.router.navigate(['/user-list']);          
+          this.router.navigate(['/home/user-list']);          
         }
       });
     }else{
       this.userForm.reset();
-      this.router.navigate(['/user-list']);          
+      this.router.navigate(['/home/user-list']);          
 
     }
     return;
@@ -472,6 +789,8 @@ respCategoria(){
   return r;
 }
 
+
+
 respCliente(){
   let r=[];
   
@@ -491,8 +810,8 @@ respCliente(){
       if(resultado===undefined){
         r.push({
           id:elem.id,
-          customerId:elem.id_customer,
-          name:elem.name,        
+          customerId:elem.customerId,
+          name:elem.customerName,
           exception:elem.exception,        
           deleted:true
         })
@@ -502,6 +821,52 @@ respCliente(){
 
   return r;
 }
+
+
+ /*
+  Preparamos la tabla de excepciones para actualizar los datos del servidor.
+*/  
+respExcepciones(){
+  let r=[];
+  
+  this.excepciones.controls.forEach((elem,index) => {
+    r.push({
+      id:              elem.get('id').value,
+      siteId:          elem.get('idEmplazamiento').value,  
+      siteComercialId: elem.get('codigoComercial').value,
+      venueName:       elem.get('nombreLocal').value,
+      customer:{
+                id:elem.get('nombreLocal').value,
+                identification:null,
+                name:elem.get('nombreLocal').value
+      },
+  //    exception:       elem.get('excepcion').value,
+      deleted:         false
+    })
+  });
+  if (this.userId!='nuevo'){   
+    this.currentUser.sitesList.forEach((elem,index) => {    
+      let resultado = r.find(a=>a.id===elem.id)
+      if(resultado===undefined){
+        r.push({
+          id:elem.id,
+          siteId:elem.siteId,
+          siteComercialId:elem.siteComercialId,
+          venueName:elem.venueName,    
+          customer:{
+            id:elem.customer.id,
+            identification:elem.customer.identification,
+            name:elem.customer.name
+          },
+          deleted:true
+        })
+      }
+    });
+  }
+
+  return r;
+}
+
 msgError(campo: string): string {
 
 
