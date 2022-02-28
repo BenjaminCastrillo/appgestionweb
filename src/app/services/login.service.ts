@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, Subject} from 'rxjs';
+import { Observable, of, Subject} from 'rxjs';
 import { LoginResponse ,LoginUser } from '../interfaces/loginUser-interface';
-import { map } from 'rxjs/operators';
+import { map, tap, catchError } from 'rxjs/operators';
 import { GlobalDataService } from './global-data.service';
 
 @Injectable({
@@ -19,16 +19,25 @@ export class LoginService {
   }
 
   loginUser(user:LoginUser):Observable<any>{ 
-    return this.http.post(`${this.url}/login/`,user)
+    return this.http.post(`${this.url}/login/`,user) 
+  }
+
+  validarToken():Observable<boolean>{ 
+    let userId=localStorage.getItem('userId')
+    return this.http.get(`${this.url}/validtoken/${userId}`)
+    .pipe(
+      tap((resp:any)=>{
+          if (resp.result)
+          localStorage.setItem('token',resp.token);
+      }),
+      map(resp=>true),
+      catchError(err=> of(false))
+    );
   
   }
+
   deleteToken(){
     
-    // let headers = new HttpHeaders({
-      //   'Content-Type':'form-data',
-      //   'token':this.token
-      // })
-      
       localStorage.setItem('token','');
       localStorage.setItem('user','');
       localStorage.setItem('userId','');
@@ -47,7 +56,7 @@ export class LoginService {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('userId');
-    localStorage.removeItem('language');
+ //   localStorage.removeItem('language');
 
     return
   }

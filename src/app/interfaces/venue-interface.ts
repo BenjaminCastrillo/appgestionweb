@@ -189,6 +189,7 @@ export interface Week {
 }
 
 
+
 export interface Screen {
   id:               number;
   inches:           number | null;
@@ -196,7 +197,7 @@ export interface Screen {
   screenModel:      ScreenModel;
   resolutionWidth:  number;
   resolutionHeigth: number;
-  screenType:       ScreenType;
+  screenType:       ScreenType; 
   pixel:            null;
   orientation:      Orientation;
   cabinetsWidth:    number | null;

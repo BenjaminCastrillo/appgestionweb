@@ -1,5 +1,7 @@
-import { Routes, RouterModule } from '@angular/router';
+import { Routes, RouterModule, CanActivate } from '@angular/router';
 import { NgModule } from '@angular/core';
+
+import {AuthGuard} from '../guards/auth.guard'
 
 import {CustomersListComponent} from './customers/customers-list/customers-list.component';
 import {CustomerComponent} from './customers/customer/customer.component';
@@ -15,16 +17,16 @@ import {PagesComponent} from './pages.component';
 const routes: Routes = [
  {
     path:'home',
-    component:PagesComponent,
+    component:PagesComponent,  
     children:[
-       {path:'', component:HomeComponent},
-      {path:'user-list', component:UsersListComponent},
+      {path:'', component:HomeComponent},
+      {path:'user-list', component:UsersListComponent, canActivate:[AuthGuard]},
       {path:'user/:id', component:UserComponent},
-      {path:'customer-list', component:CustomersListComponent},
+      {path:'customer-list', component:CustomersListComponent, canActivate:[AuthGuard]},
       {path:'customer/:id', component:CustomerComponent},
-      {path:'venue-list', component:VenuesListComponent},
+      {path:'venue-list', component:VenuesListComponent, canActivate:[AuthGuard]},
       {path:'venue/:id', component:VenueComponent},
-      {path:'site-list/:id', component:SitesListComponent},
+      {path:'site-list/:id', component:SitesListComponent, canActivate:[AuthGuard]},
       {path:'site/:id', component:SiteComponent},
    ]
 

@@ -22,9 +22,11 @@ let i=0;
        sites.name.toLowerCase().indexOf(text.toLowerCase())>-1 ||
        sites.postalCode.toLowerCase().indexOf(text.toLowerCase())>-1 ||
        sites.customer.name.toLowerCase().indexOf(text.toLowerCase())>-1 ||
+       sites.customer.identification.toLowerCase().indexOf(text.toLowerCase())>-1 ||
        sites.location.findIndex(e=>e.territorialEntityName.toLowerCase().includes(text.toLowerCase()))>-1)
        {
-        sites.filter=(sites.customer.name.toLowerCase().indexOf(text.toLowerCase())>-1 )?true:false;
+        sites.filter=(sites.customer.name.toLowerCase().indexOf(text.toLowerCase())>-1 ||
+        sites.customer.identification.toLowerCase().indexOf(text.toLowerCase())>-1)?true:false;
         resultado.push(sites);
     }
 

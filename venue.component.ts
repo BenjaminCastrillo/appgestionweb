@@ -44,8 +44,7 @@ export class VenueComponent implements OnInit {
   public brands:Brand[]=[];
   public marketRegions:MarketRegion[]=[];
   public roadTypes:RoadType[]=[];
-  public location:any[]=[]; // lista de valores select localizacion
-  public descripcionesOrganizacion:any[]=[];
+  public location:any[]=[];
   public week:Week[]=[];
   public schedules:Schedule[]=[];
   public comercialCodes:SitesComercialCode[]=[];
@@ -61,7 +60,7 @@ export class VenueComponent implements OnInit {
   public tituloPagina:string;
   public marcaBorrada:boolean=false;
   public regionComercialBorrada:boolean=false;
-  public lastLocalizacion:number[]=[];
+  public lastLocation:number[]=[];
   public prevCountry:number=0;
   public binariosImagenMarca:string;
   public filterSchedules:string='';
@@ -111,7 +110,6 @@ export class VenueComponent implements OnInit {
             this.schedules=resp
           });      
           this.loadData(resp.data[0]);   
-          this.venueForm.get('pais').disable();
           this.crearListeners();
         })
     }  
@@ -158,6 +156,7 @@ export class VenueComponent implements OnInit {
       nombre:         ['', Validators.required],
       cliente:        ['', Validators.required],
       marca:          ['',this.deletedBrand.bind(this)],
+   //   fechaAlta:      [{value:'',disabled:true}],
       pais:           ['', Validators.required],
       regionComercial:['',this.deletedMarketRegion.bind(this)],
       localizacion:   this.fb.array([]),
@@ -172,6 +171,7 @@ export class VenueComponent implements OnInit {
       horario:        this.fb.array([]),   
       contacto:       this.fb.array([]),       
       emplazamiento:  this.fb.array([]),  
+
       schedulesSearch:  [],
     });
 
@@ -181,26 +181,11 @@ export class VenueComponent implements OnInit {
     let lo=[], sc=[], co=[], cop=[];
 
     venue.location.forEach(elem=>{
-      console.log('ELEMEMTO',elem);
       lo.push(this.newLocalizacion(elem.id,elem.territorialOrganizationId,
-        elem.territorialOrganizationName,elem.hierarchy,elem.territorialEntityId));
-      this.lastLocalizacion.push(elem.territorialEntityId);
-      this.descripcionesOrganizacion.push(
-          {
-            hierarchy: elem.hierarchy,
-            id: elem.territorialOrganizationId,
-            territorialOrganizationName: elem.territorialOrganizationName
-          });
-      });
-      console.log(lo);
-      this.descripcionesOrganizacion.sort(function (a,b){
-        if (a.hierarchy>b.hierarchy){
-          return 1}
-        if (a.hierarchy<b.hierarchy){
-        return -1
-        }
-        return 0
-      })
+        elem.territorialOrganizationName,null,elem.territorialEntityId, 
+        elem.territorialEntityName));
+        this.lastLocation.push(elem.territorialEntityId);
+    });
 
     venue.schedule.forEach(elem=>{
       sc.push(this.newHorario(elem.id,elem.description,elem.startDate,elem.weekly,elem.idCustomerSchedule))
@@ -214,6 +199,8 @@ export class VenueComponent implements OnInit {
       })
     });
    
+
+
     this.binariosImagenMarca=(venue.brand.image)?this.urlImageBrand+venue.brand.image:this.imageDefault;
     this.binariosImagenLocal=(venue.image)?this.urlImageVenue+venue.image:this.imageDefault;
 
@@ -245,15 +232,16 @@ export class VenueComponent implements OnInit {
     this.marcaBorrada=venue.brand.deleted;
     this.regionComercialBorrada=venue.marketRegion.deleted;
     
+  
     // cargamos tablas de datos de clientes
     this.getCustomerData(venue.customer.id);  
     
     // cargamos las entidades de la organización
-
     this.getTerritorialEntities(lo)
     .then(res=>{
-      console.log('--------',res);
+      console.log('ANTES LOCATION');
       this.location=res;
+      console.log('DESPUES LOCATION');
       this.listenerLocalizacion();
     })
 
@@ -263,6 +251,7 @@ export class VenueComponent implements OnInit {
 
     // Detección cambios en el cliente
     this.venueForm.get('cliente').valueChanges.subscribe(a=>{
+      console.log('detecto cambio en cliente',a)
       if (!this.newVenue){
         if(a==this.currentVenue.customer.id){
           // Si vuelve a seleccionar el cliente inicial cargo la marca y region comercial iniciales
@@ -283,6 +272,7 @@ export class VenueComponent implements OnInit {
           this.horario.clear();
         }
       }
+      
       this.getCustomerData(a);  
     });
 
@@ -308,18 +298,17 @@ export class VenueComponent implements OnInit {
       console.log('detecto cambios en pais',codPais,this.prevCountry);
       if (this.newVenue || codPais!=this.prevCountry){ // && codPais!=''
         this.prevCountry=codPais;
-        this.localizacion.clear();
-        this.location=[];
-        this.lastLocalizacion=[];
         this.getLocationData(codPais) // Organizacion territorial del nuevo pais
         .then(res=>{
+          console.log('res',res);
           this.venueForm.setControl('localizacion',this.fb.array(res));
           this.venueForm.get('tipoVia').patchValue(null);    
           this.venueForm.get('calle').patchValue(null);    
           this.venueForm.get('numero').patchValue(null);
           this.venueForm.get('codigoPostal').patchValue(null);
+          console.log('this.location',this.location);
           this.listenerLocalizacion();
-
+          console.log('lastlocation',this.lastLocation);
         });
       }else{
         this.listenerLocalizacion();
@@ -328,6 +317,7 @@ export class VenueComponent implements OnInit {
 
     // deteccion campo busqueda horario
     this.venueForm.get('schedulesSearch').valueChanges.subscribe(a=>{
+      console.log('detecto cambio en schedule buscado',a)
       this.filterSchedules=a;
       this.page=0;
     });
@@ -335,90 +325,72 @@ export class VenueComponent implements OnInit {
 
   listenerLocalizacion(){
 
+    let posCambio=0
     this.localizacion.valueChanges.subscribe(a=>{        
-
-      //  Comprobamos el nivel cambiado y actualizamos los inferiores a null
-      let posicionCambio=0;
-      // obtenemos la posicion en el array del elemento cambiado
-      for (let ind=0;ind<a.length;ind++){   
-        if (!this.lastLocalizacion.find(entidad=> entidad==a[ind].idEntidadTerritorial)){
-          posicionCambio=ind;
-          this.lastLocalizacion[ind]=a[ind].idEntidadTerritorial;
-          ind=a.length;
-        }   
-      }
-  
-      let inicioFor=a.length-1;
-      let finFor=posicionCambio;
-    
-      // Borramos niveles inferiores
-      for (let ind=inicioFor;ind>finFor;ind--){ 
-        this.localizacion.removeAt(ind,{emitEvent:false});
-        this.venueForm.markAsTouched();
-        this.lastLocalizacion.splice(ind,1);
-        this.location.splice(ind,1);
-        a.splice(ind,1);
-      }
-      // añadimos nivel si no es el ultimo de la organizacion y el 
-      // ultimo introducido tiene algun valor
-      if (posicionCambio+1<this.descripcionesOrganizacion.length && 
-          a[a.length-1].idEntidadTerritorial){
       
-        this.venueServices.getTerritorialEntities(this.descripcionesOrganizacion[posicionCambio+1].id,a[posicionCambio].idEntidadTerritorial)
-        .subscribe(resp=>{
-          this.location[posicionCambio+1]=resp;       
-          console.log('añado un nivel',this.descripcionesOrganizacion[posicionCambio+1].hierarchy);
-          this.localizacion.push(this.newLocalizacion(
-            this.currentVenue?this.currentVenue.location[this.localizacion.length].id:null,
-            this.descripcionesOrganizacion[posicionCambio+1].id,
-            this.descripcionesOrganizacion[posicionCambio+1].territorialOrganizationName,
-            this.descripcionesOrganizacion[posicionCambio+1].hierarchy,
-            null));
-          this.lastLocalizacion.push(null)
-        });       
-      }
+    // console.log('this.location al entrar',this.location);
+      console.log('a',a);
+    //  Comprobamos el nivel cambiado y actualizamos los inferiores a null
+      for (let ind=0;ind<a.length;ind++){      
+        if (a[ind].idEntidadTerritorial!=this.lastLocation[ind]){
+          this.lastLocation[ind]=a[ind].idEntidadTerritorial;    
+          posCambio=ind;    
+          for (let i=ind+1;i<a.length;i++){ // Ponemos todas las entidades a null
+            
+            console.log('pongo a null',this.localizacion.controls[i].get('idEntidadTerritorial').value);
+            this.localizacion.controls[i].get('idEntidadTerritorial').patchValue(null,{emitEvent:false});
+            this.lastLocation[i]=null;
+          }
+          ind= a.length;
+        }
+      };
+    
+      this.getTerritorialEntities(this.localizacion.controls)
+          .then(res=>{
+          
+            for (let ind=posCambio+1;ind<res.length;ind++){   
+              this.location[ind]=res[ind];
+            }
+         //   this.location=res;
+
+            console.log('this.location al salir',this.location);
+            console.log('this.lastlocation al salir',this.lastLocation);
+          
+          })     
     });  
   }
 
 
   getLocationData(country:number){
  
-    return new Promise<any[]>( resolve=>{
-      let a=[];  
-      // cuando se selecciona un nuevo pais se inicializa el formArray con la 
-      // nueva organizacion y se cargan las entidades del nivel 0
-      this.venueServices.getTerritorialOrganization(country) // nueva organizacion del pais
-      .subscribe(resp=>{
-        
-        this.descripcionesOrganizacion=resp;
-        this.descripcionesOrganizacion.sort(function (a,b){
-          if (a.hierarchy>b.hierarchy){
-            return 1}
-          if (a.hierarchy<b.hierarchy){
-          return -1
-          }
-          return 0
-        })
-       
-        // Obtenemos la lista de entidades para la primera organizacion
-        this.venueServices.getTerritorialEntities(resp[0].id,0)
-        .subscribe(ent=>{
-
-          this.location.push(ent);       
-           // Creamos la primera fila del formulario de localización
-        a.push(this.newLocalizacion(null,resp[0].id,resp[0].territorialOrganizationName,resp[0].hierarchy,null));
-          resolve (a);    
-        });
-      });
+    let newLocalizacion=[];  
+    const promesa= new Promise<any[]>( resolve=>{
+   
+      console.log('estoy en getlocationdata');
+    // cuando se selecciona un nuevo pais se inicializa el formArray con la 
+    // nueva organizacion y se cargan las entidades del nivel 0
+    this.venueServices.getTerritorialOrganization(country) // nueva organizacion del pais
+    .subscribe(resp=>{
+      this.localizacion.clear();
+      this.lastLocation=[];
+      resp.forEach( (org,index)=>{    
+        this.lastLocation.push(null);
+        newLocalizacion.push(this.newLocalizacion(null,org.id,org.territorialOrganizationName,org.hierarchy,null,null))
+      })    
+      // cargamos las entidades de la organización
+      this.getTerritorialEntities(newLocalizacion)
+          .then(res=>{
+            this.location=res;
+            resolve (newLocalizacion);    
+          })
     });
+  });
+    return promesa
   }
-
-
-
 
   getTerritorialEntities(organizacion:any[]){
     
-    return new Promise<any[]>( resolve=>{
+    return  new Promise<any[]>( resolve=>{
 
       let prevEntity:number=0;
       let entitiesArray:any=[];
@@ -430,12 +402,13 @@ export class VenueComponent implements OnInit {
         entitiesArray[index]=[org.get("idOrganizacionTerritorial").value,prevEntity];
         prevEntity=org.get("idEntidadTerritorial").value===null?0:org.get("idEntidadTerritorial").value;
       })
+    
       //  creamos el array de observables para la peticion de las entidades
+      console.log('entitiesArray',entitiesArray);
       for(let i=0;i<entitiesArray.length;i++){
         console.log('voy a por los datos de entidades',entitiesArray[i][0],entitiesArray[i][1]);
         ObservablesArray.push(this.venueServices.getTerritorialEntities(entitiesArray[i][0],entitiesArray[i][1]))
       }
-      // Resolvemos la promesa cuando se ejecutan todos los observables
       forkJoin(ObservablesArray).subscribe(resp=>{
         resolve (resp) 
       })
@@ -511,6 +484,13 @@ export class VenueComponent implements OnInit {
     return result
     
   } 
+
+  get entidadTerritoriallNoValido() {
+    return (
+      this.venueForm.get('idEntidadTerritorial').invalid &&
+      this.venueForm.get('idEntidadTerritorial').touched
+    );
+  } 
   get tipoViaNoValido() {
     return (
       this.venueForm.get('tipoVia').invalid &&
@@ -536,7 +516,8 @@ export class VenueComponent implements OnInit {
     );
   }
   
-  newLocalizacion(a:number,b:number,c:string,d:number|null,e:number): FormGroup {
+  newLocalizacion(a:number,b:number,c:string,d:number|null,e:number,f:string): FormGroup {
+   console.log('creo una localizacion');
     return this.fb.group({
       idLocalizacion: [a],
       idOrganizacionTerritorial: [b],
@@ -653,7 +634,9 @@ export class VenueComponent implements OnInit {
   selectDuracionLicencia(elem:number,i:number){
     return elem==this.emplazamiento.at(i).get('duracionLicencia').value?true:false;
   }
+
   selectEntidadTerritorial(elem:number,ind:number){
+  
     return elem==this.localizacion.controls[ind].get('idEntidadTerritorial').value?true:false;
   }
   selectTipoVia(elem:number){
@@ -1154,9 +1137,6 @@ export class VenueComponent implements OnInit {
         break;
       case 'duracionLicencia':
         controlElementoArray=this.emplazamiento.at(i).get('duracionLicencia');  
-        break;
-      case 'idEntidadTerritorial':
-        controlElementoArray=this.localizacion.at(i).get('idEntidadTerritorial');  
         break;
       default:
         return;

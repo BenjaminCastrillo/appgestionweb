@@ -7,6 +7,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class TerritorialentitiesPipe implements PipeTransform {
 
   transform(value: any[],indice:number): unknown {
+
     return value[indice];
   }
 

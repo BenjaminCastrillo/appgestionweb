@@ -77,7 +77,7 @@ export class UserComponent implements OnInit {
   public codigoCliente:number=0;
   public closeResult = '';
   public rolAnterior:number=0;
-  public sortedData:SitesList[];
+  public sortedData:SitesList[]=[];
   public listaExcepcionesActiva:SitesList[];
 
   
@@ -111,7 +111,8 @@ export class UserComponent implements OnInit {
           this.rolAnterior=this.currentUser.rol.id;
           console.log('el usuario recibido',this.currentUser);
           this.loadData(resp.data[0]);      
-        })
+        },
+        err=>{console.log(err);})
     }   
     this.userServices.getLanguages()
       .subscribe(resp=>{
@@ -226,13 +227,14 @@ export class UserComponent implements OnInit {
     user.customerUserList.forEach(elem=>{
       cus.push(this.newCliente(elem.id,elem.customerId,elem.customerName,elem.exception))
     });
+    console.log('Lista de clientes del usuario',user.customerUserList);
+    console.log('Lista de sites',user.sitesList);
     user.sitesList.forEach(elem=>{
+      console.log('elemento que falla',elem);
       exc.push(this.newExceptionEmplazamiento(elem.id,elem.siteId,elem.siteComercialId,
-              elem.venueName,elem.customer.id,elem.customer.name,
-              user.customerUserList.find(e=>e.customerId==elem.customer.id).exception))
-       //       elem.screenLocation.description))
-    });
-
+        elem.venueName,elem.customer.id,elem.customer.name,
+        user.customerUserList.find(e=>e.customerId==elem.customer.id).exception))
+      });
 
     this.userForm.get('nombre').patchValue(user.name);
     this.userForm.get('apellido').patchValue(user.surname);
@@ -265,6 +267,7 @@ export class UserComponent implements OnInit {
       this.filterCustomer=a;
       this.page=0;
     });
+
     this.userForm.get('rol').valueChanges.subscribe(a=>{
       if (Number(a)===3){
         this.userForm.get('relacionUsuario').patchValue(this.prevRelationship);
@@ -284,6 +287,7 @@ export class UserComponent implements OnInit {
       }
       this.rolAnterior=a;
     });
+
     this.userForm.get('nuevaPassword').valueChanges.subscribe(a=>{
      if (this.userForm.get('nuevaPassword').value){
        this.userForm.get('password').enable();
@@ -298,6 +302,7 @@ export class UserComponent implements OnInit {
       this.filterSite=a;
       this.page=0;
     });
+
     this.userForm.get('exceptionType').valueChanges.subscribe(a=>{  
    // actualizamos el tipo de excepcion a todos los emplazamientos
        if (this.excepcionesCliente != undefined) {   
@@ -307,7 +312,6 @@ export class UserComponent implements OnInit {
         const i=this.cliente.controls.findIndex(b=>b.get('idCliente').value=== this.codigoCliente);
         this.cliente.controls[i].get('excepcion').patchValue(a);
        }
-
     });
     return
   }
@@ -343,10 +347,6 @@ export class UserComponent implements OnInit {
   addCategoria(){
       this.categoria.push(this.newCategoria(null,null,null));
     }
-
-  // addCliente(){
-  //      this.cliente.push(this.newCliente(null,null,null,null));
-  // }
 
   removeCategoria(i:number){
     this.categoria.removeAt(i);
@@ -654,7 +654,8 @@ export class UserComponent implements OnInit {
         cat=this.respCategoria();
         cus=this.respCliente();
         exc=this.respExcepciones();
-        sit=this.userId!='nuevo'?this.currentUser.sitesList:[];
+        console.log('excepciones',exc);
+ //       sit=this.userId!='nuevo'?this.currentUser.sitesList:[];
         let objectRol:Rol= this.roles.find(a=>a.id==Number(this.userForm.get('rol').value));
 
         let respuesta:User ={

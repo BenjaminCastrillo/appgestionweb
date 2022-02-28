@@ -166,7 +166,7 @@
       
   </div>
   <!-- Fin 2 linea -->
-
+  <hr> 
   <div>    <!-- Bloque Pestañas de listas de datos de local   -->
     <!-- Titulos de pestañas -->
     <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
@@ -305,15 +305,7 @@
       <!-- Inicio Pestaña player  -->
       <div class="tab-pane fade mt-3" id="player" role="tabpanel" aria-labelledby="player-tab">  
         <div class="row container-fluid">   
-          <div class=col-3>     <!--  Número de serie del player -->
-            <label class="form-label" for="inputNumeroSeriePlayer">Número de serie reproductor</label>
-            <input class="form-control"
-            id="inputnumeroSeriePlayer"
-            type="text"
-            formControlName="numeroSerieReproductor"
-            [class.is-invalid]="numeroSerieReproductorNoValido">
-            <small *ngIf="numeroSerieReproductorNoValido" class="text-danger">{{msgError('numeroSerieReproductor')}}</small>
-          </div>                <!-- Fin Número de serie del player -->
+        
           <div class=col-3>       <!-- Orientación de la player -->
             <label class="form-label" for="inputOrientacionPlayer">Orientación del reproductor</label>
             <select class="form-select" 
@@ -324,6 +316,15 @@
             </select>
             <small *ngIf="orientacionReproductorNoValido" class="text-danger">{{msgError('orientacionReproductor')}}</small>
           </div>  <!-- Fin Orientacion  de player -->  
+          <div class=col-3>     <!--  Número de serie del player -->
+            <label class="form-label" for="inputNumeroSeriePlayer">Número de serie reproductor</label>
+            <input class="form-control"
+            id="inputnumeroSeriePlayer"
+            type="text"
+            formControlName="numeroSerieReproductor"
+            [class.is-invalid]="numeroSerieReproductorNoValido">
+            <small *ngIf="numeroSerieReproductorNoValido" class="text-danger">{{msgError('numeroSerieReproductor')}}</small>
+          </div>                <!-- Fin Número de serie del player -->
           <div class="col-4 offset-1">
             <div class="row tablaContenidos">  
               <div class="cabeceraTabla">
@@ -341,7 +342,7 @@
                       <td>{{currentSite.player.mac}}</td>
                     </tr>
                     <tr>
-                      <td><strong>Versión del sistema operativo:</strong></td>
+                      <td><strong>Versión del S.O.:</strong></td>
                       <td>{{currentSite.player.osVersion}}</td>
                     </tr>
                     <tr>
@@ -393,14 +394,12 @@
       </div>
 
       <!-- Fin Pestaña player  -->
-
     </div>    <!-- Fin Contenidos pestañas -->
-  
   </div>   <!-- Fin bloque Pestañas de listas de datos de cliente    -->          
 </form>
 
 
-
+<!-- 
 <pre>
   estado formulario:{{siteForm.valid}}
   <br>
@@ -411,4 +410,4 @@
 
 <pre>
   {{siteForm.value|json}}
-</pre>
+</pre> -->

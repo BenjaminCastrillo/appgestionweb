@@ -1,9 +1,9 @@
 <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-2 mt-2">
-  <h4>Listado de locales</h4>
+  <h4>{{'venueList.title'|translate}}</h4>
   <div class="col text-end">
     <button routerLink="/home/venue/nuevo" class="btn btn-primary">
       <i class="fas fa-plus"></i>
-      Nuevo
+      {{'general.newButton'|translate}}
     </button>
   </div>
 </div>
@@ -14,18 +14,18 @@
           (keyup)="buscar(filterVenue)"
           class="form-control" 
           type="search" 
-          placeholder="Buscar por ID, nombre, localidad, cliente, ..." 
+          placeholder="{{'venueList.filter'|translate}}" 
           aria-label="Search">
 </div>
 <table  matSort (matSortChange)="sortData($event)" class="table table-condensed table-striped" *ngIf="!cargando && sortedData.length>0" >
   <thead>
     <!-- [ngStyle]="{'width':'100px'}" -->
     <tr>
-      <th scope="col" class="col-sm-1" mat-sort-header="id">#ID</th>
-      <th scope="col" class="col-sm-3" mat-sort-header="nombre">Nombre</th>
-      <th scope="col" class="col-sm-3" mat-sort-header="localizacion">Localidad</th>
-      <th scope="col" class="col-sm-3" mat-sort-header="direccion">Dirección</th>
-      <th scope="col" class="col-sm-2">Acciones</th>
+      <th scope="col" class="col-sm-1" mat-sort-header="id">{{'venueList.header1'|translate}}</th>
+      <th scope="col" class="col-sm-3" mat-sort-header="nombre">{{'venueList.header2'|translate}}</th>
+      <th scope="col" class="col-sm-3" mat-sort-header="localizacion">{{'venueList.header3'|translate}}</th>
+      <th scope="col" class="col-sm-3" mat-sort-header="direccion">{{'venueList.header4'|translate}}</th>
+      <th scope="col" class="col-sm-2">{{'venueList.header5'|translate}}</th>
     </tr>
   </thead>
 
@@ -39,21 +39,21 @@
         <button type="button" 
                 class="btn btn-light btn-sm mr-1" 
                 (click)="editVenue(venue)" 
-                placement="bottom" ngbTooltip="Editar" [openDelay]="300">
+                placement="bottom" ngbTooltip="{{'general.editButton'|translate}}" [openDelay]="300">
           <i class="fas fa-edit"></i>
         </button>
         &nbsp;
         <button type="button" 
                 class="btn btn-light btn-sm" 
                 (click)="removeVenue(venue)"
-                placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
+                placement="bottom" ngbTooltip="{{'general.deleteButton'|translate}}" [openDelay]="300">
           <i class="far fa-trash-alt"></i>
         </button>
         &nbsp;
         <button type="button" 
                 class="btn btn-light btn-sm position-relative" 
                 (click)="sitesList(content,i)"
-                placement="bottom" ngbTooltip="Emplazamientos" [openDelay]="300">
+                placement="bottom" ngbTooltip="{{'general.sitesButton'|translate}}" [openDelay]="300">
                 <i class="fas fa-tv"></i>
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success">
                   {{venue.sites.length}}
@@ -64,7 +64,7 @@
 <!-- Modal  Lista de emplazamientos ng-bootstrap-->
   <ng-template #content let-modal>
   <div class="modal-header">
-    <h4 class="modal-title" id="modal-horarios">Emplazamientos del local {{venue.name}}</h4>
+    <h4 class="modal-title" id="modal-sites">{{'venueList.modalTitle'|translate}} {{venue.name}}</h4>
     <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>
@@ -73,11 +73,11 @@
     <table class="table table-sm">
       <thead class=table-light>
         <tr>
-          <th class="col-1">#ID</th>
-          <th class="col-1">Código</th>
-          <th class="col-3">Localización pantalla</th>
-          <th class="col-1">Estado</th>
-          <th class="col-1">Acciones</th>
+          <th class="col-1">{{'venueList.header1'|translate}}</th>
+          <th class="col-1">{{'venueList.header6'|translate}}</th>
+          <th class="col-3">{{'venueList.header7'|translate}}</th>
+          <th class="col-1">{{'venueList.header8'|translate}}</th>
+          <th class="col-1">{{'venueList.header5'|translate}}</th>
         </tr>
       </thead>
       <tbody>
@@ -112,13 +112,16 @@
                 <button type="button" 
                   class="btn btn-light btn-sm mr-1" 
                   (click)="editSite(d.id)" 
-                  placement="bottom" ngbTooltip="Editar emplazamiento" [openDelay]="300">
+                  placement="bottom" ngbTooltip="{{'general.editButton'|translate}}" [openDelay]="300">
                   <i class="fas fa-edit"></i>
                 </button>
               </td>
           </tr>   
       </tbody>
     </table>
+    <div class="text-center mt-3" *ngIf="venue.sites.length===0">     
+      <span>{{'venueList.message1'|translate}}</span>
+    </div>
   </div>
 </ng-template>
 <!-- Fin Modal lista emplazamientos  -->
@@ -131,7 +134,7 @@
 
 <div class="text-center mt-3" *ngIf="cargando">
   <div class="spinner-border" role="status">
-    <span class="visually-hidden">Loading...</span>
+    <span class="visually-hidden">{{'general.load'|translate}}</span>
   </div>
 </div>
 
@@ -140,13 +143,13 @@
   <button class="btn btn-outline-secondary btn-sm"
           (click)="prevPage()"
           [disabled]="page===0">
-    Pag. Anterior
+          {{'general.prevPage'|translate}}
   </button>
   &nbsp;
   <button class="btn btn-outline-secondary btn-sm"
           (click)="nextPage()"
           [disabled]="(sortedData |venue:filterVenue:page:linesPages).length<linesPages  || sortedData.length=== page+linesPages"> 
-    Pag. Siguiente
+            {{'general.nextPage'|translate}}  
   </button>
 </div>
 

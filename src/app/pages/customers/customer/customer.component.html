@@ -2,16 +2,17 @@
 <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
   <!-- Bloque de botones -->
   <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">
-    <h4 class="col"> {{tituloPagina}} <span *ngIf="!newCustomer"><small class="text-muted">(#{{currentCustomer.id}})</small></span></h4>  
+    <h4 *ngIf="newCustomer" class="col"> {{'customer.title'|translate}} </h4>  
+    <h4 *ngIf="!newCustomer" class="col"> {{'customer.title2'|translate}}<small class="text-muted"> (#{{currentCustomer.id}})</small></h4>  
     <button type="button" class="btn btn-outline-primary btn-block"
       (click)="abandonarPagina()"> 
       <i class="fas fa-arrow-left"></i>
-      Regresar
+      {{'general.backButton'|translate}}
     </button>
     <!-- Boton guardar formulario-->
     <label class="col-form-label">&nbsp;</label>
     <button type="submit" class=" btn btn-success btn-block">
-      Guardar
+      {{'general.saveButton'|translate}}
     </button>
   </div>
   <!-- Fin bloque botones -->
@@ -20,34 +21,33 @@
       <!--ID cliente-->
       <div class="form-group row mb-2">
         <div class="col-3">
-          <label class="form-label" for="inpuId">Identificación</label>
+          <label class="form-label" for="inpuId">{{'customer.field1'|translate}}</label>
           <input class="form-control"
                   id="inputId"
                   type="text"
                   formControlName="identification"
                   [class.is-invalid]="IDNoValido">
           <small *ngIf="IDNoValido" class="text-danger">{{msgError('identification')}}</small>
+       <!-- 
+          <small *ngIf="IDNoValido" class="text-danger">{{msgError('identification')}}</small>
+       -->
         </div> 
         <!-- Fin ID cliente -->
         <!--Nombre de cliente-->
         <div class="col-7">
-          <label class="form-label" for="inputNombre">Empresa</label>
+          <label class="form-label" for="inputNombre">{{'customer.field2'|translate}}</label>
           <input class="form-control"
                 id="inputNombre"
                 type="text"
-                  formControlName="nombre"
+                formControlName="nombre"
                 [class.is-invalid]="nombreNoValido">
           <small *ngIf="nombreNoValido" class="text-danger">{{msgError('nombre')}}</small>
         </div>
         <!-- Fin nombre de cliente -->
          <!-- Fecha de alta-->
       <div class="col-2" *ngIf="!newCustomer">
-        <label class="form-label" for="inputFechaAlta">Fecha de alta</label>
+        <label class="form-label" for="inputFechaAlta">{{'customer.field3'|translate}}</label>
         <p class=" p-2 cajaFecha">{{currentCustomer.entryDate|date:'mediumDate'}}</p>
-        <!-- <input class="form-control"
-              id="inputfechaAlta"
-              type="text"
-              formControlName="fechaAlta"> -->
       </div>
       <!-- Fin fecha de alta -->
       </div>
@@ -56,7 +56,7 @@
       <div class="form-group row">
          <!--Nombre de cliente-->
          <div class="col-7">
-          <label class="form-label" for="inputNombreContacto">Persona de contacto</label>
+          <label class="form-label" for="inputNombreContacto">{{'customer.field4'|translate}}</label>
           <input class="form-control"
                 id="inputNombreContacto"
                 type="text"
@@ -66,7 +66,7 @@
         </div>
         <!-- Fin nombre de cliente -->
         <div class="col-3">
-          <label class="form-label" for="inputTelefono">Teléfono de contacto</label>
+          <label class="form-label" for="inputTelefono">{{'customer.field5'|translate}}</label>
           <input class="form-control"
                     id="inputTelefono"
                     type="text"
@@ -89,19 +89,19 @@
       <!-- Titulos de pestañas -->
       <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="marca-tab" data-bs-toggle="tab" data-bs-target="#marca" type="button" role="tab" aria-controls="marca" aria-selected="true">Marcas</button>
+          <button class="nav-link active" id="marca-tab" data-bs-toggle="tab" data-bs-target="#marca" type="button" role="tab" aria-controls="marca" aria-selected="true">{{'customer.tabTitle1'|translate}}</button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="regionmercado-tab" data-bs-toggle="tab" data-bs-target="#regionmercado" type="button" role="tab" aria-controls="regionmercado" aria-selected="false">Regiones de Mercado</button>
+          <button class="nav-link" id="regionmercado-tab" data-bs-toggle="tab" data-bs-target="#regionmercado" type="button" role="tab" aria-controls="regionmercado" aria-selected="false">{{'customer.tabTitle2'|translate}}</button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="localizacionpantalla-tab" data-bs-toggle="tab" data-bs-target="#localizacionpantalla" type="button" role="tab" aria-controls="localizacionpantalla" aria-selected="false">Localización de pantallas</button>
+          <button class="nav-link" id="localizacionpantalla-tab" data-bs-toggle="tab" data-bs-target="#localizacionpantalla" type="button" role="tab" aria-controls="localizacionpantalla" aria-selected="false">{{'customer.tabTitle3'|translate}}</button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="codigo-tab" data-bs-toggle="tab" data-bs-target="#codigo" type="button" role="tab" aria-controls="codigo" aria-selected="false">Codificación de emplazamientos</button>
+          <button class="nav-link" id="codigo-tab" data-bs-toggle="tab" data-bs-target="#codigo" type="button" role="tab" aria-controls="codigo" aria-selected="false">{{'customer.tabTitle4'|translate}}</button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="horario-tab" data-bs-toggle="tab" data-bs-target="#horario" type="button" role="tab" aria-controls="horario" aria-selected="false">Horarios de locales</button>
+          <button class="nav-link" id="horario-tab" data-bs-toggle="tab" data-bs-target="#horario" type="button" role="tab" aria-controls="horario" aria-selected="false">{{'customer.tabTitle5'|translate}}</button>
         </li>
       </ul>
   
@@ -114,12 +114,12 @@
               <table class="table">
                 <thead class="table-light">
                   <tr>
-                    <th class="col-1">#</th>
-                    <th class="col-4">Marca</th>
-                    <th class="col-1">Color</th>
-                    <th class="col-4">Imagen corporativa</th>
+                    <th class="col-1">{{'customer.tabHeaderId'|translate}}</th> 
+                    <th class="col-4">{{'customer.tab1Header1'|translate}}</th>
+                    <th class="col-1">{{'customer.tab1Header2'|translate}}</th>
+                    <th class="col-4">{{'customer.tab1Header3'|translate}}</th>
                     <th class="col-1"></th>
-                    <th class="col-1">Acciones</th>
+                    <th class="col-1">{{'customer.tabHeaderAccions'|translate}}</th>
                   </tr>
                 </thead>
                 <tbody formArrayName="marca">
@@ -130,7 +130,7 @@
                     <td>
                       <input class="form-control"
                         type="text"
-                        placeholder="Nombre de la marca"
+                        placeholder="{{'customer.tab1placeholder1'|translate}}"
                         formControlName="nombreMarca"
                         [class.is-invalid]="a.get('nombreMarca').invalid && a.get('nombreMarca').touched">
                       <small *ngIf="a.get('nombreMarca').invalid && a.get('nombreMarca').touched" class="text-danger">{{msgErrorArray('nombreMarca',marcaIndex)}}</small>             
@@ -157,7 +157,7 @@
                     </td>
                     <td>
                       <button type="button" class="btn btn-light" (click)="removeMarca(marcaIndex)"
-                         placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
+                         placement="bottom" ngbTooltip="{{'general.deleteButton'|translate}}" [openDelay]="300">
                         <i class="far fa-trash-alt"></i>                    
                       </button>
                     </td>
@@ -169,7 +169,7 @@
           <div class="d-grid gap-2 col-4 mx-auto">  
             <button class="btn btn-outline-primary mt-3 btn-block" 
                     type="button" (click)="addMarca()">
-              Añadir marca
+                    {{'customer.tab1AddItem'|translate}}
             </button>
           </div> 
         </div>
@@ -182,9 +182,9 @@
               <table class="table">
                 <thead class=table-light>
                   <tr>
-                    <th>#</th>
-                    <th>Region de Mercado</th>
-                    <th>Acciones</th>
+                    <th>{{'customer.tabHeaderId'|translate}}</th>
+                    <th>{{'customer.tab2Header1'|translate}}</th>
+                    <th>{{'customer.tabHeaderAccions'|translate}}</th>
                   </tr>
                 </thead>
                 <tbody formArrayName="regionMercado">
@@ -195,14 +195,14 @@
                     <td>
                       <input class="form-control"
                         type="text"
-                        placeholder="Nombre de la región de mercado"
+                        placeholder="{{'customer.tab2placeholder1'|translate}}"
                         formControlName="nombreRegionMercado"
                         [class.is-invalid]="a.get('nombreRegionMercado').invalid && a.get('nombreRegionMercado').touched">
                       <small *ngIf="a.get('nombreRegionMercado').invalid && a.get('nombreRegionMercado').touched" class="text-danger">{{msgErrorArray('nombreRegionMercado',regionMercadoIndex)}}</small>             
                     </td>  
                     <td>
                       <button type="button" class="btn btn-light" (click)="removeRegionMercado(regionMercadoIndex)"
-                            placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
+                            placement="bottom" ngbTooltip="{{'general.deleteButton'|translate}}" [openDelay]="300">
                         <i class="far fa-trash-alt"></i>                    
                       </button>
                     </td>
@@ -213,7 +213,7 @@
           </div>
           <div class="d-grid gap-2 col-4 mx-auto">  
             <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addRegionMercado()">
-              Añadir región de mercado
+              {{'customer.tab2AddItem'|translate}}
             </button>
           </div>
         </div>
@@ -225,9 +225,9 @@
               <table class="table">
                 <thead class=table-light>
                   <tr>
-                    <th>#</th>
-                    <th>Localización pantallas</th>
-                    <th>Acciones</th>
+                    <th>{{'customer.tabHeaderId'|translate}}</th>
+                    <th>{{'customer.tab3Header1'|translate}}</th>
+                    <th>{{'customer.tabHeaderAccions'|translate}}</th>
                   </tr>
                 </thead>
                     <tbody formArrayName="localizacionPantalla">
@@ -238,14 +238,14 @@
                         <td>
                           <input class="form-control"
                             type="text"
-                            placeholder="Nombre de la localizacion de pantalla"
+                            placeholder="{{'customer.tab3placeholder1'|translate}}"
                             formControlName="nombreLocalizacionPantalla"
                             [class.is-invalid]="a.get('nombreLocalizacionPantalla').invalid && a.get('nombreLocalizacionPantalla').touched">
                           <small *ngIf="a.get('nombreLocalizacionPantalla').invalid && a.get('nombreLocalizacionPantalla').touched" class="text-danger">{{msgErrorArray('nombreLocalizacionPantalla',localizacionPantallaIndex)}}</small>             
                         </td>  
                     <td>
                       <button type="button" class="btn btn-light" (click)="removeLocalizacionPantalla(localizacionPantallaIndex)"
-                            placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
+                            placement="bottom" ngbTooltip="{{'general.deleteButton'|translate}}" [openDelay]="300">
                         <i class="far fa-trash-alt"></i>                    
                       </button>
                     </td>
@@ -256,7 +256,7 @@
           </div>
           <div class="d-grid gap-2 col-4 mx-auto">  
             <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addLocalizacionPantalla()">
-              Añadir localización de pantalla
+              {{'customer.tab3AddItem'|translate}}
             </button>
           </div>
         </div>
@@ -268,9 +268,9 @@
               <table class="table">
                 <thead class=table-light>
                   <tr>
-                    <th>#</th>
-                    <th>Código de emplazamiento</th>
-                    <th>Acciones</th>
+                    <th>{{'customer.tabHeaderId'|translate}}</th>
+                    <th>{{'customer.tab4Header1'|translate}}</th>
+                    <th>{{'customer.tabHeaderAccions'|translate}}</th>
                   </tr>
                 </thead>
                 <tbody formArrayName="codigo">
@@ -281,14 +281,14 @@
                     <td>
                       <input class="form-control"
                         type="text"
-                        placeholder="Iniciales código emplazamiento"
+                        placeholder="{{'customer.tab4placeholder1'|translate}}"
                         formControlName="acronymCodigo"
                         [class.is-invalid]="a.get('acronymCodigo').invalid && a.get('acronymCodigo').touched">
                       <small *ngIf="a.get('acronymCodigo').invalid && a.get('acronymCodigo').touched" class="text-danger">{{msgErrorArray('acronymCodigo',codigoIndex)}}</small>             
                     </td>  
                     <td>
                       <button type="button" class="btn btn-light" (click)="removeCodigo(codigoIndex)"
-                            placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
+                            placement="bottom" ngbTooltip="{{'general.deleteButton'|translate}}" [openDelay]="300">
                         <i class="far fa-trash-alt"></i>                    
                       </button>
                     </td>
@@ -299,7 +299,7 @@
           </div>
           <div class="d-grid gap-2 col-4 mx-auto">  
             <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addCodigo()">
-              Añadir código de emplazamiento
+              {{'customer.tab4AddItem'|translate}}
             </button>
           </div>
         </div>
@@ -311,11 +311,11 @@
               <table class="table">
                 <thead class=table-light>
                   <tr>
-                    <th class="col-1">#</th>
-                    <th class="col-3">Descripción</th>
-                    <th class="col-2">Día de inicio del periodo</th>
-                    <th class="col-3">Mes de inicio del periodo</th>
-                    <th class="col-3">Acciones</th>
+                    <th class="col-1">{{'customer.tabHeaderId'|translate}}</th>
+                    <th class="col-3">{{'customer.tab5Header1'|translate}}</th>
+                    <th class="col-2">{{'customer.tab5Header2'|translate}}</th>
+                    <th class="col-3">{{'customer.tab5Header3'|translate}}</th>
+                    <th class="col-3">{{'customer.tabHeaderAccions'|translate}}</th>
                   </tr>
                 </thead>
                 <tbody formArrayName="horario">
@@ -326,7 +326,7 @@
                     <td>
                       <input class="form-control"
                       type="text"
-                      placeholder="Descripción del horario"
+                      placeholder="{{'customer.tab5placeholder1'|translate}}"
                       formControlName="descripcionHorario"
                       [class.is-invalid]="a.get('descripcionHorario').invalid && a.get('descripcionHorario').touched">
                       <small *ngIf="a.get('descripcionHorario').invalid && a.get('descripcionHorario').touched" class="text-danger">{{msgErrorArray('descripcionHorario',horarioIndex)}}</small>         
@@ -334,7 +334,7 @@
                     <td>
                       <input class="form-control"
                       type="text"
-                      placeholder="Día inicio del horario"
+                      placeholder="{{'customer.tab5placeholder2'|translate}}"
                       formControlName="diaInicio"
                       [class.is-invalid]="a.get('diaInicio').invalid && a.get('diaInicio').touched">
                       <small *ngIf="a.get('diaInicio').invalid && a.get('diaInicio').touched" class="text-danger">{{msgErrorArray('diaInicio',horarioIndex)}}</small> 
@@ -350,13 +350,13 @@
 
                     <td>
                       <button type="button" class="btn btn-light"
-                              placement="bottom" ngbTooltip="Establecer horario" [openDelay]="300"
+                              placement="bottom" ngbTooltip="{{'general.setScheduleButton'|translate}}" [openDelay]="300"
                               (click)="setHorario(content,horarioIndex)">
                         <i class="far fa-clock"></i>
                       </button>
                       &nbsp;
                       <button type="button" class="btn btn-light" (click)="removeHorario(horarioIndex)"
-                            placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
+                            placement="bottom" ngbTooltip="{{'general.deleteButton'|translate}}" [openDelay]="300">
                         <i class="far fa-trash-alt"></i>                    
                       </button>
                     </td>
@@ -364,7 +364,7 @@
 <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
 <ng-template #content let-modal>
   <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title"> {{a.get('descripcionHorario').value}}</h4>
+    <h4 class="modal-title" id="modal-basic-title"> {{a.get('descripcionHorario').value}} {{'customer.tabHeaderAccions'|translate}}</h4>
     <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>
@@ -373,12 +373,13 @@
     <table class="table table-sm">
       <thead class=table-light>
         <tr>
-          <th class="col-2">Día de la semana</th>
-          <th class="col-2">Apertura</th>
-          <th class="col-2">Cierre</th>
-          <th class="col-2">Apertura</th>
-          <th class="col-2">Cierre</th>
-          <th class="col-2">Acciones</th>
+          
+          <th class="col-2">{{'customer.modalScheduleHeader1'|translate}}</th>
+          <th class="col-2">{{'customer.modalScheduleHeader2'|translate}}</th>
+          <th class="col-2">{{'customer.modalScheduleHeader3'|translate}}</th>
+          <th class="col-2">{{'customer.modalScheduleHeader2'|translate}}</th>
+          <th class="col-2">{{'customer.modalScheduleHeader3'|translate}}</th>
+          <th class="col-2">{{'customer.tabHeaderAccions'|translate}}</th>
         </tr>
       </thead>
       <tbody formArrayName="weekly">
@@ -419,14 +420,14 @@
         </td>  
         <td> 
           <button type="button" class="btn btn-light"
-                  placement="bottom" ngbTooltip="Repetir horario en siguientes días" [openDelay]="300"
+                  placement="bottom" ngbTooltip="{{'general.repeatScheduleButton'|translate}}"  [openDelay]="300"
                   (click)="repetirHorarioDia(weeklyIndex)">
                   <!-- <i class="bi bi-arrow-repeat"></i> -->
             <i class="fas fa-arrow-circle-down"></i> 
           </button>
           &nbsp;            
           <button type="button" class="btn btn-light"
-                  placement="bottom" ngbTooltip="Borrar horario" [openDelay]="300"
+                  placement="bottom" ngbTooltip="{{'general.deleteScheduleButton'|translate}}"  [openDelay]="300"
                   (click)="borrarHorarioDia(weeklyIndex)">
             <i class="fas fa-eraser"></i>
           </button>
@@ -449,7 +450,7 @@
           </div>
           <div class="d-grid gap-2 col-4 mx-auto">  
             <button class="btn btn-outline-primary mt-3 mb-3" type="button" (click)="addHorario()">
-              Añadir horario
+              {{'customer.tab5AddItem'|translate}}
             </button>
           </div>
         </div>
@@ -460,7 +461,7 @@
     <!-- Fin bloque Pestañas de listas de datos de cliente    --> 
 
 </form>
-<hr>
+<!-- <hr>
 
 <pre>
   estado formulario:{{customerForm.valid}}
@@ -470,7 +471,7 @@
 </pre>
 <pre>
   {{customerForm.value|json}}
-</pre>
+</pre> -->
 
 
 

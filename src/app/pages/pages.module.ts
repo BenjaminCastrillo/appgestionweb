@@ -8,6 +8,7 @@ import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatSortModule} from '@angular/material/sort';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatIconModule} from '@angular/material/icon';
+import {  TranslateModule} from '@ngx-translate/core';
 
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
@@ -51,6 +52,7 @@ import { PagesComponent } from './pages.component';
     ComponentsModule,
     MatRadioModule,
     MatIconModule,
+    TranslateModule,
   
     MatSortModule,
    // MatButtonModule,

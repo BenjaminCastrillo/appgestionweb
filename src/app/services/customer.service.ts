@@ -18,7 +18,7 @@ export class CustomerService {
   private header= new HttpHeaders();
 
   private url=this.globalData.getUrlServer();
-  private lang=this.globalData.getUserLanguage();
+  private lang=this.globalData.getUserLanguage(); 
 
   constructor(private http:HttpClient,
     private globalData:GlobalDataService) {
@@ -202,26 +202,27 @@ timeCloseCorrect(timeStart1:string,timeEnd1:string,timeStart2:string,timeEnd2:st
     const horaInicio2=timeStartControl2.value?parseInt(timeStartControl2.value.replace(':',''),10):0;
     const horaFin2=timeEndControl2.value?parseInt(timeEndControl2.value.replace(':',''),10):0;
 
-
-    if (horaFin1>horaInicio1 && horaInicio1!=0){
-      timeEndControl1.setErrors(null); // correcto
+    if (horaInicio1==0 && horaFin1==0){       
+      timeStartControl1.setErrors(null);
+      timeEndControl1.setErrors(null);
+    
     }else{
-      timeEndControl1.setErrors({ wrongEndTime:true });
+        if (horaFin1>horaInicio1 && horaInicio1!=0){
+          timeEndControl1.setErrors(null); // correcto
+        }else{
+          timeEndControl1.setErrors({ wrongEndTime:true });
+        }
     }
 
-    if (horaInicio2==0 && horaFin2==0){
-    
+    if (horaInicio2==0 && horaFin2==0){   
       timeStartControl2.setErrors(null);
-      timeEndControl2.setErrors(null);
-    
+      timeEndControl2.setErrors(null);   
     }else{
-
       if (horaInicio2>horaFin1 && horaFin1!=0){
         timeStartControl2.setErrors(null); // correcto
       }else{
         timeStartControl2.setErrors({ wrongStartTime:true });
-      }
-  
+      } 
       if (horaFin2>horaInicio2 && horaInicio2!=0){
         timeEndControl2.setErrors(null); // correcto
       }else{
@@ -236,7 +237,7 @@ timeCloseCorrect(timeStart1:string,timeEnd1:string,timeStart2:string,timeEnd2:st
 
   existsIdCustomer(control:FormControl):Promise<ErrorValidate>|Observable<ErrorValidate>{
     let identification=control.value;
-console.log('voy a validar dni');
+
     if (!control.value){
       return Promise.resolve(null);
     }

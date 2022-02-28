@@ -291,7 +291,7 @@
           </mat-radio-button>
         </mat-radio-group>
       </div>  
-    </div>
+    </div> 
 
     <div class="row mt-5">
       <div class="col-5">     
@@ -455,42 +455,42 @@
       </div>
 
       <!-- Fin pestaña categorias --> 
-        <!-- Pestaña excepciones   -->
-        <div class="tab-pane fade mt-3" id="excepcion" role="tabpanel" aria-labelledby="excepcion-tab">  
-          <div class="row container-fluid">
-            <div class="col">
-              <table matSort (matSortChange)="sortData($event)"  class="table table-condensed table-striped">
-                <thead class=table-light>
-                  <tr>
-                    <th scope="col" class="col-sm-1" mat-sort-header="id">#</th>
-                    <th scope="col" class="col-sm-2" mat-sort-header="idComercial">Código</th>
-                    <th scope="col" class="col-sm-4" mat-sort-header="nombreLocal">Local</th>
-                    <th scope="col" class="col-sm-3" mat-sort-header="nombreCliente">Cliente</th>
-                    <th scope="col" class="col-sm-2" mat-sort-header="excepcion">Tipo de excepción</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let excepcion of sortedData; let excepcionIndex=index">
-                    <th>{{excepcion.siteId}}</th>
-                    <td>{{excepcion.siteComercialId}}</td>   
-                    <td>{{excepcion.venueName}}</td>   
-                    <td>{{excepcion.customer.name}}</td>   
-                    <td class="text-center">
-                      <i *ngIf="excepcion.exception==1" class="bi bi-plus-circle-fill" style="font-size: 1rem;"
-                          placement="bottom" ngbTooltip="Emplazamiento accesible al usuario" [openDelay]="300"></i>
-                      <i *ngIf="excepcion.exception==2" class="bi bi-dash-circle-fill" style="font-size: 1rem;"
-                          placement="bottom" ngbTooltip="Emplazamiento inaccesible al usuario" [openDelay]="300"></i>     
-                    </td> 
-                  </tr>
-                </tbody>
-              </table>
-
-
+      <!-- Pestaña excepciones   -->
+      <div class="tab-pane fade mt-3" id="excepcion" role="tabpanel" aria-labelledby="excepcion-tab">  
+        <div class="row container-fluid">
+          <div class="col">
+            <table matSort (matSortChange)="sortData($event)"  class="table table-condensed table-striped">
+              <thead class=table-light>
+                <tr>
+                  <th scope="col" class="col-sm-1" mat-sort-header="id">#</th>
+                  <th scope="col" class="col-sm-2" mat-sort-header="idComercial">Código</th>
+                  <th scope="col" class="col-sm-4" mat-sort-header="nombreLocal">Local</th>
+                  <th scope="col" class="col-sm-3" mat-sort-header="nombreCliente">Cliente</th>
+                  <th scope="col" class="col-sm-2" mat-sort-header="excepcion">Tipo de excepción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let excepcion of sortedData; let excepcionIndex=index">
+                  <th>{{excepcion.siteId}}</th>
+                  <td>{{excepcion.siteComercialId}}</td>   
+                  <td>{{excepcion.venueName}}</td>   
+                  <td>{{excepcion.customer.name}}</td>   
+                  <td class="text-center">
+                    <i *ngIf="excepcion.exception==1" class="bi bi-plus-circle-fill" style="font-size: 1rem;"
+                        placement="bottom" ngbTooltip="Emplazamiento accesible al usuario" [openDelay]="300"></i>
+                    <i *ngIf="excepcion.exception==2" class="bi bi-dash-circle-fill" style="font-size: 1rem;"
+                        placement="bottom" ngbTooltip="Emplazamiento inaccesible al usuario" [openDelay]="300"></i>     
+                  </td> 
+                </tr>
+              </tbody>
+            </table>
+            <div class="text-center mt-3" *ngIf="sortedData.length===0">     
+              <span>No hay excepciones para este usuario</span>
             </div>
           </div>
-         
-        </div>
-        <!-- Fin pestaña excepciones --> 
+        </div>       
+      </div>
+      <!-- Fin pestaña excepciones --> 
     </div>  
     <!-- Fin Contenidos pestañas -->
   </div>
@@ -505,10 +505,10 @@
 -->
 
 
-visibility
 
 
 
+<!-- 
 <pre>
   password dirty {{userForm.controls.password.dirty}}
   password pristine {{userForm.controls.password.pristine}}
@@ -519,42 +519,6 @@ visibility
 </pre>
 <pre>
   {{userForm.value|json}}
-</pre>
+</pre> -->
 
 
-          <!-- <div class="row">
-            <label class="form-label" for="inputtipoexcepcion">Tipo de excepción</label>
-            <select class="form-select" formControlName="tipoExcepcion">
-              <option *ngFor="let c of tiposExcepciones"
-              value="{{c.id}}"  
-              [selected]="selectExcepcion(c.id)"
-              [class.is-invalid]="excepcionNoValido">{{c.description}}</option>
-            </select>     
-          </div> -->
-
-
-          <!--  <table class="table table-condensed table-striped">
-                <thead class=table-light>
-                  <tr>
-                    <th scope="col" class="col-sm-1">#</th>
-                    <th scope="col" class="col-sm-2">Código</th>
-                    <th scope="col" class="col-sm-4">Local</th>
-                    <th scope="col" class="col-sm-3">Cliente</th>
-                    <th scope="col" class="col-sm-2">Tipo de excepción</th>
-                  </tr>
-                </thead>
-                <tbody formArrayName="excepciones">
-                  <tr *ngFor="let excepcion of excepciones.controls; let excepcionIndex=index" [formGroupName]="excepcionIndex" >
-                    <th>{{excepcion.get('idEmplazamiento').value}}</th>
-                    <td>{{excepcion.get('codigoComercial').value}}</td>   
-                    <td>{{excepcion.get('nombreLocal').value}}</td>   
-                    <td>{{excepcion.get('nombreCliente').value}}</td>   
-                    <td class="text-center">
-                      <i *ngIf="excepcion.get('excepcion').value==1" class="bi bi-plus-circle-fill" style="font-size: 1rem;"
-                          placement="bottom" ngbTooltip="Emplazamiento accesible al usuario" [openDelay]="300"></i>
-                      <i *ngIf="excepcion.get('excepcion').value==2" class="bi bi-dash-circle-fill" style="font-size: 1rem;"
-                          placement="bottom" ngbTooltip="Emplazamiento inaccesible al usuario" [openDelay]="300"></i>     
-                    </td> 
-                  </tr>
-                </tbody>
-              </table> -->

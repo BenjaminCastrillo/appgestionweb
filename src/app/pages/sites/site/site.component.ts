@@ -91,13 +91,22 @@ export class SiteComponent implements OnInit {
           this.binariosImagenVenue=(this.currentVenue.image)?this.urlImageVenue+this.currentVenue.image:this.imageDefault;
           this.binariosImagenMarca=(this.currentVenue.brand.image)?this.urlImageBrand+this.currentVenue.brand.image:this.imageDefault;
           this.binariosImagenEmplazamiento=(this.currentSite.image)?this.urlImageSite+this.currentSite.image:this.imageDefault;
-          
-          console.log('el venue', this.currentVenue);
         });
 
         this.siteServices.getScreenLocations(this.currentSite.customer.id)
           .subscribe(resp=>{
             this.screenLocations=resp;
+            if (this.screenLocations.length>0){
+              this.screenLocations.unshift (
+                {
+                  id:null,
+                  description:null,
+                  deleted:false
+                }
+              )
+            }
+
+
           });  
 
         this.siteServices.getScreenTypes()
@@ -154,14 +163,12 @@ export class SiteComponent implements OnInit {
   
   //   validación con decimales Validators.pattern('^[0-9]+(,[0-9]+)?$')],
 
-  console.log('formulario creado');
 
   }
 
   loadData(site:Site){
     
 
-console.log('22222',site)
 
     this.tipoPantallaPanelLed=site.screen.screenType.panel;
    
@@ -182,7 +189,6 @@ console.log('22222',site)
     
     this.localizacionPantallaBorrada=site.screenLocation.deleted;
 
-    console.log('XX',site.screen.resolutionHeight);
     // Datos calculados para visualización
     this.anchoPantalla=site.screen.screenWidth;
     this.altoPantalla=site.screen.screenHeight;
@@ -502,7 +508,7 @@ get observacionesNoValido(){
             on_off:         this.currentSite.on_off,   
             text:           this.siteForm.get('texto').value,     
             screenLocation: {
-                             id:           this.siteForm.get('localizacionPantalla').value,
+                             id:           this.siteForm.get('localizacionPantalla').value===''?null:this.siteForm.get('localizacionPantalla').value,
                              description:  this.currentSite.screenLocation.description,
                              deleted:      this.currentSite.screenLocation.deleted,
                              },    
@@ -570,7 +576,7 @@ get observacionesNoValido(){
         });
   
           //this.venueForm.reset();
-          this.router.navigate(['/home/site-list']);
+          this.router.navigate(['/home/site-list/todos']);
         },
         error=>{
           console.log(error);

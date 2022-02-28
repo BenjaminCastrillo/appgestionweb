@@ -1,23 +1,34 @@
 import { Injectable } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core'
+import { TranslateService } from '@ngx-translate/core';
+import { GlobalDataService } from '../services/global-data.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LanguageService {
 
-  supportedLanguages=['es','en'];
-  defaultLanguage='en';
 
-  constructor(private translate:TranslateService) { }
+  constructor(private translate:TranslateService,
+    private globalDataServices:GlobalDataService,) { }
 
   getLanguage(){
 
-    const userLanguage= this.translate.getBrowserLang();
-    console.log('en el serviceLanguage',userLanguage)
-    const validLanguage=this.supportedLanguages.includes(userLanguage)?userLanguage:this.defaultLanguage;
+    let userLanguage:string= localStorage.getItem('language');
+    if (!userLanguage){
+       userLanguage= this.translate.getBrowserLang();
+    }
+    console.log('en el serviceLanguage el idioma del navegador es',userLanguage)
+    const validLanguage=this.globalDataServices.supportedLanguages.includes(userLanguage)?userLanguage:this.globalDataServices.defaultLanguage;
     localStorage.setItem('language',validLanguage);
     return validLanguage;
+  }
 
+  updateLanguage(newLanguage:string){
+
+    this.translate.setDefaultLang(newLanguage);
+    this.translate.use(newLanguage);
+    
+    localStorage.setItem('language',newLanguage);
+    return
   }
 }

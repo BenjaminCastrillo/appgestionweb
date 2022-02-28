@@ -129,11 +129,13 @@
                     </td>
                     <td>      
                       <select class="form-select" formControlName="idEntidadTerritorial">
-                        <option value="{{b.id}}" *ngFor="let b of location | territorialentities:localizacionIndex; let locationIndex=index" 
-                                [selected]="selectEntidadTerritorial(b.id,localizacionIndex,locationIndex)">
-                                <!-- [class.is-invalid]="entidadTerritoriallNoValido"> -->
-                                {{b.territorialEntityName}}</option> 
-                      </select>
+                        <option value="{{z.id}}" *ngFor="let z of location | territorialentities:localizacionIndex; let locationIndex=index" 
+                                [selected]="selectEntidadTerritorial(z.id,localizacionIndex)"
+                                [class.is-invalid]="a.get('idEntidadTerritorial').invalid && a.get('idEntidadTerritorial').touched">                            
+                                {{z.territorialEntityName}}
+                              </option> 
+                            </select>
+                            <small *ngIf="a.get('idEntidadTerritorial').invalid && a.get('idEntidadTerritorial').touched" class="text-danger">{{msgErrorArray('idEntidadTerritorial',localizacionIndex)}}</small>  
                     </td>  
                   </tr>
                 </tbody>
@@ -591,7 +593,7 @@
 
 </form>
 
-
+<!-- 
 <pre>
   estado formulario:{{venueForm.valid}}
   <br>
@@ -605,4 +607,4 @@
 
 <pre>
   {{venueForm.value|json}}
-</pre>
+</pre> -->

@@ -27,7 +27,7 @@ export class VenuePipe implements PipeTransform {
         venue.customer.identification.toLowerCase().indexOf(text.toLowerCase())>-1)?true:false;
         resultado.push(venue);
       }
-    }
+    } 
 
     return resultado.slice(page,page+linesPage);
   }

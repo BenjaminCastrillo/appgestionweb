@@ -25,8 +25,6 @@ export class UserService {
 
   getUsers():Observable<UsersResponse>{
     return this.http.get<UsersResponse>(`${this.url}/users/${this.lang}`)
-    .pipe(
-      delay(0));
   }
 
   getUserById(id:string):Observable<UsersResponse>{
@@ -38,12 +36,10 @@ export class UserService {
   }
 
   saveUser(user:User):Observable<any>{
-
     return this.http.post(`${this.url}/users/`,user);
   }
 
   updateUser(user:User):Observable<any>{
- 
      return this.http.put(`${this.url}/users/`,user);   
   }
   deleteUser(id:string):Observable<any>{
@@ -53,11 +49,10 @@ export class UserService {
   getLanguages():Observable<any>{
     return this.http.get<any>(`${this.url}/languages`);
   }
+  
   getRoles():Observable<any>{
     return this.http.get<any>(`${this.url}/roles/${this.lang}`);
   }
 
-
-  
 }
 

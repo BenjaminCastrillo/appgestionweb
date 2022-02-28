@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { Observable} from 'rxjs';
 import Swal from 'sweetalert2';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import {NgbModal, NgbModalConfig,ModalDismissReasons, NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
-
-
+ 
 import { CustomerService } from '../../../services/customer.service';
 import { UploadService  } from '../../../services/upload.service';
 import { Customer,Week, Month ,SitesComercialCode} from '../../../interfaces/customer-interface';
@@ -32,7 +32,7 @@ export class CustomerComponent implements OnInit {
   public currentCustomer:Customer;
   public customerId:string;
   public newCustomer:boolean;
-  public tituloPagina:string;
+//  public tituloPagina:string;
 
   public filesImagenMarca: Array <ImagenesFile> =[];
   public binariosImagenMarca:Array <String> = [];
@@ -44,9 +44,10 @@ export class CustomerComponent implements OnInit {
   public sitesCodes:SitesComercialCode[]=[];
   
   public closeResult = '';
+  public activeLang = this.globalDataServices.getStringUserLanguage();
 
-  private imageDefault=this.globalData.getUrlImageDefault();
-  private urlImage=this.globalData.getUrlImageBrand();
+  private imageDefault=this.globalDataServices.getUrlImageDefault();
+  private urlImage=this.globalDataServices.getUrlImageBrand();
   
 
   public horarioArray: FormArray;
@@ -57,22 +58,25 @@ export class CustomerComponent implements OnInit {
               private utilService:UtilService,
               private ActivatedRoute:ActivatedRoute,
               private router:Router,
-              private globalData:GlobalDataService,
+              private translate: TranslateService,
+              private globalDataServices:GlobalDataService,
               config: NgbModalConfig, private modalService: NgbModal) 
   {               
       config.backdrop = 'static';
       config.keyboard = false; 
+      this.translate.setDefaultLang(this.activeLang);
+      this.translate.use(this.activeLang);
       this.crearFormulario();
   }
   ngOnInit(): void {
-   
+    
     this.customerId= this.ActivatedRoute.snapshot.paramMap.get('id');
     if (this.customerId==='nuevo'){
       this.newCustomer=true;
-      this.tituloPagina='Alta nuevo cliente';
+  //    this.tituloPagina='Alta nuevo cliente';
     }else{
       this.newCustomer=false;
-      this.tituloPagina='Modificación datos de cliente';
+    //  this.tituloPagina='Modificación datos de cliente';
       this.customerForm.get('identification').disable();
       this.customerServices.getCustomerById(this.customerId)
       .subscribe(resp=>{
@@ -88,8 +92,6 @@ export class CustomerComponent implements OnInit {
     .subscribe(resp=>{
       this.month=resp;
     });  
-
-
     
   }
 
@@ -198,6 +200,7 @@ export class CustomerComponent implements OnInit {
       sc.push(this.newHorario(elem.id,elem.description,elem.startDate.id.substring(0,2).replace(/^0+/, ''),elem.startDate.id.substring(2).replace(/^0+/, '')))    
       scw.push(new Array())
       elem.weekly.forEach(e=>{
+
         scw[ind].push(this.newHorarioSemanal(e.day,e.descriptionDay,e.openingTime1,e.closingTime1,e.openingTime2,e.closingTime2))
       })
   
@@ -285,8 +288,8 @@ export class CustomerComponent implements OnInit {
     return this.fb.group({
       idDiaSemana:           [a],
       descripcionDiaSemana:  [b],
-      horaApertura1:         [c,[Validators.required]],
-      horaCierre1:           [d,[Validators.required]],
+      horaApertura1:         [c],
+      horaCierre1:           [d],
       horaApertura2:         [e],
       horaCierre2:           [f],
     },{
@@ -425,20 +428,27 @@ export class CustomerComponent implements OnInit {
   
   onSubmit() {
     let hi:string;
+    let msg1:string=null;
+    let msg2:string=null;
     console.log('lo que voy a grabar del customer',this.customerForm)
 
     if (this.customerForm.touched){
 
       if( this.customerForm.invalid){
-        let mensajeError='Datos Incorrectos';       
+  //      let mensajeError='Datos Incorrectos';      
+        this.translate.get('general.modalclosePage6')
+        .subscribe(res=>msg1=res); 
         if(this.customerForm.get('horario').invalid){
           let horarioIncorrecto=this.horario.controls.find(elem=>elem.invalid);
           hi=horarioIncorrecto.get('descripcionHorario').value==null?'':horarioIncorrecto.get('descripcionHorario').value
-          mensajeError = 'Falta completar el horario ' + hi;
+          this.translate.get('general.modalclosePage7', {value1: hi})
+          .subscribe(res=>msg1=res);          
         }
+        this.translate.get('general.modalclosePage8')
+        .subscribe(res=>msg2=res);
         Swal.fire({
-        title: mensajeError,
-        text:'por favor revise la información introducida',
+        title: msg1,
+        text:  msg2,
         confirmButtonColor: '#007bff',
         icon:'error',
         allowOutsideClick:false,
@@ -476,9 +486,16 @@ export class CustomerComponent implements OnInit {
           if (this.filesImagenMarca.length>0){
             this.subirArchivo();
           }
+
+          this.translate.get('general.modalclosePage4', {value1: resp.data.name})
+            .subscribe(res=>msg1=res);
+          this.translate.get('general.modalclosePage5')
+            .subscribe(res=>msg2=res);
+
+
           Swal.fire({
-            title: `El registro ${resp.data.name}`,
-            text:'se actualizó correctamente',
+            title: msg1,
+            text:  msg2,
             allowOutsideClick:false,
             confirmButtonColor: '#007bff',
             icon:'success'
@@ -498,13 +515,23 @@ export class CustomerComponent implements OnInit {
   }
  
   abandonarPagina(){
+    let msg1:string=null
+    let msg2:string=null
+    let msg3:string=null
     if (this.customerForm.touched){
+      this.translate.get('general.modalclosePage1')
+        .subscribe(res=>msg1=res);
+      this.translate.get('general.modalclosePage2')
+        .subscribe(res=>msg2=res);
+      this.translate.get('general.modalclosePage3')
+        .subscribe(res=>msg3=res);
+
       Swal.fire({
-        title:'¿Desea abandonar la página?',
-        text: 'los cambios realizados se perderán',
+        title: msg1,
+        text: msg2,
         icon: 'info',
         confirmButtonColor: '#007bff',
-        cancelButtonText:'Cancelar',
+        cancelButtonText:msg3,
         showConfirmButton:true,
         showCancelButton:true,
         allowOutsideClick:false,
@@ -729,15 +756,33 @@ export class CustomerComponent implements OnInit {
 
   msgError(campo: string): string {
     let message: string = null;
+    let messageCode:string=null;
 
-    if(this.customerForm.get(campo).hasError('required')) return 'El campo es obligatorio';
-    if(this.customerForm.get(campo).hasError('pattern'))  return 'Formato incorrecto';
-    if(this.customerForm.get(campo).hasError('exists'))   return 'El id introducido ya existe';
-    if(this.customerForm.get(campo).hasError('minlength'))
-      return `La longitud mínima del campo ${campo} es ${this.customerForm.get(campo).errors.minlength.requiredLength}`;
-    if(this.customerForm.get(campo).hasError('maxlength'))
-      return `La longitud máxima del campo es ${this.customerForm.get(campo).errors.maxlength.requiredLength}`;
-
+    if(this.customerForm.get(campo).hasError('required'))
+        this.translate.get('error.validationField1')
+        .subscribe(res=>(message=res));
+       
+    if(this.customerForm.get(campo).hasError('pattern')) 
+        this.translate.get('error.validationField2')
+        .subscribe(res=>(message=res));
+  
+    if(this.customerForm.get(campo).hasError('exists'))
+        this.translate.get('error.validationField3')
+        .subscribe(res=>(message=res));
+    
+    if(this.customerForm.get(campo).hasError('minlength'))    
+        this.translate.get('error.validationField4', 
+                {value1: campo,
+                 value2: this.customerForm.get(campo).errors.minlength.requiredLength})
+        .subscribe(res=>(message=res));
+    
+ //     return `La longitud mínima del campo ${campo} es ${this.customerForm.get(campo).errors.minlength.requiredLength}`;
+    if(this.customerForm.get(campo).hasError('maxlength'))    
+        this.translate.get('error.validationField5', 
+                {value1: campo,
+                 value2: this.customerForm.get(campo).errors.maxlength.requiredLength})
+        .subscribe(res=>(message=res));
+    
     return message;
 }
 
@@ -779,19 +824,39 @@ export class CustomerComponent implements OnInit {
       case 'horaCierre2':
         controlElementoArray=this.weekly.at(i).get('horaCierre2');
         break;
-      default:
+      default:      
         return;
     }
-    if (controlElementoArray.hasError('required')) return 'El campo es obligatorio';  
-    if (controlElementoArray.hasError('maxlength'))   
-        return `La longitud máxima del campo es ${controlElementoArray.errors.maxlength.requiredLength}`;
-    if (controlElementoArray.hasError('pattern')) return 'Formato incorrecto';  
-    if (controlElementoArray.hasError('wrongStartDay')) return 'NUNCA SALTO';  
-    if (controlElementoArray.hasError('wrongStartDate')) return 'El dia de inicio del periodo es incorrecto';  
-    if (controlElementoArray.hasError('wrongEndTime')) return 'La hora de cierre es incorrecta';  
+    if (controlElementoArray.hasError('required'))
+        this.translate.get('error.validationField1')
+        .subscribe(res=>(message=res));
     
-    if (controlElementoArray.hasError('wrongStartTime')) return 'La hora de apertura es incorrecta';  
-    if (controlElementoArray.hasError('exists'))   return 'El código introducido ya existe';
+    if (controlElementoArray.hasError('maxlength'))   
+        this.translate.get('error.validationField6', 
+            {value1: controlElementoArray.errors.maxlength.requiredLength})
+        .subscribe(res=>(message=res));
+   
+     if (controlElementoArray.hasError('pattern'))
+         this.translate.get('error.validationField2')
+         .subscribe(res=>(message=res));
+
+    if (controlElementoArray.hasError('wrongStartDay')) return 'NUNCA SALTO';  
+
+    if (controlElementoArray.hasError('wrongStartDate')) 
+        this.translate.get('error.validationField7')
+        .subscribe(res=>(message=res));
+
+    if (controlElementoArray.hasError('wrongEndTime')) 
+        this.translate.get('error.validationField8')
+        .subscribe(res=>(message=res));
+   
+    if (controlElementoArray.hasError('wrongStartTime')) 
+        this.translate.get('error.validationField9')
+        .subscribe(res=>(message=res));
+
+    if (controlElementoArray.hasError('exists'))   
+        this.translate.get('error.validationField10')
+        .subscribe(res=>(message=res));
     
     
     return message;

@@ -4,6 +4,8 @@ import {NgbModal, NgbModalConfig,ModalDismissReasons, NgbModalRef} from '@ng-boo
 import { Venue } from '../../../interfaces/venue-interface';
 import { VenueService } from '../../../services/venue.service';
 import { UtilService } from '../../../services/util.service';
+import { GlobalDataService } from '../../../services/global-data.service';
+import { TranslateService } from '@ngx-translate/core';
 import Swal from 'sweetalert2';
 import {Sort} from '@angular/material/sort'; 
 
@@ -18,16 +20,19 @@ export class VenuesListComponent implements OnInit {
   public cargando:boolean=false;
   public filterVenue:string='';
   public page:number=0;
-  public linesPages:number=10;
+  public linesPages:number=9;
   public closeResult = '';
   public linesPagesModal:number=8;
   public pageModal:number=0;
   public filterSite:string='';
   public modalReference:NgbModalRef;
   public sortedData:Venue[];
+  public activeLang:string = this.globalDataServices.getStringUserLanguage();
 
   constructor(private venueServices:VenueService,
     private UtilService:UtilService,
+    private translate: TranslateService,
+    private globalDataServices:GlobalDataService,
     private router:Router,
     config: NgbModalConfig,  
     private modalService: NgbModal) {
@@ -36,8 +41,10 @@ export class VenuesListComponent implements OnInit {
      }
 
   ngOnInit(): void {
+    this.translate.setDefaultLang(this.activeLang);
+    this.translate.use(this.activeLang);
     this.cargando=true;
-    this.venueServices.getVenues(null)
+    this.venueServices.getVenues(null) 
     .subscribe(resp=>{    
       if (resp.result===true){ 
         this.venues=resp.data;     
@@ -97,9 +104,8 @@ export class VenuesListComponent implements OnInit {
   }
 
   sitesList(content:any,i:number){
-   this.modalReference=this.modalService.open(content, {ariaLabelledBy: 'modal-horarios',  size: 'xl' , scrollable: true} );
+   this.modalReference=this.modalService.open(content, {ariaLabelledBy: 'modal-sites',  size: 'xl' , scrollable: true} );
 
-  //  this.modalService.open(content, {ariaLabelledBy: 'modal-horarios',  size: 'xl' , scrollable: true} ).result.then((result) => {      
   this.modalReference.result.then((result) => { 
     this.closeResult = `Closed with: ${result}`;
       }, (reason) => {
@@ -109,6 +115,7 @@ export class VenuesListComponent implements OnInit {
         }
     });
   }
+
   editSite(id:number){
     this.modalReference.close();
     this.router.navigate(['/home/site',id]);

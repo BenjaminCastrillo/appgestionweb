@@ -18,9 +18,9 @@ export class UserPipe implements PipeTransform {
           user.name.toLowerCase().indexOf(text.toLowerCase())>-1 ||
           user.surname.toLowerCase().indexOf(text.toLowerCase())>-1 ||
           user.email.toLowerCase().indexOf(text.toLowerCase())>-1 ||
-          user.customerUserList.findIndex(e=>e.name.toLowerCase().includes(text.toLowerCase()))>-1)      
+          user.customerUserList.findIndex(e=>e.customerName.toLowerCase().includes(text.toLowerCase()))>-1)      
       {
-        user.filter=user.customerUserList.findIndex(e=>e.name.toLowerCase().includes(text.toLowerCase()))>-1?true:false;
+        user.filter=user.customerUserList.findIndex(e=>e.customerName.toLowerCase().includes(text.toLowerCase()))>-1?true:false;
         resultado.push(user);
       }
     }

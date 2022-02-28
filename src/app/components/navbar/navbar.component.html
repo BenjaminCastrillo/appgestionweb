@@ -1,6 +1,7 @@
 <!-- 
 <nav class="navbar navbar-expand-lg navbar-inverse bg-inverse" style="background-color: #6ab04c;">
  -->
+ 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
     <a class="navbar-brand" [routerLink]= "['']">
@@ -11,22 +12,39 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item" routerLinkActive="active"> 
-            <a class="nav-link active" [routerLink]= "['customer-list']">Clientes</a>
+        <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
+
+          <li class="nav-item"> 
+            <a class="nav-link active" [routerLink]= "['customer-list']"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{exact:true}">Clientes</a>
           </li>
-          <li class="nav-item" routerLinkActive="active">
-            <a class="nav-link" [routerLink]= "['user-list']">Usuarios</a>
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]= "['user-list']"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{exact:true}">Usuarios</a>
           </li>  
-          <li class="nav-item" routerLinkActive="active">
-            <a class="nav-link" [routerLink]= "['venue-list']">Locales</a>
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]= "['venue-list']"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{exact:true}">Locales</a>
           </li>
-          <li class="nav-item" routerLinkActive="active">
-            <a class="nav-link" [routerLink]= "['site-list/todos']">Emplazamientos</a>
+          <li class="nav-item">
+            <a class="nav-link" [routerLink]= "['site-list/todos']"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{exact:true}">Emplazamientos</a>
           </li>
+
         </ul>
       </div>
     </div>
-    <span><i class="fas fa-user"></i>   {{userName}}</span>
+    <div class="d-flex nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <span><i class="fas fa-user"></i>    {{userName}}</span>
+      </a>
+      <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <li><a class="dropdown-item" (click)="logout()">Logout</a></li>             
+      </ul>
+    </div>
   </div>
 </nav>

@@ -16,7 +16,7 @@ export interface Site {
   image:               string;
   publicScreen:        boolean;
   on_off:              boolean;
-  text:                null;
+  text:                string|null;
   screenLocation:      ScreenLocation;
   screen:              Screen;
   player:              Player;
@@ -91,7 +91,7 @@ export interface Screen {
   modulesWidth:     number | null;
   modulesHeight:    number | null;
   serialNumber:     string | null;
-  situation:        string|null;
+  situation:        string|null; 
 }
 
 export interface ScreenBrand {

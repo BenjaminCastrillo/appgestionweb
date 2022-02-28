@@ -12,13 +12,13 @@ export class GlobalDataService {
   urlImageSite=this.urlServer+'/siteimage/';
 
   imageDefault='../../../../assets/img/noimage.png'
-
+  
+  supportedLanguages=['es','en'];
+  defaultLanguage:string='es';
   languagesArray: {[key: string]: number} = {
     es: 1,
     en: 2
   };
-
-  defaultLanguage:string='es';
 
   constructor() { }
 
@@ -46,13 +46,17 @@ export class GlobalDataService {
   }
   getToken(){
 
-    const token = localStorage.getItem('token')?localStorage.getItem('token'):null;
+    const token = localStorage.getItem('token')?localStorage.getItem('token'):'a.a.a';
     return token;
   }
   getUserLanguage(){
 
     const language=localStorage.getItem('language')?localStorage.getItem('language'):this.defaultLanguage;
-
     return this.languagesArray[language];
   }
+  getStringUserLanguage(){
+    return localStorage.getItem('language')?localStorage.getItem('language'):this.defaultLanguage;;
+  }
+
+
 }

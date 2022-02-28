@@ -6,6 +6,8 @@ import { VenueService } from '../../../services/venue.service';
 import { SiteService } from '../../../services/site.service';
 import { UtilService } from '../../../services/util.service';
 import { UserService } from '../../../services/user.service';
+import { GlobalDataService } from '../../../services/global-data.service';
+import { TranslateService } from '@ngx-translate/core';
 import Swal from 'sweetalert2';
 import {Sort} from '@angular/material/sort';
 
@@ -22,95 +24,58 @@ export class SitesListComponent implements OnInit {
   public cargando:boolean=false;
   public filterSite:string='';
   public page:number=0;
-  public linesPages:number=10;
+  public linesPages:number=9;
   public listSites:Site[];
   public sortedData:Site[];
-  public userId:string;
-  public userName:string;
+  public venueId:string;
+  public venueName:string;
 
+  public activeLang:string = this.globalDataServices.getStringUserLanguage();
 
   constructor(private venueServices:VenueService,
               private siteServices:SiteService,
               private userServices:UserService,
-              private UtilService:UtilService,
+              private UtilServices:UtilService,
+              private translate: TranslateService,
+              private globalDataServices:GlobalDataService,
               private router:Router,
               private ActivatedRoute:ActivatedRoute,
   ) { }
 
   ngOnInit(): void {
 
-    this.userId= this.ActivatedRoute.snapshot.paramMap.get('id');
-
+    this.translate.setDefaultLang(this.activeLang);
+    this.translate.use(this.activeLang);
+    this.venueId= this.ActivatedRoute.snapshot.paramMap.get('id');
     this.cargando=true;
-    this.venueServices.getVenues(this.userId==='todos'?null:this.userId)
-    .subscribe(resp=>{    
-      if (resp.result===true){ 
-        this.venues=resp.data;     
-        // Cargamos array de sites
-        this.listSites=this.cargarSites(this.venues);
-        if (this.userId==='todos'){
-          this.userName=null;
-        }else{
-          this.userServices.getUserById(this.userId)
-          .subscribe(resp=>{
-            this.userName=` del usuario ${resp.data[0].name} ${resp.data[0].surname} (#${resp.data[0].id})`;
-            console.log(this.userId,resp.data[0].id);
 
-       //     this.userName=resp.data.id;
-          });  
+    if (this.venueId==='todos'){
+      this.venueServices.getVenues()
+      .subscribe(resp=>{    
+        if (resp.result===true){ 
+          this.venues=resp.data;     
+    //      console.log(this.venues)
+          // Cargamos array de sites
+         this.sortedData=this.listSites=this.venueServices.cargarSites(this.venues);
+        //  this.sortedData=this.listSites.slice();
+          this.cargando=false;   
         }
- 
-        this.cargando=false;   
-        this.sortedData=this.listSites.slice();
-      }
-    });
+      });
+    }else{
+      this.venueServices.getVenueById(this.venueId)  
+      .subscribe(resp=>{    
+        if (resp.result===true){ 
+          this.venues=resp.data;     
+          // Cargamos array de sites
+          this.sortedData=this.listSites=this.venueServices.cargarSites(this.venues);
+        //  this.sortedData=this.listSites.slice();
+          this.cargando=false;   
+        }
+      });
+    }
+            
   } 
   
-  cargarSites(venues:Venue[]){
-
-    let localizacion:string;
-    let a=[];
-
-    for (let i=0;i<venues.length;i++){
-
-      let loc=venues[i].location.length>1?'('+venues[i].location[venues[i].location.length-2].territorialEntityName+')':null;
-      localizacion=venues[i].location[venues[i].location.length-1].territorialEntityName+' '+loc
-  
-      for (let ii=0;ii<venues[i].sites.length;ii++){    
-       
-         a.push({                   
-          id:              venues[i].sites[ii].id,
-          siteComercialId: venues[i].sites[ii].siteComercialId,
-          idpti:           venues[i].sites[ii].idpti,
-          venueId:         venues[i].id,
-          name:            venues[i].name,
-          customer:        venues[i].customer,
-          network:         venues[i].sites[ii].network,
-          status:          venues[i].sites[ii].status,
-          entryDate:       venues[i].sites[ii].entryDate,
-          publicScreen:    venues[i].sites[ii].publicScreen,
-          on_off:          venues[i].sites[ii].on_off,
-          text:            venues[i].sites[ii].text,
-          screenLocation:  venues[i].sites[ii].screenLocation,
-          category:        venues[i].sites[ii].category,
-          screen:          venues[i].sites[ii].screen,
-          player:          venues[i].sites[ii].player,
-          filter:          null,
-          location:        venues[i].location,
-          descriptionLocation:localizacion,
-          roadType:        venues[i].roadType,
-          address:         venues[i].address,
-          streetNumber:    venues[i].streetNumber,
-          postalCode:      venues[i].postalCode,
-          latitude:        venues[i].latitude,
-          longitude:       venues[i].longitude,
-        });
-      }
-    }
-    return a
-  }
-
-
   sortData(sort: Sort) {
     const data = this.listSites.slice(); 
     
@@ -124,17 +89,17 @@ export class SitesListComponent implements OnInit {
       const isAsc = sort.direction === 'asc';
       switch (sort.active) {
         case 'id':
-          return this.UtilService.compare(a.id, b.id, isAsc);
+          return this.UtilServices.compare(a.id, b.id, isAsc);
         case 'codigo':
-          return this.UtilService.compare(a.siteComercialId, b.siteComercialId, isAsc);
+          return this.UtilServices.compare(a.siteComercialId, b.siteComercialId, isAsc);
         case 'local':
-          return this.UtilService.compare(a.name, b.name, isAsc);
+          return this.UtilServices.compare(a.name, b.name, isAsc);
         case 'localizacion':
-          return this.UtilService.compare(a.descriptionLocation, b.descriptionLocation, isAsc);         
+          return this.UtilServices.compare(a.descriptionLocation, b.descriptionLocation, isAsc);         
         case 'situacion':
-          return this.UtilService.compare(a.screenLocation.description, b.screenLocation.description, isAsc);
+          return this.UtilServices.compare(a.screenLocation.description, b.screenLocation.description, isAsc);
         case 'estado':
-          return this.UtilService.compare(a.status.id, b.status.id, isAsc);         
+          return this.UtilServices.compare(a.status.id, b.status.id, isAsc);         
 
         default:
           return 0;          
@@ -254,6 +219,14 @@ unsubscribeSite(site:Site,i:number) {
 
 return
 }
-
+       // if (this.userId==='todos'){
+           //   this.venueName=null;
+           // }else{
+             //   this.userServices.getUserById(this.userId)
+             //   .subscribe(resp=>{
+               //     this.venueName=` del usuario ${resp.data[0].name} ${resp.data[0].surname} (#${resp.data[0].id})`;
+               //     console.log(this.userId,resp.data[0].id);
+               //   });  
+               // }
 
 }

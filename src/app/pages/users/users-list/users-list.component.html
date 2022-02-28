@@ -1,9 +1,9 @@
 <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-2 mt-2">
-  <h4>Listado de usuarios</h4>
+  <h4>{{'userList.title'|translate}}</h4>
   <div class="col text-end">
     <button routerLink="/home/user/nuevo" class="btn btn-primary">
       <i class="fas fa-plus"></i>
-      Nuevo
+      {{'general.newButton'|translate}}
     </button>
   </div>
 </div>
@@ -13,21 +13,21 @@
           (keyup)="buscar(filterUser)"
           class="form-control" 
           type="search" 
-          placeholder="Buscar por ID, nombre, apellido, email, cliente, ..." 
+          placeholder="{{'userList.filter'|translate}}" 
           aria-label="Search">
 </div> 
 <table matSort (matSortChange)="sortData($event)" class="table table-condensed table-striped" *ngIf="!cargando && sortedData.length>0">
   <thead>
     <tr> 
-      <th scope="col" class="col-sm-1" mat-sort-header="id">#ID</th>
-      <th scope="col" class="col-sm-2" mat-sort-header="nombre">Nombre</th>
-      <th scope="col" class="col-sm-3" mat-sort-header="apellidos">Apellidos</th>
-      <th scope="col" class="col-sm-3" mat-sort-header="correo">Correo electrónico</th>
-      <th scope="col" class="col-sm-1" mat-sort-header="rol">Rol</th>
-      <th scope="col" class="col-sm-2">Acciones</th>
+      <th scope="col" class="col-sm-1" mat-sort-header="id">{{'userList.header1'|translate}}</th>
+      <th scope="col" class="col-sm-2" mat-sort-header="nombre">{{'userList.header2'|translate}}</th>
+      <th scope="col" class="col-sm-3" mat-sort-header="apellidos">{{'userList.header3'|translate}}</th>
+      <th scope="col" class="col-sm-3" mat-sort-header="correo">{{'userList.header4'|translate}}</th>
+      <th scope="col" class="col-sm-1" mat-sort-header="rol">{{'userList.header5'|translate}}</th>
+      <th scope="col" class="col-sm-2">{{'userList.header6'|translate}}</th>
     </tr>
   </thead>
-
+  
   <tbody>
     <tr *ngFor="let user of sortedData |user:filterUser:page:linesPages:sortedData.length; let i =index">
       <td >{{user.id}} <span *ngIf="user.filter" class="badge bg-warning text-dark">cli</span></td>
@@ -36,14 +36,18 @@
       <td>{{user.email}}</td>
       <td>
         <i *ngIf="user.rol.id===0" class="fas fa-user-plus"
-          placement="bottom" ngbTooltip="Superusuario" [openDelay]="300"></i>
+          placement="bottom" ngbTooltip="{{'userList.rolDescription1'|translate}}" [openDelay]="300"></i>
         <i *ngIf="user.rol.id===1" class="fas fa-house-user"
-          placement="bottom" ngbTooltip="Propietario" [openDelay]="300"></i>
+          placement="bottom" ngbTooltip="{{'userList.rolDescription2'|translate}} ({{user.customerUserList[0].customerName}})" [openDelay]="300"></i>
         <i *ngIf="user.rol.id===3" class="fas fa-user-cog"
-          placement="bottom" ngbTooltip="Otros" [openDelay]="300"></i>
+          placement="bottom" ngbTooltip="{{'userList.rolDescription3'|translate}}" [openDelay]="300"></i>
         <i *ngIf="user.rol.id!=0 && user.rol.id!=1 && user.rol.id!=3" 
           class="far fa-question-circle" placement="bottom" 
           ngbTooltip="Gestión propietario" [openDelay]="300"></i>
+          
+          
+          
+          
 
       </td>
       <td>
@@ -51,25 +55,93 @@
         <button type="button" 
                 class="btn btn-light btn-sm mr-1" 
                 (click)="editUser(user)" 
-                placement="bottom" ngbTooltip="Editar" [openDelay]="300">
+                placement="bottom" ngbTooltip="{{'general.editButton'|translate}}" [openDelay]="300">
           <i class="fas fa-edit"></i>
         </button>
         &nbsp;
         <button type="button" 
                 class="btn btn-light btn-sm" 
                 (click)="removeUser(user,i)"
-                placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
+                placement="bottom" ngbTooltip="{{'general.deleteButton'|translate}}" [openDelay]="300">
           <i class="far fa-trash-alt"></i>
         </button>
         &nbsp;
         <button type="button" 
                 class="btn btn-light btn-sm" 
-                (click)="sitessUser(user)"
-                placement="bottom" ngbTooltip="Emplazamientos accesibles" [openDelay]="300">
+                (click)="sitesUser(content,i)"
+                placement="bottom" ngbTooltip="{{'userList.sitesButton'|translate}}" [openDelay]="300">
                 <i class="fas fa-tv"></i>
-        </button>
+        </button> 
         </div>
        </td>
+
+<!-- Modal  Lista de emplazamientos ng-bootstrap-->
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-sites">{{'userList.modalTitle'|translate}} {{user.name}} {{user.surname}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <table class="table table-sm">
+      <thead class=table-light>
+        <tr>
+          <th class="col-1">{{'siteList.header1'|translate}}</th>
+          <th class="col-3">{{'siteList.header8'|translate}}</th>
+          <th class="col-1">{{'siteList.header2'|translate}}</th>
+          <th class="col-2">{{'siteList.header5'|translate}}</th>
+          <th class="col-1">{{'siteList.header6'|translate}}</th> 
+          <th class="col-1">{{'siteList.header7'|translate}}</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr *ngFor="let site of listSites">       
+          
+              <th>{{site.id}}</th>
+              <td>{{site.name}}</td>
+              <td>{{site.siteComercialId}}</td>
+              <td>{{site.screenLocation.description}}</td>
+
+             <td>   
+                <i *ngIf="site.status.id===1" class="bi bi-cone-striped" style="font-size: 1rem;"
+                  placement="bottom" ngbTooltip="{{site.status.description}}" [openDelay]="300"></i>
+                <i *ngIf="site.status.id===2" class="bi bi-check-circle" style="font-size: 1rem;"
+                  placement="bottom" ngbTooltip="{{site.status.description}}" [openDelay]="300"></i>
+                <i *ngIf="site.status.id===3" class="bi bi-exclamation-circle" style="font-size: 1rem;"
+                  placement="bottom" ngbTooltip="{{site.status.description}}" [openDelay]="300"></i>
+                <i *ngIf="site.status.id===4" class="bi bi-x-circle" style="font-size: 1rem;"
+                  placement="bottom" ngbTooltip="{{site.status.description}}" [openDelay]="300"></i>
+                &nbsp;
+     
+                <span *ngIf="site.player.license.valid" class="text-success"
+                      placement="bottom" ngbTooltip="{{site.player.license.text}}" [openDelay]="300">
+                  <i class="fas fa-medal"></i>
+                </span>  
+                <span *ngIf="!site.player.license.valid" class="text-danger" 
+                      placement="bottom" ngbTooltip="{{site.player.license.text}}" [openDelay]="300">
+                  <i class="fas fa-medal"></i>
+                </span> 
+              </td>      
+              <td>
+                <button type="button" 
+                  class="btn btn-light btn-sm mr-1" 
+                  (click)="editSite(site.id)" 
+                  placement="bottom" ngbTooltip="{{'general.editButton'|translate}}" [openDelay]="300">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </td>
+          </tr>   
+      </tbody>
+    </table>
+    <div class="text-center mt-3" *ngIf="listSites.length===0">     
+      <span>{{'userList.message1'|translate}}</span>
+    </div>
+  </div>
+</ng-template>
+<!-- Fin Modal lista emplazamientos  -->
+
+
     </tr>
   
   </tbody>
@@ -77,7 +149,7 @@
 
 <div class="text-center mt-3" *ngIf="cargando">
   <div class="spinner-border" role="status">
-    <span class="visually-hidden">Loading...</span>
+    <span class="visually-hidden">{{'general.load'|translate}}</span>
   </div>
 </div>
 
@@ -86,13 +158,13 @@
   <button class="btn btn-outline-secondary btn-sm"
           (click)="prevPage()"
           [disabled]="page===0">
-    Pag. Anterior
+          {{'general.prevPage'|translate}}
   </button>
   &nbsp;
   <button class="btn btn-outline-secondary btn-sm"
           (click)="nextPage()"
           [disabled]="(sortedData |user:filterUser:page:linesPages).length<linesPages  || sortedData.length=== page+linesPages"> 
-    Pag. Siguiente
+            {{'general.nextPage'|translate}}  
   </button>
 </div>
 
