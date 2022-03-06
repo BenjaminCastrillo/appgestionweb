@@ -1,16 +1,18 @@
 <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
   <!-- Bloque de botones -->
-  <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">
-    <h4 class="col"> {{pageTitle}} <span *ngIf="!newUser"><small class="text-muted">(#{{currentUser.id}})</small></span></h4>
+  <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">   
+    <h4 *ngIf="newUser" class="col"> {{'user.title'|translate}} </h4>  
+    <h4 *ngIf="!newUser" class="col"> {{'user.title2'|translate}}<small class="text-muted"> (#{{currentUser.id}})</small></h4>  
+   
     <button type="button" class="btn btn-outline-primary btn-block"
       (click)="abandonarPagina()"> 
       <i class="fas fa-arrow-left"></i>
-      Regresar
-    </button>
+      {{'general.backButton'|translate}} 
+    </button> 
     <!-- Boton guardar formulario-->
     <label class="col-form-label">&nbsp;</label>
     <button type="submit" class="btn btn-success btn-block">
-      Guardar
+      {{'general.saveButton'|translate}}
     </button>
 
   </div>
@@ -20,7 +22,7 @@
     <div class="form-group row mb-3"> 
       <!--Nombre de cliente-->
       <div class="col-5">
-        <label class="form-label" for="inputNombre">Nombre</label>
+        <label class="form-label" for="inputNombre">{{'user.field1'|translate}}</label>
         <input class="form-control"
               id="inputNombre"
               type="text"
@@ -31,7 +33,7 @@
       <!-- Fin nombre de cliente -->
       <!--Apellido de cliente-->
       <div class="col-5">
-        <label class="form-label" for="inputApellido">Apellido</label>
+        <label class="form-label" for="inputApellido">{{'user.field2'|translate}}</label>
         <input class="form-control"
               id="inputApellido"
               type="text"
@@ -42,7 +44,7 @@
       <!-- Fin apellido de cliente -->
       <!-- Fecha de alta-->
       <div class="col-2" *ngIf="!newUser">
-      <label class="form-label" for="inputFechaAlta">Fecha de alta</label>
+      <label class="form-label" for="inputFechaAlta">{{'user.field3'|translate}}</label>
       <p class="p-2 cajaFecha">{{currentUser.entryDate|date:'mediumDate'}}</p>
     </div>
     <!-- Fin fecha de alta -->
@@ -51,7 +53,7 @@
     <div class="form-group row mb-3">
       <!-- email -->
       <div class="col-4">
-        <label class="form-label" for="inputEmail">Correo electrónico</label>
+        <label class="form-label" for="inputEmail">{{'user.field4'|translate}}</label>
         <input class="form-control"
               id="inputEmail"
               type="email"
@@ -66,13 +68,13 @@
           <input class="form-check-input" type="checkbox" value="nuevaPassword" 
                 id="flexCheckDefault"
                 formControlName="nuevaPassword">
-          <label class="form-check-label" for="flexCheckDefault">Modificar password</label>
+          <label class="form-check-label" for="flexCheckDefault">{{'user.field12'|translate}}</label>
         </div>
       </div>
       <!-- Fin check modificar password -->
       <!-- Password -->
       <div class="col-4">
-        <label class="form-label" for="inputpassword">Password</label>
+        <label class="form-label" for="inputpassword">{{'user.field5'|translate}}</label>
         <input class="form-control"
               id="inputpassword"
               type="text"
@@ -83,7 +85,7 @@
       <!-- Fin Password -->
       <!-- Idioma-->
       <div class="col-2">
-        <label class="form-label" for="inputidioma">Idioma</label>
+        <label class="form-label" for="inputidioma">{{'user.field6'|translate}}</label>
         <select class="form-select" formControlName="idioma">
           <option  value="{{a.id}}" *ngFor="let a of languages" 
                   [selected]="selectIdioma(a.id)"
@@ -97,7 +99,7 @@
     <div class="form-group row mb-3">
       <!-- ROL-->
       <div class="col-2">
-        <label class="form-label" for="inputrol">Rol</label>
+        <label class="form-label" for="inputrol">{{'user.field7'|translate}}</label>
         <select class="form-select" formControlName="rol">
           <option  value="{{a.id}}" *ngFor="let a of roles" [selected]="selectRol(a.id)" 
                   [class.is-invalid]="rolNoValido">{{a.description}}</option>
@@ -107,7 +109,7 @@
       <!-- Fin ROL -->
       <!-- Relación con el propietario -->
       <div class="col-5">
-        <label class="form-label" for="inputrelacionUsuario">Relación con el usuario</label>
+        <label class="form-label" for="inputrelacionUsuario">{{'user.field8'|translate}}</label>
         <input class="form-control"
               id="inputrelacionUsuario"
               type="text"
@@ -122,14 +124,14 @@
           <input class="form-check-input" type="checkbox" value="bloqueado" 
                   id="flexCheckBlocked"
                   formControlName="bloqueado">
-          <label class="form-check-label" for="flexCheckBlocked">Usuario Bloqueado</label>
+          <label class="form-check-label" for="flexCheckBlocked">{{'user.field9'|translate}}</label>
 
         </div>
       </div>
       <!-- Fin check usuario bloqueado -->
        <!-- Último acceso-->
        <div class="col-2">
-        <label class="form-label" for="inputultimoAcceso">Ultimo acceso</label>
+        <label class="form-label" for="inputultimoAcceso">{{'user.field10'|translate}}</label>
         <input class="form-control"
               id="inputultimoAcceso"
               type="text"
@@ -140,7 +142,7 @@
     <!-- Fin linea-->
     <!-- Notas del usuario-->
     <div>
-      <label for="exampleFormControlTextarea1" class="form-label">Notas</label>
+      <label for="exampleFormControlTextarea1" class="form-label">{{'user.field11'|translate}}</label>
       <textarea class="form-control" 
                 id="exampleFormControlTextarea1" 
                 formControlName="notas"
@@ -149,7 +151,7 @@
     <!-- Fin Notas del usuario-->
     <!-- Fin linea-->
   </div>
-
+ 
   <!-- Fin Bloque datos de cliente --> 
   <hr> 
   <!-- Bloque Pestañas de listas de datos de cliente   -->
@@ -159,17 +161,17 @@
       <li class="nav-item" role="presentation">
         <button class="nav-link active" id="cliente-tab" data-bs-toggle="tab" 
                 data-bs-target="#cliente" type="button" role="tab" 
-                aria-controls="cliente" aria-selected="true">Clientes</button>
-      </li>
+                aria-controls="cliente" aria-selected="true">{{'user.tabTitle1'|translate}}</button>
+      </li> 
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="categoria-tab" data-bs-toggle="tab" 
                 data-bs-target="#categoria" type="button" role="tab" 
-                aria-controls="categoria" aria-selected="false">Categorías</button>
+                aria-controls="categoria" aria-selected="false">{{'user.tabTitle2'|translate}}</button>
       </li>
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="excepcion-tab" data-bs-toggle="tab" 
                 data-bs-target="#excepcion" type="button" role="tab" 
-                aria-controls="excepcion" aria-selected="false">Excepciones</button>
+                aria-controls="excepcion" aria-selected="false">{{'user.tabTitle3'|translate}}</button>
       </li>
     </ul>
 
@@ -179,21 +181,21 @@
       <div class="tab-pane fade show active mt-3" id="cliente" role="tabpanel" aria-labelledby="cliente-tab">  
         <div class="row container-fluid">         
           <div class="col-6">
-            <p><strong>Seleccione los clientes asociados al usuario</strong></p>
+            <p><strong>{{'user.tab1Text1'|translate}}</strong></p>
             <div class="form-group mb-2">
               <input class="form-control"
                   id="inputCustomer"
-                  placeholder="Buscar..."
+                  placeholder="{{'general.filter'|translate}}"
                   type="text"
                   formControlName="customerSearch">
             </div>  
             <table class="table table-condensed table-striped">
               <thead class=table-light>
                 <tr>
-                  <th scope="col" class="col-sm-1">#</th>
-                  <th scope="col" class="col-sm-3">NIF/CIF</th>
-                  <th scope="col" class="col-sm-4">nombre</th>
-                  <th scope="col" class="col-sm-1">Acciones</th>
+                  <th scope="col" class="col-sm-1">{{'user.tabHeaderId'|translate}}</th>
+                  <th scope="col" class="col-sm-3">{{'user.tab1Header1'|translate}}</th>
+                  <th scope="col" class="col-sm-4">{{'user.tab1Header2'|translate}}</th>
+                  <th scope="col" class="col-sm-1">{{'user.tabHeaderAccions'|translate}}</th>
                 </tr>
               </thead>
               <tbody>
@@ -204,7 +206,7 @@
                   <td class="text-center">
                     <button type="button" class="btn btn-light" 
                           (click)="selectCliente(a.id,a.name)"
-                          placement="bottom" ngbTooltip="Seleccionar" [openDelay]="300">   
+                          placement="bottom" ngbTooltip="{{'general.selectButton'|translate}}" [openDelay]="300">   
                       <i class="fas fa-check"></i>                
                     </button>
                   </td>
@@ -218,29 +220,30 @@
                       type="button"
                       (click)="prevPage(1)"
                       [disabled]="page===0">
-                Pag. Anterior
+                  {{'general.prevPage'|translate}}
+                      
               </button>
               &nbsp;
               <button class="btn btn-outline-secondary btn-sm"
                       type="button"
                       (click)="nextPage(1)"
                       [disabled]="(customers |customer:filterCustomer:page:linesPages).length<linesPages || customers.length=== page+linesPages"> 
-                Pag. Siguiente
+                  {{'general.nextPage'|translate}}
               </button>
             </div>
           </div>
         <!-- Fin lista de clientes -->
         <!-- Lista clientes seleccionados -->
         <div class="col-6">
-          <p><strong>Lista de los clientes asociados al usuario</strong></p>
+          <p><strong>{{'user.tab1Text2'|translate}}</strong></p>
           <br>
           <br>
           <table class="table  table-condensed table-striped">
             <thead class="table-light">
               <tr>
-                <th scope="col" class="col-sm-1">#</th>
-                <th scope="col" class="col-sm-4">Nombre</th>
-                <th scope="col" class="col-sm-1">Acciones</th>
+                <th scope="col" class="col-sm-1">{{'user.tabHeaderId'|translate}}</th>
+                <th scope="col" class="col-sm-4">{{'user.tab1Header2'|translate}}</th>
+                <th scope="col" class="col-sm-1">{{'user.tabHeaderAccions'|translate}}</th>
               </tr>
             </thead>
             <tbody formArrayName="cliente">
@@ -249,14 +252,14 @@
                 <td>{{a.get('nombre').value}}</td>   
                 <td class="text-center">
                   <button type="button" class="btn btn-light"
-                              placement="bottom" ngbTooltip="Establecer excepciones" 
+                              placement="bottom" ngbTooltip="{{'general.setExceptionButton'|translate}}" 
                               [openDelay]="300"
                               (click)="setExcepciones(content,a.get('idCliente').value,clienteIndex)">
                               <i class="bi bi-filter"></i>
                   </button>
                   &nbsp;
                   <button type="button" class="btn btn-light" 
-                          placement="bottom" ngbTooltip="Borrar" 
+                          placement="bottom" ngbTooltip="{{'general.deleteButton'|translate}}" 
                           [openDelay]="300"
                           (click)="removeCliente(clienteIndex)">
                       <i class="far fa-trash-alt"></i>                    
@@ -267,26 +270,26 @@
 <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
 
 <ng-template #content let-modal>
-  <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">Excepciones del cliente {{a.get('nombre').value}}</h4>
+  <div class="modal-header"> 
+    <h4 class="modal-title" id="modal-basic-title">{{'user.modalExceptionsHeader'|translate}} {{a.get('nombre').value}}</h4>
     <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
   <div class="modal-body"  [formGroup]="userForm">
     <div class="row">
-      <label class="form-label" for="inputexcepcion">Tipo de excepción</label>
+      <label class="form-label" for="inputexcepcion">{{'user.modalExceptionsText1'|translate}}</label>
       <div class="col-5">
         <mat-radio-group aria-label="Select an option"
                         formControlName="exceptionType">
           <mat-radio-button value=1 color="primary"
                   [checked]="userForm.get('exceptionType').value===1">
-              El usuario solo gestionará los emplazamientos indicados del cliente {{a.get('nombre').value}}
+                  {{'user.modalExceptionsText2'|translate}}
               <i class="bi bi-plus-circle-fill"> </i>
           </mat-radio-button>
           <mat-radio-button value=2 color="primary"
                 [checked]="userForm.get('exceptionType').value===2">
-              El usuario gestionará todos los emplazamientos del cliente {{a.get('nombre').value}} excepto los indicados      
+                {{'user.modalExceptionsText3'|translate}}      
             <i class="bi bi-dash-circle-fill"> </i>
           </mat-radio-button>
         </mat-radio-group>
@@ -295,11 +298,11 @@
 
     <div class="row mt-5">
       <div class="col-5">     
-        <h5>Seleccione los emplazamientos</h5>  
+        <h5>{{'user.modalExceptionsList1'|translate}}</h5>  
         <div class="form-group mt-3 mb-2">
           <input class="form-control"
               id="inputSite"
-              placeholder="Buscar..."
+              placeholder="{{'general.filter'|translate}}"
               type="text"
               formControlName="siteSearch">
         </div> 
@@ -307,10 +310,10 @@
           <table class="table table-sm table-striped mt-3">
             <thead class=table-light>
               <tr>
-                <th scope="col" class="col-sm-1">#</th>
-                <th scope="col" class="col-sm-3">Código</th>
-                <th scope="col" class="col-sm-4">Local</th>
-                <th scope="col" class="col-sm-1">Acciones</th>
+                <th scope="col" class="col-sm-1">{{'user.tabHeaderId'|translate}}</th>
+                <th scope="col" class="col-sm-3">{{'user.modalExceptionsHead11'|translate}}</th>
+                <th scope="col" class="col-sm-4">{{'user.modalExceptionsHead12'|translate}}</th>
+                <th scope="col" class="col-sm-1">{{'user.tabHeaderAccions'|translate}}</th>
               </tr>
             </thead>
             <tbody>
@@ -321,7 +324,7 @@
                 <td class="text-center">
                   <button type="button" class="btn btn-light" 
                         (click)="selectSite(site.siteId,site.siteComercialId,site.venueName,site.customer.id,site.customer.name)"
-                        placement="bottom" ngbTooltip="Seleccionar emplazamiento" [openDelay]="300">   
+                        placement="bottom" ngbTooltip="{{'general.selectSiteButton'|translate}}" [openDelay]="300">   
                     <i class="fas fa-check"></i>                
                   </button>
                 </td>
@@ -335,31 +338,30 @@
                 type="button"
                 (click)="prevPage(2)"
                 [disabled]="page2===0">
-            Pag. Anterior
+                {{'general.prevPage'|translate}}
             </button>
             &nbsp;
             <button class="btn btn-outline-secondary btn-sm"
                 type="button"
                 (click)="nextPage(2)"
                 [disabled]="(sites |listsites:filterSite:page2:linesPages2).length<linesPages2 || sites.length=== page2+linesPages2"> 
-            Pag. Siguiente
+                  {{'general.nextPage'|translate}}
             </button>
           </div>
       </div>
       <div class="col-7">
-        <h5>Lista de emplazamientos con tratamiento de excepción</h5> 
+        <h5>{{'user.modalExceptionsList2'|translate}}</h5> 
         <div>
           <br>
           <br>
           <table class="table table-sm table-striped">
             <thead class=table-light>
               <tr>
-                <th scope="col" class="col-sm-1">#</th>
-                <th scope="col" class="col-sm-2">Código</th>
-                <th scope="col" class="col-sm-4">Local</th>
-  
-                <th scope="col" class="col-sm-1">Excepción</th>
-                <th scope="col" class="col-sm-1">Acciones</th>
+                <th scope="col" class="col-sm-1">{{'user.tabHeaderId'|translate}}</th>
+                <th scope="col" class="col-sm-2">{{'user.modalExceptionsHead21'|translate}}</th>
+                <th scope="col" class="col-sm-4">{{'user.modalExceptionsHead22'|translate}}</th>
+                <th scope="col" class="col-sm-1">{{'user.modalExceptionsHead23'|translate}}</th>
+                <th scope="col" class="col-sm-1">{{'user.tabHeaderAccions'|translate}}</th>
               </tr>
             </thead>
             <tbody>
@@ -369,14 +371,14 @@
                 <td>{{excepcion.venueName}}</td>   
                 <td class="text-center">
                   <i *ngIf="excepcion.exception==1" class="bi bi-plus-circle-fill" style="font-size: 1rem;"
-                      placement="bottom" ngbTooltip="Emplazamiento accesible al usuario" [openDelay]="300"></i>
+                      placement="bottom" ngbTooltip="{{'user.modalSiteDescription1'|translate}}" [openDelay]="300"></i>
                   <i *ngIf="excepcion.exception==2" class="bi bi-dash-circle-fill" style="font-size: 1rem;"
-                      placement="bottom" ngbTooltip="Emplazamiento inaccesible al usuario" [openDelay]="300"></i>
+                      placement="bottom" ngbTooltip="{{'user.modalSiteDescription2'|translate}}" [openDelay]="300"></i>
 
                 </td> 
                 <td class="text-center">
                   <button type="button" class="btn btn-light" 
-                          placement="bottom" ngbTooltip="Borrar" [openDelay]="300"
+                          placement="bottom" ngbTooltip="{{'general.deleteButton'|translate}}" [openDelay]="300"
                           (click)="removeExcepcion(excepcionIndex)">
                       <i class="far fa-trash-alt"></i>                    
                   </button>
@@ -389,7 +391,7 @@
     </div>  
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-primary btn-block" (click)="modal.close('Save click')">Guardar</button>
+    <button type="button" class="btn btn-outline-primary btn-block" (click)="modal.close('Save click')">{{'general.saveButton'|translate}}</button>
   </div>
 </ng-template>
 <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
@@ -412,10 +414,10 @@
             <table class="table">
               <thead class=table-light>
                 <tr>
-                  <th>#</th>
-                  <th>Categoria</th>
-                  <th>Color</th>
-                  <th>Acciones</th>
+                  <th>{{'user.tabHeaderId'|translate}}</th>
+                  <th>{{'user.tab2Header1'|translate}}</th>
+                  <th>{{'user.tab2Header2'|translate}}</th>
+                  <th>{{'user.tabHeaderAccions'|translate}}</th>
                 </tr>
               </thead>
               <tbody formArrayName="categoria">
@@ -426,7 +428,7 @@
                   <td>
                     <input class="form-control"
                       type="text"
-                      placeholder="Descripción de la categoría"
+                      placeholder="{{'user.tab2FieldText'|translate}}"
                       formControlName="descripcionCategoria"
                       [class.is-invalid]="a.get('descripcionCategoria').invalid && a.get('descripcionCategoria').touched">
                     <small *ngIf="a.get('descripcionCategoria').invalid && a.get('descripcionCategoria').touched" class="text-danger">{{msgErrorArray('descripcionCategoria',categoriaIndex)}}</small>             
@@ -449,7 +451,7 @@
         </div>
         <div class="d-grid gap-2 col-4 mx-auto">  
           <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addCategoria()">
-            Añadir categoria
+            {{'user.tab2AddItem'|translate}}
           </button>
         </div>
       </div>
@@ -462,11 +464,11 @@
             <table matSort (matSortChange)="sortData($event)"  class="table table-condensed table-striped">
               <thead class=table-light>
                 <tr>
-                  <th scope="col" class="col-sm-1" mat-sort-header="id">#</th>
-                  <th scope="col" class="col-sm-2" mat-sort-header="idComercial">Código</th>
-                  <th scope="col" class="col-sm-4" mat-sort-header="nombreLocal">Local</th>
-                  <th scope="col" class="col-sm-3" mat-sort-header="nombreCliente">Cliente</th>
-                  <th scope="col" class="col-sm-2" mat-sort-header="excepcion">Tipo de excepción</th>
+                  <th scope="col" class="col-sm-1" mat-sort-header="id">{{'user.tabHeaderId'|translate}}</th>
+                  <th scope="col" class="col-sm-2" mat-sort-header="idComercial">{{'user.tab3Header1'|translate}}</th>
+                  <th scope="col" class="col-sm-4" mat-sort-header="nombreLocal">{{'user.tab3Header2'|translate}}</th>
+                  <th scope="col" class="col-sm-3" mat-sort-header="nombreCliente">{{'user.tab3Header3'|translate}}</th>
+                  <th scope="col" class="col-sm-2" mat-sort-header="excepcion">{{'user.tab3Header4'|translate}}</th>
                 </tr>
               </thead>
               <tbody>
@@ -477,15 +479,15 @@
                   <td>{{excepcion.customer.name}}</td>   
                   <td class="text-center">
                     <i *ngIf="excepcion.exception==1" class="bi bi-plus-circle-fill" style="font-size: 1rem;"
-                        placement="bottom" ngbTooltip="Emplazamiento accesible al usuario" [openDelay]="300"></i>
+                        placement="bottom" ngbTooltip="{{'user.modalSiteDescription1'|translate}}" [openDelay]="300"></i>
                     <i *ngIf="excepcion.exception==2" class="bi bi-dash-circle-fill" style="font-size: 1rem;"
-                        placement="bottom" ngbTooltip="Emplazamiento inaccesible al usuario" [openDelay]="300"></i>     
+                        placement="bottom" ngbTooltip="{{'user.modalSiteDescription2'|translate}}" [openDelay]="300"></i>     
                   </td> 
                 </tr>
               </tbody>
             </table>
             <div class="text-center mt-3" *ngIf="sortedData.length===0">     
-              <span>No hay excepciones para este usuario</span>
+              <span>{{'user.tab3Text'|translate}}</span>
             </div>
           </div>
         </div>       
@@ -496,16 +498,6 @@
   </div>
     <!-- Fin bloque Pestañas de listas de datos de cliente    --> 
 </form>
-
-
-<!-- <mat-icon aria-hidden="false" aria-label="Example home icon">workspace_premium</mat-icon>
-<mat-icon aria-hidden="false" aria-label="Example home icon">shield</mat-icon>
-<mat-icon aria-hidden="false" aria-label="Example home icon">inventory</mat-icon> 
- <mat-icon aria-hidden="false" aria-label="Example home icon">filter_list</mat-icon> 
--->
-
-
-
 
 
 <!-- 

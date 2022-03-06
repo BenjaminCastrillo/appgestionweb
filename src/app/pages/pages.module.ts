@@ -11,10 +11,9 @@ import {MatIconModule} from '@angular/material/icon';
 import {  TranslateModule} from '@ngx-translate/core';
 
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
-
 import { ComponentsModule } from '../components/components.module';
-import { PipesModule } from '../pipes/pipes.module';
 
+import { PipesModule } from '../pipes/pipes.module';
 import { HomeComponent } from './home/home.component';
 import { CustomerComponent } from './customers/customer/customer.component';
 import { CustomersListComponent } from './customers/customers-list/customers-list.component';
@@ -31,16 +30,16 @@ import { PagesComponent } from './pages.component';
   declarations: [
     HomeComponent, 
     CustomersListComponent,
-    CustomerComponent, 
-    UsersListComponent,
-    UserComponent, 
-    VenuesListComponent, 
-    VenueComponent, 
+    CustomerComponent,
+    PagesComponent,  
+    SiteComponent,
     SitesListComponent, 
-    SiteComponent, PagesComponent, 
+    UserComponent, 
+    UsersListComponent,
+    VenueComponent, 
+    VenuesListComponent, 
     ],
   imports: [
-
     CommonModule,
     RouterModule,
     ReactiveFormsModule,
@@ -53,16 +52,15 @@ import { PagesComponent } from './pages.component';
     MatRadioModule,
     MatIconModule,
     TranslateModule,
-  
     MatSortModule,
    // MatButtonModule,
   ],
   exports:[
-    HomeComponent, 
-    CustomersListComponent,
     CustomerComponent, 
-    UsersListComponent,
+    CustomersListComponent,
+    HomeComponent, 
     UserComponent,
+    UsersListComponent,
     VenueComponent, 
     VenuesListComponent,
     ]

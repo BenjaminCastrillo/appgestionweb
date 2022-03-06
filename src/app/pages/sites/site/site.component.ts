@@ -13,6 +13,7 @@ import { VenueService } from '../../../services/venue.service';
 import { UploadService  } from '../../../services/upload.service';
 import { UtilService } from '../../../services/util.service';
 import { GlobalDataService } from '../../../services/global-data.service';
+import { TranslateService } from '@ngx-translate/core'; 
 
 
 interface ImagenesFile{
@@ -28,10 +29,10 @@ interface ImagenesFile{
 export class SiteComponent implements OnInit {
 
  
-  private imageDefault=this.globalData.getUrlImageDefault();
-  private urlImageVenue=this.globalData.getUrlImageVenue();
-  private urlImageBrand=this.globalData.getUrlImageBrand();
-  private urlImageSite=this.globalData.getUrlImageSite();
+  private imageDefault=this.globalDataServices.getUrlImageDefault();
+  private urlImageVenue=this.globalDataServices.getUrlImageVenue();
+  private urlImageBrand=this.globalDataServices.getUrlImageBrand();
+  private urlImageSite=this.globalDataServices.getUrlImageSite();
 
   public siteForm: FormGroup;
   public currentSite: Site;
@@ -64,6 +65,7 @@ export class SiteComponent implements OnInit {
   public marcaPantallaActual:number=0;
 
   public tipoPantallaPanelLed:boolean;
+  public activeLang = this.globalDataServices.getStringUserLanguage();
 
 
 
@@ -72,10 +74,13 @@ export class SiteComponent implements OnInit {
     private siteServices:SiteService,
     private ActivatedRoute:ActivatedRoute,
     private uploadServices:UploadService,
-    private utilService:UtilService,
-    private globalData:GlobalDataService,
+    private utilServices:UtilService,
+    private globalDataServices:GlobalDataService,
+    private translate: TranslateService,
     private router:Router,) 
     {
+      this.translate.setDefaultLang(this.activeLang);
+      this.translate.use(this.activeLang);
       this.crearFormulario();
      }
 
@@ -148,7 +153,7 @@ export class SiteComponent implements OnInit {
  //   fechaAlta:             [{value:'',disabled:true}],
     nombreArchivo:         [''],
     tocado:                false,
-    codigoImagen:          [this.utilService.ramdonNumber(200000,900000).toString()],
+    codigoImagen:          [this.utilServices.ramdonNumber(200000,900000).toString()],
     tipoPantalla:          ['', Validators.required],
     marcaPantalla:         ['', Validators.required],
     modeloPantalla:        ['', Validators.required],
@@ -476,18 +481,22 @@ get observacionesNoValido(){
   onSubmit(){
     let mensajeError:string='Datos incorrectos'
     let peticionHtml: Observable <any>;
-    let sc=[], co=[], lo=[], si=[];
+    let msg1:string=null;
+    let msg2:string=null;
 
     if (this.siteForm.touched){
-     
-
+    
       if( this.siteForm.invalid){    
+
+        this.translate.get('general.modalClosePage8')
+        .subscribe(res=>msg1=res);
+
         Swal.fire({
-        title: mensajeError ,
-        text:'por favor revise la información introducida',
-        confirmButtonColor: '#007bff',
-        allowOutsideClick:false,
-        icon:'error'
+          title: mensajeError ,
+          text: msg1,
+          confirmButtonColor: '#007bff',
+          allowOutsideClick:false,
+          icon:'error'
         });
       } else{
     
@@ -567,9 +576,15 @@ get observacionesNoValido(){
            this.subirArchivo();
         }
   
+
+        this.translate.get('general.modalClosePage4', {value1: resp.data.siteComercialId})
+        .subscribe(res=>msg1=res);
+        this.translate.get('general.modalClosePage5')
+          .subscribe(res=>msg2=res);
+
         Swal.fire({
-          title: `El registro ${resp.data.siteComercialId}`,
-          text:'se actualizó correctamente',
+          title: msg1,
+          text: msg2,
           confirmButtonColor: '#007bff',
           allowOutsideClick:false,
           icon:'success'
@@ -591,15 +606,24 @@ get observacionesNoValido(){
   }
 
   abandonarPagina(){
-
+    let msg1:string=null;
+    let msg2:string=null;
+    let msg3:string=null;
 
     if (this.siteForm.touched){
+      this.translate.get('general.modalClosePage1')
+      .subscribe(res=>msg1=res);
+      this.translate.get('general.modalClosePage2')
+        .subscribe(res=>msg2=res);
+      this.translate.get('general.modalClosePage3')
+        .subscribe(res=>msg3=res);
+
       Swal.fire({
-        title:'¿Desea abandonar la página?',
-        text: 'los cambios realizados se perderán',
+        title:msg1,
+        text: msg2,
         icon: 'info',
         confirmButtonColor: '#007bff',
-        cancelButtonText:'Cancelar',
+        cancelButtonText:msg3,
         allowOutsideClick:false,
         showConfirmButton:true,
         showCancelButton:true,
@@ -645,17 +669,33 @@ get observacionesNoValido(){
   }
 
   msgError(campo: string): string {
+    let message: string = null;
   
-    console.log('msgerror',campo)
-    if(this.siteForm.get(campo).hasError('required')) return 'El campo es obligatorio';
-    if(this.siteForm.get(campo).hasError('deleted')) return 'El campo fue borrado';
-    if(this.siteForm.get(campo).hasError('pattern'))  return 'Formato incorrecto';
-    if(this.siteForm.get(campo).hasError('minlength'))
-      return `La longitud mínima del campo ${campo} es ${this.siteForm.get(campo).errors.minlength.requiredLength}`;
-    if(this.siteForm.get(campo).hasError('maxlength'))
-      return `La longitud máxima del campo ${campo} es ${this.siteForm.get(campo).errors.maxlength.requiredLength}`;
+    if(this.siteForm.get(campo).hasError('required'))
+        this.translate.get('error.validationField1')
+        .subscribe(res=>(message=res));
+       
+    if(this.siteForm.get(campo).hasError('pattern')) 
+        this.translate.get('error.validationField2')
+        .subscribe(res=>(message=res));
+
+    if(this.siteForm.get(campo).hasError('deleted')) 
+        this.translate.get('error.validationField14')
+        .subscribe(res=>(message=res));
+
+    if(this.siteForm.get(campo).hasError('minlength'))    
+      this.translate.get('error.validationField4', 
+              {value1: campo,
+               value2: this.siteForm.get(campo).errors.minlength.requiredLength})
+      .subscribe(res=>(message=res));
   
-    return ;
+    if(this.siteForm.get(campo).hasError('maxlength'))    
+      this.translate.get('error.validationField5', 
+              {value1: campo,
+               value2: this.siteForm.get(campo).errors.maxlength.requiredLength})
+      .subscribe(res=>(message=res));
+      
+    return message;
   }
 
 }

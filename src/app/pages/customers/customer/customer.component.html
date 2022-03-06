@@ -1,6 +1,6 @@
 
 <form [formGroup]="customerForm" (ngSubmit)="onSubmit()">
-  <!-- Bloque de botones -->
+  <!-- Bloque de botones --> 
   <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">
     <h4 *ngIf="newCustomer" class="col"> {{'customer.title'|translate}} </h4>  
     <h4 *ngIf="!newCustomer" class="col"> {{'customer.title2'|translate}}<small class="text-muted"> (#{{currentCustomer.id}})</small></h4>  
@@ -364,7 +364,7 @@
 <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->
 <ng-template #content let-modal>
   <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title"> {{a.get('descripcionHorario').value}} {{'customer.tabHeaderAccions'|translate}}</h4>
+    <h4 class="modal-title" id="modal-basic-title">{{'customer.modalScheduleTitle'|translate}} ({{a.get('descripcionHorario').value}}) </h4>
     <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>
@@ -437,7 +437,7 @@
     </table>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-primary btn-block" (click)="modal.close('Save click')">Guardar</button>
+    <button type="button" class="btn btn-outline-primary btn-block" (click)="modal.close('Save click')">{{'general.saveButton'|translate}}</button>
   </div>
 </ng-template>
 <!-- oooooooooooooooooooooooooooooooooooooooooooooooooooooooooo -->

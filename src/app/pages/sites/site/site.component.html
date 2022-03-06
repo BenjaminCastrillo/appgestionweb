@@ -2,23 +2,24 @@
   <form [formGroup]="siteForm" (ngSubmit)="onSubmit()">
     <!-- Bloque de botones -->
     <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">
-      <h4 class="col"> {{tituloPagina}} <small class="text-muted">(#{{currentSite.id}})</small></h4>  
+      <h4 class="col">{{'site.title'|translate}} <small class="text-muted">(#{{currentSite.id}})</small></h4>  
+     
       <button type="button"  class="btn btn-outline-primary btn-block"
         (click)="abandonarPagina()"> 
         <i class="fas fa-arrow-left"></i>
-        Regresar
+        {{'general.backButton'|translate}}  
       </button>
       <!-- Boton guardar formulario-->
       <label class="col-form-label">&nbsp;</label>
       <button type="submit"  class="btn btn-success btn-block">
-        Guardar
+        {{'general.saveButton'|translate}}
       </button>
     </div>
     <!-- Fin bloque botones -->
   <!-- Bloque visualizacion datos de local -->
   <div class="row  ms-3 me-3 tablaContenidos">
     <div class="cabeceraVenue">
-        <div class="fs-4">Emplazamiento localizado en {{currentVenue.name}} <small class="text-muted">(#{{currentVenue.id}})</small></div>
+        <div class="fs-4">{{'site.text1'|translate}} {{currentVenue.name}} <small class="text-muted">(#{{currentVenue.id}})</small></div>
     </div>
     <div class="row datosVenue">
       <div class="col-3 imagenVenue">
@@ -33,13 +34,13 @@
               {{currentVenue.brand.description}}
             </div>
             <div class="col-6">
-              Región comercial: {{currentVenue.marketRegion.description}}
+              {{'site.text2'|translate}}: {{currentVenue.marketRegion.description}}
             </div>
         </div>
         <div class="row mt-3"> <!-- Localización del local-->
-          <div class="lead">Localización</div>
+          <div class="lead">{{'site.text3'|translate}}</div>
           <div>
-            Pais: {{currentVenue.country.description}} 
+            {{'site.text4'|translate}}: {{currentVenue.country.description}} 
             <table>
               <tbody>
                 <tr *ngFor="let a of localizacion">
@@ -67,10 +68,10 @@
   <!-- Bloque formulario datos del emplazamiento -->
   <div class="row mt-4">
     <div class="col-4">
-      <p class="fs-5">Código de emplazamiento: {{currentSite.siteComercialId}}</p>  
+      <p class="fs-5">{{'site.text6'|translate}} {{currentSite.siteComercialId}}</p>  
     </div>
     <div class="col-3">
-      <p class="fs-5">Estado: {{currentSite.status.description}}</p>  
+      <p class="fs-5">{{'site.text7'|translate}} {{currentSite.status.description}}</p>  
     </div>
     <div class="col-2">
       <p *ngIf="currentSite.player.license.valid" class="text-success fs-5">{{currentSite.player.license.text}}</p>  
@@ -81,7 +82,7 @@
   <div class="form-group row mt-2 mb-3">    
     <!-- Localizacion de la pantalla    -->
     <div class="col-4">
-      <label class="form-label" for="inputLocalizacionPantalla">Localización de la pantalla</label>
+      <label class="form-label" for="inputLocalizacionPantalla">{{'site.field1'|translate}}</label>
       <select class="form-select" formControlName="localizacionPantalla">
         <option   value="{{a.id}}" *ngFor="let a of screenLocations | notdeletedscreenlocation:localizacionPantallaBorrada" 
                   [selected]="selectLocalizacionPantalla(a.id)" 
@@ -92,7 +93,7 @@
     <!-- Fin localización de la pantalla -->
     <!--  Texto pantalla-->
     <div class="col-6">
-      <label class="form-label" for="inputTexto">Descripción</label>
+      <label class="form-label" for="inputTexto">{{'site.field2'|translate}}</label>
       <input class="form-control"
             id="inputTexto"
             type="text"
@@ -104,7 +105,7 @@
     <!--  Fin Texto pantalla-->
     <!-- Fecha de alta-->
     <div class="col-2">
-      <label class="form-label" for="inputfechaAlta">Fecha de alta</label>
+      <label class="form-label" for="inputfechaAlta">{{'site.field3'|translate}}</label>
       <p class=" p-2 cajaFecha">{{currentSite.entryDate|date:'mediumDate'}}</p>
       <!-- <input class="form-control"
             id="inputfechaAlta"
@@ -119,7 +120,7 @@
   <div class="row">
     <!-- Input Imagen del local-->
     <div class="col-4">     
-      <label class="form-label" for="inputImagenpantalla">Imagen del pantalla</label>  
+      <label class="form-label" for="inputImagenpantalla">{{'site.field4'|translate}}</label>  
       <input (change)="capturarFile($event)"
         class="form-control"
         type="file"
@@ -134,15 +135,15 @@
     <!-- Fin Imagen del local-->
    
     <div class="col-4">      <!-- Lista de categorías-->
-      <label class="form-label mt-1">Categorías asociadas al emplazamiento</label> 
+      <label class="form-label mt-1">{{'site.text8'|translate}}</label> 
       <br>
       <table class="table">
         <thead>
           <tr>
-            <th scope="col">#</th>
+            <th scope="col">{{'site.headerId'|translate}}</th>
             <th scope="col"></th>
-            <th scope="col">Descripción</th>
-            <th scope="col">Usuario</th>
+            <th scope="col">{{'site.header1'|translate}}</th>
+            <th scope="col">{{'site.header2'|translate}}</th>
           </tr>
         </thead>
         <tbody>
@@ -171,10 +172,10 @@
     <!-- Titulos de pestañas -->
     <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="pantalla-tab" data-bs-toggle="tab" data-bs-target="#pantalla" type="button" role="tab" aria-controls="pantalla" aria-selected="true">Pantalla</button>
+        <button class="nav-link active" id="pantalla-tab" data-bs-toggle="tab" data-bs-target="#pantalla" type="button" role="tab" aria-controls="pantalla" aria-selected="true">{{'site.tabTitle1'|translate}}</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="player-tab" data-bs-toggle="tab" data-bs-target="#player" type="button" role="tab" aria-controls="player" aria-selected="false">Player</button>
+        <button class="nav-link" id="player-tab" data-bs-toggle="tab" data-bs-target="#player" type="button" role="tab" aria-controls="player" aria-selected="false">{{'site.tabTitle2'|translate}}</button>
       </li>     
     </ul>
     <!-- Fin Titulos pestañas -->
@@ -187,7 +188,7 @@
           <div class="col-6"> <!-- Inicio columna 1 pestaña pantalla-->
             <div class="row">
               <div class="col-3">   <!-- Tipo de pantalla -->
-                <label class="form-label" for="inputTipoPantalla">Tipo de pantalla</label>
+                <label class="form-label" for="inputTipoPantalla">{{'site.tab1Field1'|translate}}</label>
                 <select class="form-select" formControlName="tipoPantalla">
                   <option  value="{{a.id}}" *ngFor="let a of screenTypes" 
                         [selected]="selectTipoPantalla(a.id)" 
@@ -196,7 +197,7 @@
                 <small *ngIf="tipoPantallaNoValido" class="text-danger">{{msgError('tipoPantalla')}}</small>
               </div>  <!-- Fin Tipo de pantalla -->              
               <div class="col-4">  <!-- Marca de pantalla -->
-                <label class="form-label" for="inputMarcaPantalla">Marca de la pantalla</label>
+                <label class="form-label" for="inputMarcaPantalla">{{'site.tab1Field2'|translate}}</label>
                 <select class="form-select" formControlName="marcaPantalla">
                   <option  value="{{b.id}}" *ngFor="let b of screenBrands" 
                           [selected]="selectMarcaPantalla(b.id)" 
@@ -205,7 +206,7 @@
                 <small *ngIf="marcaPantallaNoValido" class="text-danger">{{msgError('marcaPantalla')}}</small>
               </div> <!-- Fin Marca de pantalla -->     
               <div class="col-5">   <!-- Modelo de pantalla -->
-                <label class="form-label" for="inputModeloPantalla">Modelo de la pantalla</label>
+                <label class="form-label" for="inputModeloPantalla">{{'site.tab1Field3'|translate}}</label>
                 <select class="form-select" formControlName="modeloPantalla">
                         this.modeloPantallaSeleccionado.screenBrandId=this.siteForm.get('marcaPantalla').value;
                   <option  value="{{a.id}}" *ngFor="let a of screenModels | modelscreen:tipoPantallaActual:marcaPantallaActual" 
@@ -216,10 +217,10 @@
               </div>  <!-- Fin Modelo de pantalla -->       
             </div>
             <div class="row mt-3">  <!--  Número de modulos del panel-->
-              <label class="form-label" for="inputTexto">Número de modulos</label>
+              <label class="form-label" for="inputTexto">{{'site.tab1Field4'|translate}}</label>
               <div class="col-3">
                 <input class="form-control"
-                      placeholder="Ancho del panel LED"
+                      placeholder="{{'site.tab1FieldText1'|translate}}"
                       id="inputmodulosAncho"
                       type="number"
                         formControlName="modulosAncho"
@@ -228,7 +229,7 @@
               </div>
               <div class="col-3">
                 <input class="form-control"
-                      placeholder="Alto del panel LED"
+                      placeholder="{{'site.tab1FieldText2'|translate}}"
                       id="inputmodulosAlto"
                       type="number"
                         formControlName="modulosAlto"
@@ -238,7 +239,7 @@
             </div>  <!--  Fin Número de modulos del panel--> 
             <div class="row mt-3">   
               <div class="col-5"> <!-- Orientación de la pantalla -->
-                <label class="form-label" for="inputOrientacionPantalla">Orientación de pantalla</label>
+                <label class="form-label" for="inputOrientacionPantalla">{{'site.tab1Field5'|translate}}</label>
                 <select class="form-select" formControlName="orientacionPantalla">
                   <option  value="{{a.id}}" *ngFor="let a of screenOrientations" 
                         [selected]="selectOrientacionPantalla(a.id)" 
@@ -247,7 +248,7 @@
                 <small *ngIf="orientacionPantallaNoValido" class="text-danger">{{msgError('orientacionPantalla')}}</small>
               </div>  <!-- Fin Orientacion  de pantalla -->     
               <div class="col-5">   <!-- Número de serie de la pantalla -->
-                <label class="form-label" for="inputNumeroSerie">Número de serie pantalla</label>
+                <label class="form-label" for="inputNumeroSerie">{{'site.tab1Field6'|translate}}</label>
                 <input class="form-control"
                       id="inputNumeroSeriePantalla"
                       type="text"
@@ -261,25 +262,25 @@
           <div class="col-4 offset-1"> <!-- Inicio columna 2 pestaña pantalla -->
             <div class="row tablaContenidos">
               <div class="cabeceraTabla">
-                <div class="fs-5">Características de la pantalla</div>
+                <div class="fs-5">{{'site.tab1Text1'|translate}}</div>
               </div>
               <div  class="datosTabla">
                 <table>
                   <tbody>
                     <tr>
-                      <td><strong>Medidas de la Pantalla (mm):</strong></td>
+                      <td><strong>{{'site.tab1Text2'|translate}}</strong></td>
                       <td>{{anchoPantalla}} <span *ngIf="anchoPantalla>0"> x </span> {{altoPantalla}}</td>
                     </tr>
                     <tr>
-                      <td><strong>Resolución de la Pantalla:</strong></td>
+                      <td><strong>{{'site.tab1Text3'|translate}}</strong></td>
                       <td>{{resolucionAncho}} <span *ngIf="resolucionAncho>0"> x </span> {{resolucionAlto}}</td>
                     </tr>
                     <tr>
-                      <td><strong>Pulgadas:</strong></td>
+                      <td><strong>{{'site.tab1Text4'|translate}}</strong></td>
                       <td>{{pulgadasPantalla}}</td>
                     </tr>
                     <tr>
-                      <td><strong>Pixel:</strong></td>
+                      <td><strong>{{'site.tab1Text5'|translate}}</strong></td>
                       <td>{{pixelesPantalla}}</td>
                     </tr>
                   </tbody>
@@ -290,7 +291,7 @@
        </div>
        <div class="row mt-3">
         <div class="col-12"> <!-- Observaciones de la pantalla -->
-          <label class="form-label" for="inputObservaciones">Observaciones</label>
+          <label class="form-label" for="inputObservaciones">{{'site.tab1Field7'|translate}}</label>
           <input class="form-control"
                 id="inputObservaciones"
                 type="text"
@@ -307,7 +308,7 @@
         <div class="row container-fluid">   
         
           <div class=col-3>       <!-- Orientación de la player -->
-            <label class="form-label" for="inputOrientacionPlayer">Orientación del reproductor</label>
+            <label class="form-label" for="inputOrientacionPlayer">{{'site.tab2Field1'|translate}}</label>
             <select class="form-select" 
             formControlName="orientacionReproductor">
             <option  value="{{a.id}}" *ngFor="let a of screenOrientations" 
@@ -317,7 +318,7 @@
             <small *ngIf="orientacionReproductorNoValido" class="text-danger">{{msgError('orientacionReproductor')}}</small>
           </div>  <!-- Fin Orientacion  de player -->  
           <div class=col-3>     <!--  Número de serie del player -->
-            <label class="form-label" for="inputNumeroSeriePlayer">Número de serie reproductor</label>
+            <label class="form-label" for="inputNumeroSeriePlayer">{{'site.tab2Field2'|translate}}</label>
             <input class="form-control"
             id="inputnumeroSeriePlayer"
             type="text"
@@ -328,25 +329,25 @@
           <div class="col-4 offset-1">
             <div class="row tablaContenidos">  
               <div class="cabeceraTabla">
-                <div class="fs-5">Información del reproductor</div>
+                <div class="fs-5">{{'site.tab2Text1'|translate}}</div>
               </div>
               <div  class="datosTabla">
                 <table>
                   <tbody>
                     <tr>
-                      <td><strong>IDPTI:</strong></td>
+                      <td><strong>{{'site.tab2Text2'|translate}}</strong></td>
                       <td>{{currentSite.idpti}}</td>
                     </tr>
                     <tr>
-                      <td><strong>MAC:</strong></td>
+                      <td><strong>{{'site.tab2Text3'|translate}}</strong></td>
                       <td>{{currentSite.player.mac}}</td>
                     </tr>
                     <tr>
-                      <td><strong>Versión del S.O.:</strong></td>
+                      <td><strong>{{'site.tab2Text4'|translate}}</strong></td>
                       <td>{{currentSite.player.osVersion}}</td>
                     </tr>
                     <tr>
-                      <td><strong>Versión aplicación instalada:</strong></td>
+                      <td><strong>{{'site.tab2Text5'|translate}}</strong></td>
                       <td>{{currentSite.player.appVersion}}</td>
                     </tr>
                   </tbody>
@@ -366,23 +367,23 @@
                         <table>
                           <tbody>
                             <tr>
-                              <td *ngIf="currentSite.player.license.valid" class="text-success fs-5"><strong>Licencia activa</strong></td>
-                              <td *ngIf="!currentSite.player.license.valid" class="text-danger fs-5"><strong>Licencia expirada</strong></td>
+                              <td *ngIf="currentSite.player.license.valid" class="text-success fs-5"><strong>{{'site.tab2Text6'|translate}}</strong></td>
+                              <td *ngIf="!currentSite.player.license.valid" class="text-danger fs-5"><strong>{{'site.tab2Text7'|translate}}</strong></td>
                             </tr>
                             <tr>
-                              <td><strong>Número de licencia:</strong></td>
+                              <td><strong>{{'site.tab2Text8'|translate}}</strong></td>
                               <td>{{currentSite.player.license.licenseNumber}}</td>  
                             </tr>
                             <tr>
-                              <td><strong>Fecha de activación:</strong></td>
+                              <td><strong>{{'site.tab2Text9'|translate}}</strong></td>
                               <td>{{currentSite.player.license.activationDate|date:'longDate'}}</td>
                             </tr>         
                             <tr>
-                              <td><strong>Fecha de expiración:</strong></td>
+                              <td><strong>{{'site.tab2Text10'|translate}}</strong></td>
                               <td>{{currentSite.player.license.expirationDate|date:'longDate'}}</td>            
                             </tr>            
                             <tr>
-                              <td><strong>Meses de duración:</strong></td>
+                              <td><strong>{{'site.tab2Text11'|translate}}</strong></td>
                               <td>{{currentSite.player.license.durationMonths}}</td>
                             </tr>
                           </tbody>

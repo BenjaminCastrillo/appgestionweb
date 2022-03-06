@@ -1,16 +1,18 @@
 <form [formGroup]="venueForm" (ngSubmit)="onSubmit()">
   <!-- Bloque de botones -->
   <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">
-    <h4 class="col"> {{tituloPagina}} <span *ngIf="!newVenue"><small class="text-muted">(#{{currentVenue.id}})</small></span></h4>  
+    <h4 *ngIf="newVenue" class="col"> {{'venue.title'|translate}}</h4>  
+    <h4 *ngIf="!newVenue" class="col"> {{'venue.title2'|translate}}<small class="text-muted"> (#{{currentVenue.id}})</small></h4>  
+   
     <button type="button" class="btn btn-outline-primary btn-block"
       (click)="abandonarPagina()"> 
       <i class="fas fa-arrow-left"></i>
-      Regresar
+      {{'general.backButton'|translate}}  
     </button>
     <!-- Boton guardar formulario-->
     <label class="col-form-label">&nbsp;</label>
     <button type="submit" class="btn btn-success btn-block">
-      Guardar
+      {{'general.saveButton'|translate}}
     </button>
   </div>
   <!-- Fin bloque botones -->
@@ -20,7 +22,7 @@
     <div class="form-group row mb-3">    
         <!-- Nombre de local -->
         <div class="col-6">
-          <label class="form-label" for="inputNombre">Nombre del local</label>
+          <label class="form-label" for="inputNombre">{{'venue.field1'|translate}}</label>
           <input class="form-control"
                 id="inputNombre"
                 type="text"
@@ -31,7 +33,7 @@
         <!-- Fin nombre de local -->
         <!-- Cliente-->
         <div class="col-4">
-          <label class="form-label" for="inputCliente">Cliente</label>
+          <label class="form-label" for="inputCliente">{{'venue.field2'|translate}}</label>
           <select class="form-select" formControlName="cliente">
             <option   value="{{a.id}}" *ngFor="let a of customers" 
                       [selected]="selectCliente(a.id)" 
@@ -42,7 +44,7 @@
         <!-- Fin Cliente -->
         <!-- Fecha de alta-->
         <div class="col-2" *ngIf="!newVenue">
-          <label class="form-label" for="inputfechaAlta">Fecha de alta</label>
+          <label class="form-label" for="inputfechaAlta">{{'venue.field3'|translate}}</label>
           <p class=" p-2 cajaFecha">{{currentVenue.entryDate|date:'mediumDate'}}</p>
           <!-- <input class="form-control"
                 id="inputfechaAlta"
@@ -61,7 +63,7 @@
         <div class="row  mb-3">
           <!-- Marca del local -->
           <div class="col-2">
-            <label class="form-label" for="inputMarca">Marca Comercial</label>          
+            <label class="form-label" for="inputMarca">{{'venue.field4'|translate}}</label>          
             <select class="form-select" formControlName="marca">
               <option value="{{a.id}}" *ngFor="let a of brands | notdeletedbrands:marcaBorrada" 
                       [selected]="selectMarca(a.id)" 
@@ -78,7 +80,7 @@
           <!-- Fin Imagen Marca del local -->
           <!-- Región de mercado-->
           <div class="col-4">
-            <label class="form-label" for="inputRegionComercial">Región Comercial</label>
+            <label class="form-label" for="inputRegionComercial">{{'venue.field5'|translate}}</label>
             <select class="form-select" formControlName="regionComercial">
               <option value="{{a.id}}" *ngFor="let a of marketRegions | notdeletedmarketregion:regionComercialBorrada" 
                       [selected]="selectRegionComercial(a.id)" 
@@ -90,7 +92,7 @@
           <!-- Fin Región de mercado -->
           <!-- Input Imagen del local-->
           <div class="col-4">     
-            <label class="form-label" for="inputImagenLocal">Imagen del local</label>  
+            <label class="form-label" for="inputImagenLocal">{{'venue.field6'|translate}}</label>  
             <input (change)="capturarFile($event)"
               class="form-control"
               type="file"
@@ -104,7 +106,7 @@
         <!-- Pais -->
         <div class="row mb-3">
           <div class="col-3">  
-            <label class="form-label" for="inputPais">Pais</label>
+            <label class="form-label" for="inputPais">{{'venue.field7'|translate}}</label>
             <select class="form-select" formControlName="pais">
               <option  value="{{a.id}}" *ngFor="let a of countries" 
                       [selected]="selectPais(a.id)" 
@@ -162,7 +164,7 @@
     <div class="form-group row mb-3">
       <!-- Tipo de via-->
       <div class="col-2">
-        <label class="form-label" for="inputTipoVia">Tipo de via</label>
+        <label class="form-label" for="inputTipoVia">{{'venue.field8'|translate}}</label>
         <select class="form-select" formControlName="tipoVia">
           <option   value="{{a.id}}" *ngFor="let a of roadTypes" 
                     [selected]="selectTipoVia(a.id)" 
@@ -173,7 +175,7 @@
       <!-- Fin tipo de via -->
       <!-- Calle de local -->
         <div class="col-6">
-        <label class="form-label" for="inputCalle">Dirección</label>
+        <label class="form-label" for="inputCalle">{{'venue.field9'|translate}}</label>
         <input class="form-control"
               id="inputCalle"
               type="text"
@@ -184,7 +186,7 @@
       <!-- Fin calle de local -->
       <!-- número Calle de local -->
       <div class="col-2">
-        <label class="form-label" for="inputNumero">Número</label>
+        <label class="form-label" for="inputNumero">{{'venue.field10'|translate}}</label>
         <input class="form-control"
               id="inputNumero"
               type="text"
@@ -195,7 +197,7 @@
       <!-- Fin número calle de local -->
       <!-- Código postal de local -->
       <div class="col-2">
-        <label class="form-label" for="inputCodigoPostal">Código Postal</label>
+        <label class="form-label" for="inputCodigoPostal">{{'venue.field11'|translate}}</label>
         <input class="form-control"
               id="inputCodigoPostal"
               type="text"
@@ -216,13 +218,13 @@
   
     <ul class="nav nav-tabs mt-3" id="myTab" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="horario-tab" data-bs-toggle="tab" data-bs-target="#horario" type="button" role="tab" aria-controls="horario" aria-selected="true">Horarios</button>
+        <button class="nav-link active" id="horario-tab" data-bs-toggle="tab" data-bs-target="#horario" type="button" role="tab" aria-controls="horario" aria-selected="true">{{'venue.tabTitle1'|translate}}</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="contacto-tab" data-bs-toggle="tab" data-bs-target="#contacto" type="button" role="tab" aria-controls="contacto" aria-selected="false">Contactos</button>
+        <button class="nav-link" id="contacto-tab" data-bs-toggle="tab" data-bs-target="#contacto" type="button" role="tab" aria-controls="contacto" aria-selected="false">{{'venue.tabTitle2'|translate}}</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="emplazamiento-tab" data-bs-toggle="tab" data-bs-target="#emplazamiento" type="button" role="tab" aria-controls="emplazamiento" aria-selected="false">Emplazamientos</button>
+        <button class="nav-link" id="emplazamiento-tab" data-bs-toggle="tab" data-bs-target="#emplazamiento" type="button" role="tab" aria-controls="emplazamiento" aria-selected="false">{{'venue.tabTitle3'|translate}}</button>
       </li>
     </ul>
 
@@ -234,21 +236,21 @@
         <div class="row container-fluid">
           <!-- lista de horarios del cliente -->  
           <div class="col-5"> 
-            <label class="form-label">Seleccione los horarios asociados al local</label>
+            <label class="form-label">{{'venue.tab1Text1'|translate}}</label>
             <div class="form-group mb-2">
               <input class="form-control"
                   id="inputSchedules"
-                  placeholder="Buscar..."
+                  placeholder="{{'general.filter'|translate}}"
                   type="text"
                   formControlName="schedulesSearch">
             </div>  
              <table class="table table-condensed table-striped">
               <thead class=table-light>
                 <tr>
-                  <th scope="col" class="col-sm-1">#</th>
-                  <th scope="col" class="col-sm-2">Descripción</th>
-                  <th scope="col" class="col-sm-3">Fecha inicio</th>
-                  <th scope="col" class="col-sm-2">Acciones</th>
+                  <th scope="col" class="col-sm-1">{{'venue.tabHeaderId'|translate}}</th>
+                  <th scope="col" class="col-sm-2">{{'venue.tab1Header1'|translate}}</th>
+                  <th scope="col" class="col-sm-3">{{'venue.tab1Header2'|translate}}</th>
+                  <th scope="col" class="col-sm-3">{{'venue.tabHeaderAccions'|translate}}</th>
                 </tr>
               </thead>
               <tbody>
@@ -261,12 +263,12 @@
                   <td>
                     <button type="button" class="btn btn-light" 
                           (click)="selectHorario(a.id,a.description,a.startDate,a.weekly)"
-                          placement="bottom" ngbTooltip="Seleccionar" [openDelay]="300">   
+                          placement="bottom" ngbTooltip="{{'general.selectButton'|translate}}" [openDelay]="300">   
                       <i class="fas fa-check"></i>                
                     </button>
                     &nbsp;
                     <button type="button" class="btn btn-light"
-                            placement="bottom" ngbTooltip="Ver horario" [openDelay]="300"
+                            placement="bottom" ngbTooltip="{{'general.goScheduleButton'|translate}}" [openDelay]="300"
                             (click)="showHorario(content,i)">
                        <i class="far fa-clock"></i> 
                     </button>
@@ -284,11 +286,11 @@
     <table class="table table-sm">
       <thead class=table-light>
         <tr>
-          <th class="col-1">Día de la semana</th>
-          <th class="col-1">Apertura</th>
-          <th class="col-1">Cierre</th>
-          <th class="col-1">Apertura</th>
-          <th class="col-1">Cierre</th>
+          <th class="col-1">{{'venue.modalScheduleHeader1'|translate}}</th>
+          <th class="col-1">{{'venue.modalScheduleHeader2'|translate}}</th>
+          <th class="col-1">{{'venue.modalScheduleHeader3'|translate}}</th>
+          <th class="col-1">{{'venue.modalScheduleHeader2'|translate}}</th>
+          <th class="col-1">{{'venue.modalScheduleHeader3'|translate}}</th>
         </tr>
       </thead>
       <tbody>
@@ -314,32 +316,32 @@
                       type="button"
                       (click)="prevPage()"
                       [disabled]="page===0">
-                Pag. Anterior
+                      {{'general.prevPage'|translate}}
               </button>
               &nbsp;
               <button class="btn btn-outline-secondary btn-sm"
                       type="button"
                       (click)="nextPage()"
                       [disabled]="(schedules |schedules:filterSchedules:page:linesPages).length<linesPages"> 
-                Pag. Siguiente
+                      {{'general.nextPage'|translate}}
               </button>
             </div> 
           </div>
           <!-- Fin lista de horarios -->
-          <div class="col-2"></div>
+          <div class="col-1"></div>
           <!-- Lista horarios seleccionados -->
           <div class="col-5">
-            <label class="form-label"><strong>Horarios seleccionados al local</strong></label> 
+            <label class="form-label"><strong>{{'venue.tab1Text2'|translate}}</strong></label> 
             <br>
             <br>
             <br>
             <table class="table">
               <thead class="table-light">
                 <tr>
-                    <th scope="col" class="col-sm-1">#</th>
-                    <th scope="col" class="col-sm-2">Descripción</th>
-                    <th scope="col" class="col-sm-3">Fecha inicio</th>
-                    <th scope="col" class="col-sm-2">Acciones</th>
+                    <th scope="col" class="col-sm-1">{{'venue.tabHeaderId'|translate}}</th>
+                    <th scope="col" class="col-sm-2">{{'venue.tab1Header1'|translate}}</th>
+                    <th scope="col" class="col-sm-3">{{'venue.tab1Header2'|translate}}</th>
+                    <th scope="col" class="col-sm-2">{{'venue.tabHeaderAccions'|translate}}</th>
                   </tr>
               </thead>
               <tbody formArrayName="horario">
@@ -351,7 +353,7 @@
                   <td>{{b.get('diaInicio').value}}</td>
                   <td>
                     <button type="button" class="btn btn-light" 
-                    placement="bottom" ngbTooltip="Borrar" [openDelay]="300"
+                    placement="bottom" ngbTooltip=" {{'general.deleteButton'|translate}}" [openDelay]="300"
                     (click)="removeHorario(horarioIndex)">
                       <i class="far fa-trash-alt"></i>                    
                     </button>
@@ -372,11 +374,11 @@
             <table class="table">
               <thead class="table-light">
                 <tr>
-                  <th scope="col" class="col-sm-1">#</th>
-                  <th scope="col" class="col-sm-2">Nombre</th>
-                  <th scope="col" class="col-sm-3">email</th>
-                  <th scope="col" class="col-sm-4">Notas</th>
-                  <th scope="col" class="col-sm-2">Acciones</th>
+                  <th scope="col" class="col-sm-1">{{'venue.tabHeaderId'|translate}}</th>
+                  <th scope="col" class="col-sm-2">{{'venue.tab2Header1'|translate}}</th>
+                  <th scope="col" class="col-sm-3">{{'venue.tab2Header2'|translate}}</th>
+                  <th scope="col" class="col-sm-4">{{'venue.tab2Header3'|translate}}</th>
+                  <th scope="col" class="col-sm-2">{{'venue.tabHeaderAccions'|translate}}</th>
                 </tr>
               </thead>
               <tbody formArrayName="contacto">
@@ -388,7 +390,7 @@
                   <td>
                     <input class="form-control"
                     type="text"
-                    placeholder="Nombre"
+                    placeholder="{{'venue.tab2FieldText1'|translate}}"
                     formControlName="nombre"
                     [class.is-invalid]="a.get('nombre').invalid && a.get('nombre').touched">
                     <small *ngIf="a.get('nombre').invalid && a.get('nombre').touched" class="text-danger">{{msgErrorArray('nombre',contactoIndex)}}</small>         
@@ -396,7 +398,7 @@
                   <td>
                     <input class="form-control"
                     type="text"
-                    placeholder="email"
+                    placeholder="{{'venue.tab2FieldText2'|translate}}"
                     formControlName="email"
                     [class.is-invalid]="a.get('email').invalid && a.get('email').touched">
                     <small *ngIf="a.get('email').invalid && a.get('email').touched" class="text-danger">{{msgErrorArray('email',contactoIndex)}}</small>         
@@ -405,7 +407,7 @@
                   <td>
                     <input class="form-control"
                     type="text"
-                    placeholder="notas"
+                    placeholder="{{'venue.tab2FieldText3'|translate}}"
                     formControlName="notas"
                     [class.is-invalid]="a.get('notas').invalid && a.get('notas').touched">
                     <small *ngIf="a.get('notas').invalid && a.get('notas').touched" class="text-danger">{{msgErrorArray('notas',contactoIndex)}}</small>         
@@ -415,20 +417,20 @@
                    
                  
                     <button type="button" class="btn btn-light" 
-                        placement="bottom" ngbTooltip="Añadir telefonos" [openDelay]="300"
+                        placement="bottom" ngbTooltip="{{'general.addTelephoneNumberButton'|translate}}" [openDelay]="300"
                         (click)="showTelefono(content,contactoIndex)">
                       <i class="fas fa-phone"></i>                                                                    
                    </button>    
                    &nbsp;
                    <button type="button" class="btn btn-light" (click)="removeContacto(contactoIndex)"
-                            placement="bottom" ngbTooltip="Borrar contacto" [openDelay]="300">
+                            placement="bottom" ngbTooltip="{{'general.deleteContactButton'|translate}}" [openDelay]="300">
                       <i class="far fa-trash-alt"></i>                    
                    </button>             
                   </td>
 <!-- Modal  teléfonos-->
 <ng-template #content let-modal>
   <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">Teléfonos de contacto de {{a.get('nombre').value}}</h4>
+    <h4 class="modal-title" id="modal-basic-title">{{'venue.modalTelephoneContactHeader'|translate}} {{a.get('nombre').value}}</h4>
     <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>
@@ -438,9 +440,9 @@
     <table class="table">
       <thead class=table-light>
         <tr>
-          <th class="col-2">Teléfono</th>
-          <th class="col-6">Notas</th>
-          <th class="col-2">Acciones</th>
+          <th class="col-2">{{'venue.modalTelephoneContactHeader1'|translate}}</th>
+          <th class="col-6">{{'venue.modalTelephoneContactHeader2'|translate}}</th>
+          <th class="col-2">{{'venue.tabHeaderAccions'|translate}}</th>
         </tr>
       </thead>
       <tbody formArrayName="telefonos">
@@ -461,7 +463,7 @@
         </td>
         <td>
           <button type="button" class="btn btn-light" (click)="removeTelefono(telefonosIndex)"
-                  placement="bottom" ngbTooltip="Borrar número de teléfono" [openDelay]="300">
+                  placement="bottom" ngbTooltip="{{'general.deleteTelephoneButton'|translate}}" [openDelay]="300">
             <i class="far fa-trash-alt"></i>                    
             </button>    
         </td>
@@ -472,13 +474,13 @@
 
   <div class="d-grid gap-2 col-4 mx-auto">  
     <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addTelefono(contactoIndex)">
-      Añadir teléfono
+      {{'venue.modalTelephoneContactAddItem'|translate}}
     </button>
   </div>
 
   <div class="modal-footer">
     <button type="button" class="btn btn-outline-primary btn-block" 
-          (click)="modal.close('Save click')">Guardar</button>
+          (click)="modal.close('Save click')">{{'general.saveButton'|translate}}</button>
   </div>
 </ng-template>
 <!-- Fin Modal telefonos-->
@@ -486,14 +488,15 @@
               </tbody>
             </table>  
           </div>
-        </div>
+        </div> 
         <div class="d-grid gap-2 col-4 mx-auto">  
           <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addcontacto()">
-            Añadir contacto
+            {{'venue.tab2AddItem'|translate}}
           </button>
         </div>
       </div>
       <!-- Fin pestaña contactos -->
+      
       <!-- Pestaña emplazamientos   -->
 
       <div class="tab-pane fade mt-3" id="emplazamiento" role="tabpanel" aria-labelledby="emplazamiento-tab">  
@@ -503,10 +506,10 @@
               <table class="table">
                 <thead class=table-light>
                   <tr>
-                    <th class="col-1">#</th>
-                    <th class="col-2">Código comercial</th>
-                    <th class="col-2">Duración licencia (meses)</th>            
-                    <th class="col-1">Status</th>
+                    <th class="col-1">{{'venue.tabHeaderId'|translate}}</th>
+                    <th class="col-2">{{'venue.tab3Header1'|translate}}</th>
+                    <th class="col-2">{{'venue.tab3Header2'|translate}}</th>            
+                    <th class="col-1">{{'venue.tab3Header3'|translate}}</th>
                   </tr>
                 </thead>
                 <tbody formArrayName="emplazamiento">
@@ -540,10 +543,10 @@
               <table class="table">
                 <thead class=table-light>
                   <tr>
-                    <th class="col-1">#</th>
-                    <th class="col-2">Código comercial</th>
-                    <th class="col-2">Duración licencia (meses)</th>            
-                    <th class="col-1">Acciones</th>
+                    <th class="col-1">{{'venue.tabHeaderId'|translate}}</th>
+                    <th class="col-2">{{'venue.tab3Header1'|translate}}</th>
+                    <th class="col-2">{{'venue.tab3Header2'|translate}}</th>            
+                    <th class="col-1">{{'venue.tabHeaderAccions'|translate}}</th>
                   </tr>
                 </thead>
                 <tbody formArrayName="emplazamiento">
@@ -569,7 +572,7 @@
                     </td>
                     <td>
                       <button type="button" class="btn btn-light" (click)="removeEmplazamiento(emplazamientoIndex)"
-                            placement="bottom" ngbTooltip="Borrar" [openDelay]="300">
+                            placement="bottom" ngbTooltip="{{'general.deleteButton'|translate}}" [openDelay]="300">
                         <i class="far fa-trash-alt"></i>                    
                       </button>
                     </td>
@@ -581,7 +584,7 @@
         </div>
         <div class="d-grid gap-2 col-4 mx-auto">  
           <button class="btn btn-outline-primary mt-3 mb-3 btn-block" type="button" (click)="addEmplazamiento()">
-            Añadir emplazamiento
+            {{'venue.tab3AddItem'|translate}}
           </button>
         </div>
       </div>  

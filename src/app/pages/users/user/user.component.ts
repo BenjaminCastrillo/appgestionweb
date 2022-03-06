@@ -5,6 +5,8 @@ import { Observable} from 'rxjs';
 import Swal from 'sweetalert2';
 import {NgbModal, NgbModalConfig,ModalDismissReasons, NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {Sort} from '@angular/material/sort';
+import { TranslateService } from '@ngx-translate/core'; 
+import { GlobalDataService } from '../../../services/global-data.service';
 
 import { Site, ScreenLocation } from '../../../interfaces/site-interface';
 import { User, Rol, SitesList, CustomerUserList } from '../../../interfaces/user-interface';
@@ -79,20 +81,25 @@ export class UserComponent implements OnInit {
   public rolAnterior:number=0;
   public sortedData:SitesList[]=[];
   public listaExcepcionesActiva:SitesList[];
+  public activeLang = this.globalDataServices.getStringUserLanguage();
 
   
   constructor(
     private ActivatedRoute:ActivatedRoute,
     private fb: FormBuilder,
     private router:Router,
+    private translate: TranslateService,
     private customerServices:CustomerService,
     private siteServices:SiteService,
     private userServices:UserService,
-    private UtilService:UtilService,
+    private UtilService:UtilService, 
+    private globalDataServices:GlobalDataService,
     config: NgbModalConfig, private modalService: NgbModal  
     ) {
       config.backdrop = 'static';
       config.keyboard = false; 
+      this.translate.setDefaultLang(this.activeLang);
+      this.translate.use(this.activeLang);
       this.crearFormulario();
   }
 
@@ -101,10 +108,10 @@ export class UserComponent implements OnInit {
     this.userId= this.ActivatedRoute.snapshot.paramMap.get('id');
     if (this.userId==='nuevo'){
       this.newUser=true;
-      this.pageTitle='Alta nuevo usuario';
+   //   this.pageTitle='Alta nuevo usuario';
     }else{
       this.newUser=false;
-      this.pageTitle='Modificación datos de usuario';
+    //  this.pageTitle='Modificación datos de usuario';
       this.userServices.getUserById(this.userId)
       .subscribe(resp=>{
           this.currentUser=resp.data[0];
@@ -635,14 +642,25 @@ export class UserComponent implements OnInit {
   }
 
   onSubmit() {
+    let msg1:string=null;
+    let msg2:string=null;
+    let msg3:string=null;
     if (this.userForm.touched){
       let invalidListCustomer=(this.cliente.controls.length==0 
                   && Number(this.userForm.get('rol').value)!=0);
 
       if( this.userForm.invalid || invalidListCustomer){
+
+        this.translate.get('general.modalClosePage9')
+        .subscribe(res=>msg1=res);
+        this.translate.get('general.modalClosePage6')
+        .subscribe(res=>msg2=res);
+        this.translate.get('general.modalClosePage8')
+        .subscribe(res=>msg3=res);
+
         Swal.fire({
-          title: invalidListCustomer?'Falta seleccionar el cliente':'Datos incorrectos' ,
-          text:'por favor revise la información introducida',
+          title: invalidListCustomer?msg1:msg2,
+          text:msg3,
           confirmButtonColor: '#007bff',
           allowOutsideClick:false,
           icon:'error'
@@ -684,9 +702,15 @@ export class UserComponent implements OnInit {
         };
 
         peticionHtml.subscribe(resp=>{     
+
+          this.translate.get('general.modalClosePage4', {value1: resp.data.name})
+          .subscribe(res=>msg1=res);
+          this.translate.get('general.modalClosePage5')
+            .subscribe(res=>msg2=res);
+
           Swal.fire({
-            title: `El registro ${resp.data.name}`,
-            text:'se actualizó correctamente',
+            title: msg1,
+            text:msg2,
             allowOutsideClick:false,
             confirmButtonColor: '#007bff',
             icon:'success'
@@ -706,13 +730,25 @@ export class UserComponent implements OnInit {
   }
 
   abandonarPagina(){
+    let msg1:string=null;
+    let msg2:string=null;
+    let msg3:string=null;
+
     if (this.userForm.touched){
+
+      this.translate.get('general.modalClosePage1')
+      .subscribe(res=>msg1=res);
+      this.translate.get('general.modalClosePage2')
+        .subscribe(res=>msg2=res);
+      this.translate.get('general.modalClosePage3')
+        .subscribe(res=>msg3=res);
+
       Swal.fire({
-        title:'¿Desea abandonar la página?',
-        text: 'los cambios realizados se perderán',
+        title:msg1,
+        text: msg2,
         icon: 'info',
         confirmButtonColor: '#007bff',
-        cancelButtonText:'Cancelar',
+        cancelButtonText:msg3,
         allowOutsideClick:false,
         showConfirmButton:true,
         showCancelButton:true,
@@ -870,16 +906,37 @@ respExcepciones(){
 
 msgError(campo: string): string {
 
+  let message: string = null;
 
-  if(this.userForm.get(campo).hasError('required')) return 'El campo es obligatorio';
-  if(this.userForm.get(campo).hasError('pattern') && campo=='email')  return 'Formato incorrecto. La dirección no es valida';
-  if(this.userForm.get(campo).hasError('pattern') && campo=='password')  return 'Formato incorrecto. Debe tener al menos ocho carácteres, una letra mayúscula, una minúscula y un dígito';
-  if(this.userForm.get(campo).hasError('exists'))   return 'El email introducido ya existe';
-  if(this.userForm.get(campo).hasError('minlength'))
-    return `La longitud mínima del campo ${campo} es ${this.userForm.get(campo).errors.minlength.requiredLength}`;
-  if(this.userForm.get(campo).hasError('maxlength'))
-    return `La longitud máxima del campo ${campo} es ${this.userForm.get(campo).errors.maxlength.requiredLength}`;
+  if(this.userForm.get(campo).hasError('required'))
+      this.translate.get('error.validationField1')
+      .subscribe(res=>(message=res));
 
-  return
+  if(this.userForm.get(campo).hasError('pattern') && campo=='email')
+      this.translate.get('error.validationField11')
+      .subscribe(res=>(message=res));
+
+  if(this.userForm.get(campo).hasError('pattern') && campo=='password')
+      this.translate.get('error.validationField12')
+      .subscribe(res=>(message=res));
+
+  if(this.userForm.get(campo).hasError('exists'))
+      this.translate.get('error.validationField13')
+      .subscribe(res=>(message=res));
+  
+
+    if(this.userForm.get(campo).hasError('minlength'))    
+      this.translate.get('error.validationField4', 
+          {value1: campo,
+           value2: this.userForm.get(campo).errors.minlength.requiredLength})
+      .subscribe(res=>(message=res));
+    
+    if(this.userForm.get(campo).hasError('maxlength'))    
+        this.translate.get('error.validationField5', 
+              {value1: campo,
+               value2: this.userForm.get(campo).errors.maxlength.requiredLength})
+        .subscribe(res=>(message=res));
+
+    return message;
 }
 }

@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 import {FormBuilder, FormGroup,Validators, FormControl,FormArray} from '@angular/forms';
 import {NgbModal, NgbModalConfig,ModalDismissReasons, NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 // import { IDropdownSettings } from 'ng-multiselect-dropdown';
-
+import { TranslateService } from '@ngx-translate/core'; 
 import { Venue, Country, Customer, Brand, MarketRegion, PhoneNumber, RoadType, Week, Schedule, Weekly, StartDate } from '../../../interfaces/venue-interface';
 import {SitesComercialCode} from '../../../interfaces/customer-interface';
 import { VenueService } from '../../../services/venue.service';
@@ -32,9 +32,9 @@ interface ImagenesFile{
 })
 export class VenueComponent implements OnInit {
 
-  private imageDefault=this.globalData.getUrlImageDefault();
-  private urlImageBrand=this.globalData.getUrlImageBrand();
-  private urlImageVenue=this.globalData.getUrlImageVenue();
+  private imageDefault=this.globalDataServices.getUrlImageDefault();
+  private urlImageBrand=this.globalDataServices.getUrlImageBrand();
+  private urlImageVenue=this.globalDataServices.getUrlImageVenue();
 
 
   public venueForm: FormGroup;
@@ -53,12 +53,12 @@ export class VenueComponent implements OnInit {
  
 
 
+  // public tituloPagina:string;
 
   public ordenHorario:number=0;
   public ordenContacto:number=0;
   public venueId:string;
   public newVenue:boolean;
-  public tituloPagina:string;
   public marcaBorrada:boolean=false;
   public regionComercialBorrada:boolean=false;
   public lastLocalizacion:number[]=[];
@@ -70,6 +70,7 @@ export class VenueComponent implements OnInit {
   public closeResult = '';
   public binariosImagenLocal:string;
   public filesImagenVenue:ImagenesFile;
+  public activeLang = this.globalDataServices.getStringUserLanguage();
  //  public dropdownSettings:IDropdownSettings = {};
   
 
@@ -80,13 +81,16 @@ export class VenueComponent implements OnInit {
     private ActivatedRoute:ActivatedRoute,
     private uploadServices:UploadService,
     private utilService:UtilService,
-    private globalData:GlobalDataService,
+    private globalDataServices:GlobalDataService,
     private router:Router,
+    private translate: TranslateService,
     config: NgbModalConfig, private modalService: NgbModal
 
   ) { 
     config.backdrop = 'static';
-    config.keyboard = false; 
+    config.keyboard = false;     
+    this.translate.setDefaultLang(this.activeLang);
+    this.translate.use(this.activeLang);
     this.crearFormulario();
   }
 
@@ -95,13 +99,13 @@ export class VenueComponent implements OnInit {
     this.venueId= this.ActivatedRoute.snapshot.paramMap.get('id');
     if (this.venueId==='nuevo'){
       this.newVenue=true;
-      this.tituloPagina='Alta nuevo local';   
+  //   this.tituloPagina='Alta nuevo local';   
       // this.binariosImagenMarca=this.imageDefault;
       // this.binariosImagenLocal=this.imageDefault;
       this.crearListeners();
     }else{
       this.newVenue=false;
-      this.tituloPagina='Modificación datos del local';
+ //     this.tituloPagina='Modificación datos del local';
       this.venueServices.getVenueAndSiteById(this.venueId)
       .subscribe(resp=>{
           this.currentVenue=resp.data[0];
@@ -804,26 +808,31 @@ export class VenueComponent implements OnInit {
 
 
   onSubmit() {
-    let mensajeError:string='Datos incorrectos'
+ 
     let contactName:string;
     let peticionHtml: Observable <any>;
     let sc=[], co=[], lo=[], si=[];
+    let msg1:string=null;
+    let msg2:string=null;
 
     if (this.venueForm.touched){
-     
-
       if( this.venueForm.invalid){
         if(this.contacto.controls.length>0  && this.venueForm.get('contacto').invalid){ // si contacto invalido
             let contactoIncorrecto=this.contacto.controls.find(elem=>elem.invalid);
             contactName=contactoIncorrecto.get('nombre').value==null?'':contactoIncorrecto.get('nombre').value
-            mensajeError = 'Falta completar el contacto ' + contactName;
-        }      
+            this.translate.get('general.modalClosePage10', {value1: contactName})
+            .subscribe(res=>msg1=res);   
+            
+        }  
+        this.translate.get('general.modalClosePage8')
+        .subscribe(res=>msg2=res);
+        
         Swal.fire({
-        title: mensajeError ,
-        text:'por favor revise la información introducida',
-        allowOutsideClick:false,
-        confirmButtonColor: '#007bff',
-        icon:'error'
+          title: msg1,
+          text:msg2,
+          allowOutsideClick:false,
+          confirmButtonColor: '#007bff',
+          icon:'error'
         });
       } else{
         sc=this.respHorario();
@@ -888,9 +897,14 @@ export class VenueComponent implements OnInit {
             this.subirArchivo();
           }
 
+          this.translate.get('general.modalClosePage4', {value1: resp.data.name})
+          .subscribe(res=>msg1=res);
+          this.translate.get('general.modalClosePage5')
+            .subscribe(res=>msg2=res);
+
           Swal.fire({
-            title: `El registro ${resp.data.name}`,
-            text:'se actualizó correctamente',
+            title: msg1,
+            text: msg2,
             allowOutsideClick:false,
             confirmButtonColor: '#007bff',
             icon:'success'
@@ -909,6 +923,40 @@ export class VenueComponent implements OnInit {
     return;
   }
 
+  abandonarPagina(){
+
+    let msg1:string=null;
+    let msg2:string=null;
+    let msg3:string=null;
+
+    if (this.venueForm.touched){
+
+      this.translate.get('general.modalClosePage1')
+      .subscribe(res=>msg1=res);
+      this.translate.get('general.modalClosePage2')
+        .subscribe(res=>msg2=res);
+      this.translate.get('general.modalClosePage3')
+        .subscribe(res=>msg3=res);
+
+      Swal.fire({
+        title:msg1,
+        text: msg2,
+        icon: 'info',
+        confirmButtonColor: '#007bff',
+        allowOutsideClick:false,
+        cancelButtonText:msg3,
+        showConfirmButton:true,
+        showCancelButton:true,
+      }).then(resp=>{
+        if (resp.value){
+          this.router.navigate(['/home/venue-list']);          
+        }
+      });
+    }else{
+      this.router.navigate(['/home/venue-list']);          
+    }
+    return;
+  }
 
   respHorario(){
     let r=[];
@@ -1091,38 +1139,35 @@ export class VenueComponent implements OnInit {
     return null
   }
 
-  abandonarPagina(){
-    if (this.venueForm.touched){
-      Swal.fire({
-        title:'¿Desea abandonar la página?',
-        text: 'los cambios realizados se perderán',
-        icon: 'info',
-        confirmButtonColor: '#007bff',
-        allowOutsideClick:false,
-        cancelButtonText:'Cancelar',
-        showConfirmButton:true,
-        showCancelButton:true,
-      }).then(resp=>{
-        if (resp.value){
-          this.router.navigate(['/home/venue-list']);          
-        }
-      });
-    }else{
-      this.router.navigate(['/home/venue-list']);          
-    }
-    return;
-  }
+
   msgError(campo: string): string {
-  
-    if(this.venueForm.get(campo).hasError('required')) return 'El campo es obligatorio';
-    if(this.venueForm.get(campo).hasError('deleted')) return 'El campo fue borrado';
-    if(this.venueForm.get(campo).hasError('pattern'))  return 'Formato incorrecto';
-    if(this.venueForm.get(campo).hasError('minlength'))
-      return `La longitud mínima del campo ${campo} es ${this.venueForm.get(campo).errors.minlength.requiredLength}`;
-    if(this.venueForm.get(campo).hasError('maxlength'))
-      return `La longitud máxima del campo ${campo} es ${this.venueForm.get(campo).errors.maxlength.requiredLength}`;
-  
-    return ;
+    let message: string = null;
+
+    if(this.venueForm.get(campo).hasError('required'))
+        this.translate.get('error.validationField1')
+        .subscribe(res=>(message=res));
+       
+    if(this.venueForm.get(campo).hasError('pattern')) 
+        this.translate.get('error.validationField2')
+        .subscribe(res=>(message=res));
+
+    if(this.venueForm.get(campo).hasError('deleted')) 
+        this.translate.get('error.validationField14')
+        .subscribe(res=>(message=res));
+
+    if(this.venueForm.get(campo).hasError('minlength'))    
+        this.translate.get('error.validationField4', 
+                {value1: campo,
+                 value2: this.venueForm.get(campo).errors.minlength.requiredLength})
+        .subscribe(res=>(message=res));
+    
+    if(this.venueForm.get(campo).hasError('maxlength'))    
+        this.translate.get('error.validationField5', 
+                {value1: campo,
+                 value2: this.venueForm.get(campo).errors.maxlength.requiredLength})
+        .subscribe(res=>(message=res));
+
+    return message;
   }
 
   msgErrorArray(campo: string, i: number): string {
@@ -1132,8 +1177,7 @@ export class VenueComponent implements OnInit {
     switch (campo) {
       case 'diaInicio':
         controlElementoArray=this.horario.at(i).get('diaInicio');  
-        break;
-     
+        break;   
       case 'descripcionHorario':
         controlElementoArray=this.horario.at(i).get('descripcionHorario');  
         break;
@@ -1160,13 +1204,26 @@ export class VenueComponent implements OnInit {
         break;
       default:
         return;
-    }
+    } 
     
-    if (controlElementoArray.hasError('required')) return 'El campo es obligatorio';  
+    if (controlElementoArray.hasError('required'))
+        this.translate.get('error.validationField1')
+        .subscribe(res=>(message=res));
+        
     if (controlElementoArray.hasError('maxlength'))   
-        return `La longitud máxima del campo es ${controlElementoArray.errors.maxlength.requiredLength} caracteres`;
-    if (controlElementoArray.hasError('pattern')) return 'Formato incorrecto';  
-    if (controlElementoArray.hasError('wrongStartDay')) return 'Fecha de inicio del periodo incorrecta DDMM';  
+        this.translate.get('error.validationField6', 
+            {value1: controlElementoArray.errors.maxlength.requiredLength})
+        .subscribe(res=>(message=res));
+
+     if (controlElementoArray.hasError('pattern'))
+        this.translate.get('error.validationField2')
+        .subscribe(res=>(message=res));
+
+    if (controlElementoArray.hasError('wrongStartDay'))
+        this.translate.get('error.validationField15')
+        .subscribe(res=>(message=res));
+ 
+    
     return message;
   }
 }

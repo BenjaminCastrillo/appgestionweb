@@ -1,6 +1,5 @@
 import { Routes, RouterModule, CanActivate } from '@angular/router';
 import { NgModule } from '@angular/core';
-
 import {AuthGuard} from '../guards/auth.guard'
 
 import {CustomersListComponent} from './customers/customers-list/customers-list.component';
@@ -29,7 +28,6 @@ const routes: Routes = [
       {path:'site-list/:id', component:SitesListComponent, canActivate:[AuthGuard]},
       {path:'site/:id', component:SiteComponent},
    ]
-
  }
 ];
 

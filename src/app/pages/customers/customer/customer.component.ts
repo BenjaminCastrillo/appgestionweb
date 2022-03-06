@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateService } from '@ngx-translate/core'; 
 import { Observable} from 'rxjs';
 import Swal from 'sweetalert2';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
@@ -433,25 +433,25 @@ export class CustomerComponent implements OnInit {
     console.log('lo que voy a grabar del customer',this.customerForm)
 
     if (this.customerForm.touched){
-
+ 
       if( this.customerForm.invalid){
   //      let mensajeError='Datos Incorrectos';      
-        this.translate.get('general.modalclosePage6')
+        this.translate.get('general.modalClosePage6')
         .subscribe(res=>msg1=res); 
         if(this.customerForm.get('horario').invalid){
           let horarioIncorrecto=this.horario.controls.find(elem=>elem.invalid);
           hi=horarioIncorrecto.get('descripcionHorario').value==null?'':horarioIncorrecto.get('descripcionHorario').value
-          this.translate.get('general.modalclosePage7', {value1: hi})
-          .subscribe(res=>msg1=res);          
+          this.translate.get('general.modalClosePage7', {value1: hi})
+          .subscribe(res=>msg1=res);     
         }
-        this.translate.get('general.modalclosePage8')
+        this.translate.get('general.modalClosePage8')
         .subscribe(res=>msg2=res);
         Swal.fire({
-        title: msg1,
-        text:  msg2,
-        confirmButtonColor: '#007bff',
-        icon:'error',
-        allowOutsideClick:false,
+          title: msg1,
+          text:  msg2,
+          confirmButtonColor: '#007bff',
+          icon:'error',
+          allowOutsideClick:false,
         });
 
       } else{
@@ -487,11 +487,10 @@ export class CustomerComponent implements OnInit {
             this.subirArchivo();
           }
 
-          this.translate.get('general.modalclosePage4', {value1: resp.data.name})
+          this.translate.get('general.modalClosePage4', {value1: resp.data.name})
             .subscribe(res=>msg1=res);
-          this.translate.get('general.modalclosePage5')
+          this.translate.get('general.modalClosePage5')
             .subscribe(res=>msg2=res);
-
 
           Swal.fire({
             title: msg1,
@@ -515,15 +514,15 @@ export class CustomerComponent implements OnInit {
   }
  
   abandonarPagina(){
-    let msg1:string=null
-    let msg2:string=null
-    let msg3:string=null
+    let msg1:string=null;
+    let msg2:string=null;
+    let msg3:string=null;
     if (this.customerForm.touched){
-      this.translate.get('general.modalclosePage1')
+      this.translate.get('general.modalClosePage1')
         .subscribe(res=>msg1=res);
-      this.translate.get('general.modalclosePage2')
+      this.translate.get('general.modalClosePage2')
         .subscribe(res=>msg2=res);
-      this.translate.get('general.modalclosePage3')
+      this.translate.get('general.modalClosePage3')
         .subscribe(res=>msg3=res);
 
       Swal.fire({
@@ -756,7 +755,6 @@ export class CustomerComponent implements OnInit {
 
   msgError(campo: string): string {
     let message: string = null;
-    let messageCode:string=null;
 
     if(this.customerForm.get(campo).hasError('required'))
         this.translate.get('error.validationField1')
