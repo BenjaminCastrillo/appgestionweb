@@ -1,8 +1,8 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormControl, FormGroup, FormArray } from '@angular/forms';
-import { Observable, Subject, throwError} from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable, Subject, throwError, of} from 'rxjs';
+import { map, catchError, tap } from 'rxjs/operators';
 import { CustomersResponse, Customer, Brand, MarketRegion, Week, Month, SitesComercialCode } from '../interfaces/customer-interface';
 import { GlobalDataService } from './global-data.service';
 
@@ -29,10 +29,13 @@ export class CustomerService {
     return this.http.get<CustomersResponse>(`${this.url}/customers/${this.lang}`)
   }
   
-
-
   getCustomerById(id:string){
-    return this.http.get<CustomersResponse>(`${this.url}/customers/${id}/${this.lang}`);
+    return this.http.get<CustomersResponse>(`${this.url}/customers/${id}/${this.lang}`)
+    // .pipe( 
+    //    catchError(error=> 
+    //     {
+    //      throw error
+    //     }))
   }
   
   getCustomersByIdentification(id:string):Observable<CustomersResponse>{
@@ -83,6 +86,8 @@ export class CustomerService {
   }
 
   getComercialCodeBytIdCustomer(id:number):Observable<SitesComercialCode[]>{
+    
+
     return this.http.get<any>(`${this.url}/sitescode/${id}`)
     .pipe(
       map (resp=>{
@@ -144,6 +149,19 @@ export class CustomerService {
   }
 
 
+
+  getDefaultTimeRangeName():Observable<string>{
+    return this.http.get<any>(`${this.url}/defaulttimerangename/${this.lang}`)
+    .pipe(
+      map (resp=>{
+        if (resp.result===true)
+            return resp.data.description
+        else 
+            return ''
+      }))
+  }
+
+  
  
 
  // Validadores
@@ -181,7 +199,28 @@ export class CustomerService {
   } 
 }
 
+endTimeCorrect(timeStart1:string,timeEnd1:string){
 
+  return (formGroup:FormGroup)=>{
+
+    const timeStartControl1=formGroup.controls[timeStart1];
+    const timeEndControl1=formGroup.controls[timeEnd1];
+
+
+    if (!timeStartControl1.value && !timeEndControl1.value){
+      return null
+    }
+    const horaInicio1=timeStartControl1.value?parseInt(timeStartControl1.value.replace(':',''),10):0;
+    const horaFin1=timeEndControl1.value?parseInt(timeEndControl1.value.replace(':',''),10):0;
+
+      if (horaFin1>horaInicio1){
+        timeEndControl1.setErrors(null); // correcto
+      }else{
+        console.log('me voy por el error');
+        timeEndControl1.setErrors({ wrongEndTime:true });      
+    }
+  }
+}
 
 timeCloseCorrect(timeStart1:string,timeEnd1:string,timeStart2:string,timeEnd2:string){
 
@@ -242,7 +281,7 @@ timeCloseCorrect(timeStart1:string,timeEnd1:string,timeStart2:string,timeEnd2:st
       return Promise.resolve(null);
     }
      return new Promise ((resolve,reject)=>{
-       this.getCustomersByIdentification(identification)
+       this.getCustomersByIdentification(identification.toUpperCase())
        .subscribe(
          resp=>{
             if (resp.data.length>0) 
@@ -266,14 +305,11 @@ timeCloseCorrect(timeStart1:string,timeEnd1:string,timeStart2:string,timeEnd2:st
     }
      return new Promise ((resolve,reject)=>{
 
-      this.getComercialCodeByAcronym(code)
+      this.getComercialCodeByAcronym(code.toUpperCase())
       .subscribe(
         resp=>{
-           if (resp.length>0) 
-           {
-             resolve ({exists:true});
-        }
-           else resolve(null);
+          if (resp.length>0)  resolve ({exists:true});
+          else resolve(null);
          },
          error=>{
            resolve(null);

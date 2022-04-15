@@ -11,6 +11,7 @@ import {GlobalDataService} from '../../../services/global-data.service';
 import { Customer } from '../../../interfaces/customer-interface';
 import { Venue } from '../../../interfaces/venue-interface';
 import { UtilService } from '../../../services/util.service';
+import { LoginService } from '../../../services/login.service';
 
  
 
@@ -37,6 +38,7 @@ export class CustomersListComponent implements OnInit {
     private venueService:VenueService,
     private utilService:UtilService,
     private globalDataServices:GlobalDataService,
+    private loginServices:LoginService,
     private router:Router,
     private translate: TranslateService,
     config: NgbModalConfig,  
@@ -57,15 +59,25 @@ export class CustomersListComponent implements OnInit {
       this.sortedData=this.customers.slice();
       },
       err=>{console.log(err);
-  //      this.router.navigate(['/login']);
+        this.loginServices.accessErrorText(err)
+        .then(resp=>{
+          this.loginServices.logout();
+          this.router.navigate(['/login']);    
+        })
       });
     
   }
 
   removeCustomer(customer:Customer,i:number){
 
+    let msg1:string='';
+    let msg2:string='';
+
+    this.translate.get('general.modalClosePage14')
+    .subscribe(res=>msg1=res);
+
     Swal.fire({
-      title:'¿Desea borrar el registro?',
+      title: msg1,
       text: `${customer.name}`,
       icon: 'question',
       allowOutsideClick:false,
@@ -84,9 +96,14 @@ export class CustomersListComponent implements OnInit {
           
         },
         error=>{
+          this.translate.get('general.modalClosePage12')
+          .subscribe(res=>msg1=res);
+          this.translate.get('general.modalClosePage13', {value1: customer.name})
+          .subscribe(res=>msg2=res);
+
           Swal.fire({
-            title: 'Lo siento tuvimos un problema',
-            text:`El registro de ${customer.name} no se eliminó`,
+            title: msg1,
+            text: msg2,
             confirmButtonColor: '#007bff',
             icon:'error',
             allowOutsideClick:false

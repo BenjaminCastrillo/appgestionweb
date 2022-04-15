@@ -16,6 +16,8 @@ export interface Customer {
   locationsScreen:     LocationsScreen[];
   sitesComercialCodes: SitesComercialCode[];
   schedules:           Schedule[];
+  timeRanges:          TimeRange[];
+
 }
 
 export interface Brand {
@@ -78,4 +80,13 @@ export interface Weekly {
   closingTime1:   string;
   openingTime2:   string | null;
   closingTime2:   string | null;
+}
+
+export interface TimeRange {
+  id:             number;
+  description:    string;
+  start_time:     string;
+  end_time:       string;
+  id_customer:    number;
+  deleted:        boolean;
 }

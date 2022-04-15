@@ -39,6 +39,7 @@ export class GlobalDataService {
     return this.imageDefault;
   }
 
+
   getUserId(){
 
     const userid = localStorage.getItem('userId')?localStorage.getItem('userId'):'0';
@@ -52,7 +53,8 @@ export class GlobalDataService {
   getUserLanguage(){
 
     const language=localStorage.getItem('language')?localStorage.getItem('language'):this.defaultLanguage;
-    return this.languagesArray[language];
+    
+    return this.languagesArray[language===null?this.defaultLanguage:language];
   }
   getStringUserLanguage(){
     return localStorage.getItem('language')?localStorage.getItem('language'):this.defaultLanguage;;

@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import {NgbModal, NgbModalConfig,ModalDismissReasons, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateService } from '@ngx-translate/core';
+import Swal from 'sweetalert2';
+import {Sort} from '@angular/material/sort'; 
+
 import { Venue } from '../../../interfaces/venue-interface';
 import { VenueService } from '../../../services/venue.service';
 import { UtilService } from '../../../services/util.service';
 import { GlobalDataService } from '../../../services/global-data.service';
-import { TranslateService } from '@ngx-translate/core';
-import Swal from 'sweetalert2';
-import {Sort} from '@angular/material/sort'; 
+import { LoginService } from '../../../services/login.service';
 
 @Component({
   selector: 'app-venues-list',
@@ -33,6 +35,7 @@ export class VenuesListComponent implements OnInit {
     private UtilService:UtilService,
     private translate: TranslateService,
     private globalDataServices:GlobalDataService,
+    private loginServices:LoginService,
     private router:Router,
     config: NgbModalConfig,  
     private modalService: NgbModal) {
@@ -51,6 +54,13 @@ export class VenuesListComponent implements OnInit {
         this.cargando=false;   
         this.sortedData=this.venues.slice();
       }
+    },
+    err=>{console.log(err);
+      this.loginServices.accessErrorText(err)
+      .then(resp=>{
+        this.loginServices.logout();
+        this.router.navigate(['/login']);    
+      })
     });
   }
 
@@ -61,7 +71,8 @@ export class VenuesListComponent implements OnInit {
   removeVenue(venue:Venue){
 
     let unsubscribeSites:boolean=true;
-    
+    let msg1:string='';
+    let msg2:string='';    
     // comprobamos que todos los sites del venue esta de baja o no instalados
     for (let i=0;i<venue.sites.length;i++){
       
@@ -72,8 +83,12 @@ export class VenuesListComponent implements OnInit {
     }
 
     if (unsubscribeSites){
+
+      this.translate.get('general.modalClosePage14')
+      .subscribe(res=>msg1=res);
+
       Swal.fire({
-        title:'¿Desea borrar el registro?',
+        title: msg1,
         text: `${venue.name}`,
         icon: 'question',
         allowOutsideClick:false,
@@ -92,9 +107,14 @@ export class VenuesListComponent implements OnInit {
       }
       })
     }else{
+      this.translate.get('general.modalClosePage15')
+      .subscribe(res=>msg1=res);
+      this.translate.get('general.modalClosePage13', {value1: venue.name})
+      .subscribe(res=>msg2=res);
+      
       Swal.fire({
-        title: 'Lo siento, sólo se pueden borrar los locales con todos los emplazamientos de baja',
-        text:`El local ${venue.name} no se borrará`,
+        title: msg1,
+        text:msg2,
         allowOutsideClick:false,
         confirmButtonColor: '#007bff',
         icon:'error'

@@ -2,19 +2,21 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { Observable} from 'rxjs';
+
 import Swal from 'sweetalert2';
 import {NgbModal, NgbModalConfig,ModalDismissReasons, NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 import {Sort} from '@angular/material/sort';
 import { TranslateService } from '@ngx-translate/core'; 
-import { GlobalDataService } from '../../../services/global-data.service';
 
 import { Site, ScreenLocation } from '../../../interfaces/site-interface';
 import { User, Rol, SitesList, CustomerUserList } from '../../../interfaces/user-interface';
 import { Customer } from '../../../interfaces/customer-interface';
-import {UserService } from '../../../services/user.service';
 import { CustomerService } from '../../../services/customer.service';
+import { GlobalDataService } from '../../../services/global-data.service';
+import { LoginService } from '../../../services/login.service';
 import { SiteService } from '../../../services/site.service';
 import { UtilService } from '../../../services/util.service';
+import { UserService } from '../../../services/user.service';
 
 interface ErrorValidate{
   [s:string]:boolean
@@ -93,6 +95,7 @@ export class UserComponent implements OnInit {
     private siteServices:SiteService,
     private userServices:UserService,
     private UtilService:UtilService, 
+    private loginServices:LoginService,
     private globalDataServices:GlobalDataService,
     config: NgbModalConfig, private modalService: NgbModal  
     ) {
@@ -119,23 +122,54 @@ export class UserComponent implements OnInit {
           console.log('el usuario recibido',this.currentUser);
           this.loadData(resp.data[0]);      
         },
-        err=>{console.log(err);})
+        error=>{ 
+          // Visualización del error al usuario
+          this.loginServices.accessErrorText(error)
+              .then(resp=>{
+                this.salidaForzada();   
+          })
+        })
     }   
     this.userServices.getLanguages()
       .subscribe(resp=>{
         if (resp.result===true) this.languages=resp.data;
+      },
+      error=>{ 
+        this.loginServices.accessErrorText(error)
+        .then(resp=>{
+         this.salidaForzada();
         });
+      });
     this.userServices.getRoles()
       .subscribe(resp=>{
         if (resp.result===true) this.roles=resp.data;
+      },
+      error=>{ 
+        this.loginServices.accessErrorText(error)
+        .then(resp=>{
+           this.salidaForzada();
         });
+      });
     this.customerServices.getCustomers()
       .subscribe(resp=>{
         if (resp.result===true) this.customers=resp.data;
+      },
+      error=>{ 
+        this.loginServices.accessErrorText(error)
+        .then(resp=>{
+           this.salidaForzada();
         });
+      });
     this.crearListeners();
   }
  
+  salidaForzada(){
+    this.userForm.reset();
+    this.loginServices.logout();
+    this.router.navigate(['/login']);    
+    return
+  }
+
   get nombreNoValido() {
     return (
       this.userForm.get('nombre').invalid &&
@@ -645,6 +679,8 @@ export class UserComponent implements OnInit {
     let msg1:string=null;
     let msg2:string=null;
     let msg3:string=null;
+    console.log(this.userForm)
+
     if (this.userForm.touched){
       let invalidListCustomer=(this.cliente.controls.length==0 
                   && Number(this.userForm.get('rol').value)!=0);

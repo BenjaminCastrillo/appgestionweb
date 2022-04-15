@@ -4,11 +4,11 @@ import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import {MatPaginatorModule} from '@angular/material/paginator';
-import {MatSortModule} from '@angular/material/sort';
-import {MatRadioModule} from '@angular/material/radio';
-import {MatIconModule} from '@angular/material/icon';
-import {  TranslateModule} from '@ngx-translate/core';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatIconModule } from '@angular/material/icon';
+import {  TranslateModule } from '@ngx-translate/core';
 
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { ComponentsModule } from '../components/components.module';
@@ -28,9 +28,9 @@ import { PagesComponent } from './pages.component';
 
 @NgModule({
   declarations: [
-    HomeComponent, 
     CustomersListComponent,
     CustomerComponent,
+    HomeComponent, 
     PagesComponent,  
     SiteComponent,
     SitesListComponent, 
@@ -40,19 +40,19 @@ import { PagesComponent } from './pages.component';
     VenuesListComponent, 
     ],
   imports: [
-    CommonModule,
-    RouterModule,
-    ReactiveFormsModule,
     FormsModule,
-    NgbModule,
-    PipesModule,
-    NgMultiSelectDropDownModule.forRoot(),
-    MatPaginatorModule,
+    CommonModule,
     ComponentsModule,
+    MatPaginatorModule,
     MatRadioModule,
+    MatSortModule,
+    NgbModule,
+    NgMultiSelectDropDownModule.forRoot(),
+    PipesModule,
+    ReactiveFormsModule,
+    RouterModule,
     MatIconModule,
     TranslateModule,
-    MatSortModule,
    // MatButtonModule,
   ],
   exports:[

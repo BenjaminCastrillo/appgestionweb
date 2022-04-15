@@ -71,8 +71,15 @@ export class UsersListComponent implements OnInit {
   }
 
   removeUser(user:User,i:number){
+
+    let msg1:string='';
+    let msg2:string='';
+
+    this.translate.get('general.modalClosePage14')
+    .subscribe(res=>msg1=res);
+
     Swal.fire({
-      title:'¿Desea borrar el registro?',
+      title: msg1,
       text: `${user.name} ${user.surname}`,
       icon: 'question',
       cancelButtonText:'Cancelar',
@@ -89,9 +96,15 @@ export class UsersListComponent implements OnInit {
           if(this.page===this.sortedData.length) this.page -=this.linesPages;  
         },
           error=>{
+
+            this.translate.get('general.modalClosePage12')
+            .subscribe(res=>msg1=res);
+            this.translate.get('general.modalClosePage13', {value1: user.name+" "+user.surname})
+            .subscribe(res=>msg2=res);
+
             Swal.fire({
-              title: 'Lo siento tuvimos un problema',
-              text:`El registro de ${user.name} ${user.surname} no se eliminó`,
+              title: msg1,
+              text: msg2,
               allowOutsideClick:false,
               confirmButtonColor: '#007bff',
               icon:'error'

@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { GlobalDataService } from '../services/global-data.service';
 
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -31,4 +33,7 @@ export class LanguageService {
     localStorage.setItem('language',newLanguage);
     return
   }
+
+
+  
 }

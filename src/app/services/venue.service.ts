@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map, delay } from 'rxjs/operators';
+import { map, delay, catchError } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
 import { VenuesResponse, Country, TerritorialOrganization, TerritorialEntities, RoadType, Week, Schedule, Venue } from '../interfaces/venue-interface';
 import {Site}  from '../interfaces/site-interface';
 import { CustomerService } from './customer.service';
 import { GlobalDataService } from './global-data.service';
+
 
 // import * as moment from 'moment';
 // import 'moment/locale/es';
@@ -126,7 +127,15 @@ export class VenueService {
       map(week=>{
           return week
       })
-    )
+      // ,
+      // catchError(error=> {
+      //     console.log('El error',error);
+      //     throw new Error(error);
+      // })
+      )
+      
+
+
   }
 
   getMonthsLicenses(){

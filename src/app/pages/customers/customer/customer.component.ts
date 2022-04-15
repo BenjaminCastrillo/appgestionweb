@@ -1,17 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core'; 
 import { Observable} from 'rxjs';
 import Swal from 'sweetalert2';
-import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import {NgbModal, NgbModalConfig,ModalDismissReasons, NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
 
  
+import { Customer, Week, Month, SitesComercialCode, TimeRange } 
+        from '../../../interfaces/customer-interface';
+
 import { CustomerService } from '../../../services/customer.service';
-import { UploadService  } from '../../../services/upload.service';
-import { Customer,Week, Month ,SitesComercialCode} from '../../../interfaces/customer-interface';
-import { UtilService } from '../../../services/util.service';
 import { GlobalDataService } from '../../../services/global-data.service';
+import { LoginService } from '../../../services/login.service';
+import { UploadService  } from '../../../services/upload.service';
+import { UtilService } from '../../../services/util.service';
 
 interface ErrorValidate{
   [s:string]:boolean
@@ -60,6 +63,7 @@ export class CustomerComponent implements OnInit {
               private router:Router,
               private translate: TranslateService,
               private globalDataServices:GlobalDataService,
+              private loginServices:LoginService,
               config: NgbModalConfig, private modalService: NgbModal) 
   {               
       config.backdrop = 'static';
@@ -73,26 +77,60 @@ export class CustomerComponent implements OnInit {
     this.customerId= this.ActivatedRoute.snapshot.paramMap.get('id');
     if (this.customerId==='nuevo'){
       this.newCustomer=true;
-  //    this.tituloPagina='Alta nuevo cliente';
+      this.customerServices.getDefaultTimeRangeName()
+      .subscribe(resp=>{
+      // Añadimos franja por defecto para todo el dia
+        this.addFranjaHoraria(null,resp,'00:00','23:59');
+      });  
     }else{
       this.newCustomer=false;
-    //  this.tituloPagina='Modificación datos de cliente';
       this.customerForm.get('identification').disable();
       this.customerServices.getCustomerById(this.customerId)
       .subscribe(resp=>{
           this.currentCustomer=resp.data[0];
+          console.log(this.currentCustomer)
           this.loadData(this.currentCustomer);
+        },
+        error=>{ 
+
+          // Visualización del error al usuario
+          this.loginServices.accessErrorText(error)
+              .then(resp=>{
+                this.salidaForzada();  
+              })
         })
-    }      
+    }     
+    
     this.customerServices.getWeek()
     .subscribe(resp=>{
       this.week=resp;
+    },
+    error=>{ 
+      this.loginServices.accessErrorText(error)
+      .then(resp=>{
+        this.salidaForzada();
+      });
     });    
+
     this.customerServices.getMonth()
     .subscribe(resp=>{
       this.month=resp;
+    },
+    error=>{ 
+      this.loginServices.accessErrorText(error)
+      .then(resp=>{
+        this.salidaForzada();
+      });
     });  
-    
+  
+   
+  }
+
+  salidaForzada(){
+    this.customerForm.reset();
+    this.loginServices.logout();
+    this.router.navigate(['/login']);    
+    return
   }
 
   get IDNoValido() {
@@ -147,6 +185,9 @@ export class CustomerComponent implements OnInit {
   get horario(){
     return this.customerForm.get('horario') as FormArray;
   }
+  get franjaHoraria(){
+    return this.customerForm.get('franjaHoraria') as FormArray;
+  }
   get weekly(){
      return this.horario.controls[this.ordenHorario].get('weekly') as FormArray;
   }
@@ -170,13 +211,14 @@ export class CustomerComponent implements OnInit {
       localizacionPantalla:this.fb.array([]),
       codigo:this.fb.array([]),
       horario:this.fb.array([]),   
+      franjaHoraria:this.fb.array([]),   
   });
 
 
 }
 
   loadData(customer:Customer){  
-    let mr=[], ls=[], co=[], br=[],sc=[],scw=[];
+    let mr=[], ls=[], co=[], br=[],sc=[],scw=[],tr=[];
 
     customer.brands.forEach((elem,index)=>{
       br.push(this.newMarca(elem.description,elem.image,elem.color,elem.id))
@@ -192,7 +234,7 @@ export class CustomerComponent implements OnInit {
     customer.locationsScreen.forEach(elem=>{
         ls.push(this.newLocalizacionPantalla(elem.id,elem.description))
     });
-    customer.sitesComercialCodes.forEach(elem=>{
+    customer.sitesComercialCodes.forEach((elem)=>{
         co.push(this.newCodigo(elem.id,elem.acronym))
     });
 
@@ -200,12 +242,14 @@ export class CustomerComponent implements OnInit {
       sc.push(this.newHorario(elem.id,elem.description,elem.startDate.id.substring(0,2).replace(/^0+/, ''),elem.startDate.id.substring(2).replace(/^0+/, '')))    
       scw.push(new Array())
       elem.weekly.forEach(e=>{
-
         scw[ind].push(this.newHorarioSemanal(e.day,e.descriptionDay,e.openingTime1,e.closingTime1,e.openingTime2,e.closingTime2))
       })
   
     });
 
+    customer.timeRanges.forEach(elem=>{
+      tr.push(this.newFranjaHoraria(elem.id,elem.description,elem.start_time,elem.end_time))
+    });
 
     this.customerForm.get('identification').patchValue(customer.identification);
     this.customerForm.get('nombre').patchValue(customer.name);
@@ -218,13 +262,13 @@ export class CustomerComponent implements OnInit {
     this.customerForm.setControl('localizacionPantalla',this.fb.array(ls||[]));
     this.customerForm.setControl('codigo',this.fb.array(co||[]));
     this.customerForm.setControl('horario',this.fb.array(sc||[]));
+    this.customerForm.setControl('franjaHoraria',this.fb.array(tr||[]));
    
  
  //   Bloqueamos los codigos iniciales
     this.codigo.controls.forEach((elem,ind) => {
       elem.get('acronymCodigo').disable();
     });
-
 
     this.horario.controls.forEach((elem,ind) => {
       this.ordenHorario=ind;
@@ -259,14 +303,15 @@ export class CustomerComponent implements OnInit {
     });
   }
   newCodigo(a:number|null,b:string|null): FormGroup {
+
     return this.fb.group({
       idCodigo: [a],
-      acronymCodigo: [b, [Validators.required,Validators.maxLength(5)],
+      acronymCodigo: [b, [Validators.required,Validators.maxLength(5),
+        Validators.pattern('[A-Za-z0-9]*') ],
       this.customerServices.existsCode.bind(this.customerServices) // validador asincrono
     ],
     });
   }
-
 
   newHorario(a:number|null,b:string|null,c:string|null,d:string|null): FormGroup {
     return this.fb.group({
@@ -295,10 +340,22 @@ export class CustomerComponent implements OnInit {
     },{
       validators: this.customerServices.timeCloseCorrect('horaApertura1','horaCierre1',
                                                           'horaApertura2','horaCierre2')
-
     });
   }
 
+  newFranjaHoraria(a:number|null,b:string|null,c:string|null,d:string|null): FormGroup {
+    return this.fb.group({
+      idFranjaHoraria: [a],
+      nombreFranjaHoraria: [b,Validators.required],
+      inicioFranjaHoraria:[c,Validators.required],
+      finFranjaHoraria:[d,Validators.required]
+    }
+    // ,{
+    //   validators: this.customerServices.endTimeCorrect('inicioFranjaHoraria','finFranjaHoraria')
+    // }
+    );
+  }
+  
   addMarca() {
     this.marca.push(this.newMarca(null,null,null,null));
     this.binariosImagenMarca.push(null);
@@ -325,6 +382,10 @@ export class CustomerComponent implements OnInit {
     this.horario.push(horarioGroup);
   }
 
+  addFranjaHoraria(a:null,b:string|null,c:string|null,d:string|null){
+    this.franjaHoraria.push(this.newFranjaHoraria(a,b,c,d));
+  }
+
   removeMarca(marcaIndex: number) {
     this.marca.removeAt(marcaIndex);
     this.customerForm.markAsTouched();
@@ -342,9 +403,12 @@ export class CustomerComponent implements OnInit {
   this.codigo.removeAt(i);
   this.customerForm.markAsTouched();
   }
-
   removeHorario(i:number){
     this.horario.removeAt(i);
+    this.customerForm.markAsTouched();
+  }
+  removeFranjaHoraria(i:number){
+    this.franjaHoraria.removeAt(i);
     this.customerForm.markAsTouched();
   }
   selectMesHorario(elem:number,i:number){
@@ -427,46 +491,59 @@ export class CustomerComponent implements OnInit {
   }
   
   onSubmit() {
-    let hi:string;
+
     let msg1:string=null;
     let msg2:string=null;
-    console.log('lo que voy a grabar del customer',this.customerForm)
 
-    if (this.customerForm.touched){
- 
-      if( this.customerForm.invalid){
-  //      let mensajeError='Datos Incorrectos';      
-        this.translate.get('general.modalClosePage6')
-        .subscribe(res=>msg1=res); 
-        if(this.customerForm.get('horario').invalid){
-          let horarioIncorrecto=this.horario.controls.find(elem=>elem.invalid);
-          hi=horarioIncorrecto.get('descripcionHorario').value==null?'':horarioIncorrecto.get('descripcionHorario').value
-          this.translate.get('general.modalClosePage7', {value1: hi})
-          .subscribe(res=>msg1=res);     
+    if ( this.customerForm.touched ){
+
+      const datosErroneos=this.validarDatos();
+
+      if ( this.customerForm.invalid || datosErroneos){
+
+        if (!datosErroneos){
+
+          if(this.customerForm.get('horario').invalid){
+            let horarioIncorrecto=this.horario.controls.find(elem=>elem.invalid);
+            const hi=horarioIncorrecto.get('descripcionHorario').value==null?'':horarioIncorrecto.get('descripcionHorario').value
+            this.translate.get('general.modalClosePage7', {value1: hi})
+            .subscribe(res=>msg1=res);  
+          } else if (this.customerForm.get('franjaHoraria').invalid){
+                    let franjaIncorrecta=this.franjaHoraria.controls.find(elem=>elem.invalid);
+                    const fa=franjaIncorrecta.get('nombreFranjaHoraria').value==null?'':franjaIncorrecta.get('nombreFranjaHoraria').value;
+                    this.translate.get('error.validationField16', {value1: fa})
+                .subscribe(res=>msg1=res); 
+                }else{
+                  this.translate.get('general.modalClosePage6')
+                  .subscribe(res=>msg1=res); 
+                }      
+          
+          this.translate.get('general.modalClosePage8')
+          .subscribe(res=>msg2=res);
+  
+          Swal.fire({
+            title: msg1,
+            text:  msg2,
+            confirmButtonColor: '#007bff',
+            icon:'error',
+            allowOutsideClick:false,
+          });
         }
-        this.translate.get('general.modalClosePage8')
-        .subscribe(res=>msg2=res);
-        Swal.fire({
-          title: msg1,
-          text:  msg2,
-          confirmButtonColor: '#007bff',
-          icon:'error',
-          allowOutsideClick:false,
-        });
-
       } else{
         let peticionHtml: Observable <any>;
-        let mr=[], ls=[], co=[], br=[], sc=[];    
+        let mr=[], ls=[], co=[], br=[], sc=[], tr=[];    
         // Preparar los datos
         br=this.respMarca();
         mr=this.respRegionMercado();
         ls=this.respLocalizacionPantalla();
         co=this.respCodigo();
         sc=this.respHorario();
+        tr=this.respFranjaHoraria();
+
    
         let respuesta:Customer ={
           id                  :this.customerId==='nuevo'?null:Number(this.customerId),
-          identification      :this.customerForm.get('identification').value,
+          identification      :this.customerForm.get('identification').value.toUpperCase(),
           name                :this.customerForm.get('nombre').value,
           contactName         :this.customerForm.get('nombreContacto').value,
           phoneNumber         :this.customerForm.get('telefono').value,
@@ -475,8 +552,11 @@ export class CustomerComponent implements OnInit {
           marketRegions       :mr,
           locationsScreen     :ls,
           sitesComercialCodes :co,
-          schedules           :sc
+          schedules           :sc,
+          timeRanges          :tr
         }
+        console.log('la respuesta',respuesta);
+
         if (this.customerId==='nuevo'){
           peticionHtml=this.customerServices.saveCustomer(respuesta);
         }else{
@@ -585,6 +665,106 @@ export class CustomerComponent implements OnInit {
     
     return
   }
+
+
+  validarDatos(){
+    let msg1:string=null;
+    let msg2:string=null;
+    let franjaErronea:number;
+
+    let error:boolean=false;
+
+    if (this.horario.controls.length===0){
+
+      console.log('horario obligatorio');
+      error=true;
+      this.translate.get('error.validationField18')
+      .subscribe(res=>msg1=res);  
+    }
+
+    if (this.franjaHoraria.controls.length===0 && !error){
+
+      console.log('FRANJA obligatoria');
+      error=true;
+      this.translate.get('error.validationField19')
+      .subscribe(res=>msg1=res);     
+    }
+    
+    // comnprobamos que las franjas cubran todo el tiempo
+    
+    if (!error) franjaErronea=this.validarFranjasHorarias();
+
+    if (franjaErronea!=-1 && !error){
+      let franjaIncorrecta=this.franjaHoraria.controls[franjaErronea];
+      console.log('la franja erronea',franjaIncorrecta)
+      const fa=franjaIncorrecta.get('nombreFranjaHoraria').value==null?'':franjaIncorrecta.get('nombreFranjaHoraria').value;
+      this.translate.get('error.validationField17', {value1: fa})
+      .subscribe(res=>msg1=res);  
+
+      error=true;
+
+    }
+
+
+    if (error){
+      console.log('Entro en el error');
+      this.translate.get('general.modalClosePage8')
+      .subscribe(res=>msg2=res);
+
+      Swal.fire({
+        title: msg1,
+        text:  msg2,
+        confirmButtonColor: '#007bff',
+        icon:'error',
+        allowOutsideClick:false,
+      });
+    }
+    return error
+
+  }
+
+  validarFranjasHorarias():number{
+
+    // retorna -1 si coinciden horas de inicio y fin de las franjas
+    // retorna indice de la franja erronea 
+
+    let r=[];
+    let result:number=-1;
+
+    this.franjaHoraria.controls.forEach((elem,index) => {
+
+        r.push({
+          startTime:  parseInt(elem.get('inicioFranjaHoraria').value.substr(0,2),10)*60+parseInt(elem.get('inicioFranjaHoraria').value.substr(3,2),10),
+          endTime:    parseInt(elem.get('finFranjaHoraria').value.substr(0,2),10)*60+parseInt(elem.get('finFranjaHoraria').value.substr(3,2),10),
+          index:index
+        })
+
+    });
+    r.sort(function (a, b) {
+      // A va primero que B
+      if (a.startTime < b.startTime)
+          return -1;
+      // B va primero que A
+      else if (a.startTime > b.startTime)
+          return 1;
+      // A y B son iguales
+      else 
+          return 0;
+  });
+
+  console.log('ordenada',r);
+
+  for (let i=0;i<r.length-1;i++){
+    if (r[i].endTime+1!=r[i+1].startTime){
+      result=r[i+1].index;
+      i=r.length;
+    }
+
+  };
+    return result
+  }
+
+
 /*
   Preparamos la tabla de marcas para actualizar los datos del servidor.
 */  
@@ -687,7 +867,7 @@ export class CustomerComponent implements OnInit {
     this.codigo.controls.forEach((elem,index) => {
       r.push({
         id:elem.get('idCodigo').value,
-        acronym:elem.get('acronymCodigo').value.trim(),
+        acronym:elem.get('acronymCodigo').value.toUpperCase().trim(),
         deleted:false
       })
     });
@@ -705,7 +885,6 @@ export class CustomerComponent implements OnInit {
     }  
     return r;
   }
-
 
   respHorario(){
     let r=[]
@@ -749,9 +928,40 @@ export class CustomerComponent implements OnInit {
     }  
 
     return r;
-
-
   }
+
+    /*
+  Preparamos la tabla de franjas horarias para actualizar los datos del servidor.
+*/  
+respFranjaHoraria(){
+  let r=[];
+
+  this.franjaHoraria.controls.forEach((elem,index) => {
+    r.push({
+      id:          elem.get('idFranjaHoraria').value,
+      description: elem.get('nombreFranjaHoraria').value,
+      start_time:  elem.get('inicioFranjaHoraria').value,
+      end_time:    elem.get('finFranjaHoraria').value,
+      deleted:false
+    })
+  });
+
+  if (this.customerId!='nuevo'){   
+    this.currentCustomer.timeRanges.forEach((elem,index) => {    
+      let resultado = r.find(a=>a.id===elem.id)
+      if(resultado===undefined){
+        r.push({
+          id:elem.id,
+          description: elem.description,
+          start_time:  elem.start_time,
+          end_time:    elem.end_time,
+          deleted:true
+        })
+      }
+    });
+  }  
+  return r;
+}
 
   msgError(campo: string): string {
     let message: string = null;
@@ -821,6 +1031,15 @@ export class CustomerComponent implements OnInit {
         break;
       case 'horaCierre2':
         controlElementoArray=this.weekly.at(i).get('horaCierre2');
+        break;
+      case 'nombreFranjaHoraria':
+        controlElementoArray=this.franjaHoraria.at(i).get('nombreFranjaHoraria');  
+        break;
+      case 'inicioFranjaHoraria':
+        controlElementoArray=this.franjaHoraria.at(i).get('inicioFranjaHoraria');  
+        break;
+      case 'finFranjaHoraria':
+        controlElementoArray=this.franjaHoraria.at(i).get('finFranjaHoraria');  
         break;
       default:      
         return;

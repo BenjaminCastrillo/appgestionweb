@@ -1,15 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { Router ,ActivatedRoute } from '@angular/router';
-import { Venue } from '../../../interfaces/venue-interface';
-import { Site, siteStatus } from '../../../interfaces/site-interface';
-import { VenueService } from '../../../services/venue.service';
-import { SiteService } from '../../../services/site.service';
-import { UtilService } from '../../../services/util.service';
-import { UserService } from '../../../services/user.service';
-import { GlobalDataService } from '../../../services/global-data.service';
+import {Sort} from '@angular/material/sort';
 import { TranslateService } from '@ngx-translate/core';
 import Swal from 'sweetalert2';
-import {Sort} from '@angular/material/sort';
+
+import { GlobalDataService } from '../../../services/global-data.service';
+import { LoginService } from '../../../services/login.service';
+import { SiteService } from '../../../services/site.service';
+import { Site, siteStatus } from '../../../interfaces/site-interface';
+import { VenueService } from '../../../services/venue.service';
+import { Venue } from '../../../interfaces/venue-interface';
+import { UtilService } from '../../../services/util.service';
 
  
 
@@ -34,7 +35,7 @@ export class SitesListComponent implements OnInit {
 
   constructor(private venueServices:VenueService,
               private siteServices:SiteService,
-              private userServices:UserService,
+              private loginServices:LoginService,
               private UtilServices:UtilService,
               private translate: TranslateService,
               private globalDataServices:GlobalDataService,
@@ -60,7 +61,15 @@ export class SitesListComponent implements OnInit {
         //  this.sortedData=this.listSites.slice();
           this.cargando=false;   
         }
-      });
+      },
+      err=>{console.log(err);
+        this.loginServices.accessErrorText(err)
+        .then(resp=>{
+          this.loginServices.logout();
+          this.router.navigate(['/login']);    
+        })
+      }
+      );
     }else{
       this.venueServices.getVenueById(this.venueId)  
       .subscribe(resp=>{    
@@ -71,7 +80,15 @@ export class SitesListComponent implements OnInit {
         //  this.sortedData=this.listSites.slice();
           this.cargando=false;   
         }
-      });
+      },
+      err=>{console.log(err);
+        this.loginServices.accessErrorText(err)
+        .then(resp=>{
+          this.loginServices.logout();
+          this.router.navigate(['/login']);    
+        })
+      }
+      );
     }
             
   } 
@@ -127,10 +144,20 @@ export class SitesListComponent implements OnInit {
 
   removeSite(site:Site){
   
+    let msg1:string='';
+    let msg2:string='';
+
     if (site.status.id===1){
+      this.translate.get('general.modalClosePage14')
+      .subscribe(res=>msg1=res);
+      this.translate.get('general.modalClosePage17', 
+                  {value1: site.siteComercialId,
+                  value2: site.name})
+      .subscribe(res=>msg2=res);
+
       Swal.fire({
-        title:'¿Desea borrar el registro?',
-        text: `${site.siteComercialId} localizado en ${site.name}`,
+        title:msg1,
+        text: msg2,
         icon: 'question',
         cancelButtonText:'Cancelar',
         confirmButtonColor: '#007bff',
@@ -146,9 +173,14 @@ export class SitesListComponent implements OnInit {
             if(this.page===this.sortedData.length) this.page -=this.linesPages; 
           },
             error=>{
+              this.translate.get('general.modalClosePage12')
+              .subscribe(res=>msg1=res);
+              this.translate.get('general.modalClosePage13', {value1: site.siteComercialId})
+              .subscribe(res=>msg2=res);
+
               Swal.fire({
-                title: 'Lo siento tuvimos un problema',
-                text:`El registro de ${site.siteComercialId} no se eliminó`,
+                title: msg1,
+                text: msg2,
                 confirmButtonColor: '#007bff',
                 allowOutsideClick:false,
                 icon:'error'
@@ -158,9 +190,14 @@ export class SitesListComponent implements OnInit {
         }
       })
     }else{
+      this.translate.get('general.modalClosePage18')
+      .subscribe(res=>msg1=res);
+      this.translate.get('general.modalClosePage13', {value1: site.siteComercialId})
+      .subscribe(res=>msg2=res);
+
       Swal.fire({
-        title: 'Lo siento, sólo se pueden eliminar los emplazamientos pendientes de instalar',
-        text:`El registro de ${site.siteComercialId} no se eliminará`,
+        title: msg1,
+        text:msg2,
         confirmButtonColor: '#007bff',
         allowOutsideClick:false,
         icon:'error'
@@ -169,64 +206,68 @@ export class SitesListComponent implements OnInit {
   return
   
   }
-unsubscribeSite(site:Site,i:number) {
+// unsubscribeSite(site:Site,i:number) {
   
-  const a:siteStatus={
-    siteId: site.id,
-    newStatus:4
-  }
+//   const a:siteStatus={
+//     siteId: site.id,
+//     newStatus:4
+//   }
+  
+//   let msg1:string='';
+//   let msg2:string='';
+
+//   if (site.status.id!=1){
+//     this.translate.get('general.modalClosePage19')
+//     .subscribe(res=>msg1=res);
+//     this.translate.get('general.modalClosePage17', 
+//                       {value1: site.siteComercialId,
+//                       value2: site.name})
+//     .subscribe(res=>msg2=res);
+//     Swal.fire({
+//       title:msg1,
+//       text: msg2,
+//       icon: 'question',
+//       cancelButtonText:'Cancelar',
+//       confirmButtonColor: '#007bff',
+//       allowOutsideClick:false,
+//       showConfirmButton:true,
+//       showCancelButton:true,
+//     }).then(resp=>{
+//       if (resp.value){
+//         this.siteServices.updateStatusSite(a)
+//         .subscribe(resp=>{
+//   //        this.listSites.splice(this.listSites.findIndex(e=> e.id===site.id),1);
+//           this.listSites[i].status.id=4;
+//           },
+//           error=>{
+//             this.translate.get('general.modalClosePage12')
+//             .subscribe(res=>msg1=res);
+//             this.translate.get('general.modalClosePage13', {value1: site.siteComercialId})
+//             .subscribe(res=>msg2=res);
+
+//             Swal.fire({
+//               title: msg1,
+//               text:msg2,
+//               confirmButtonColor: '#007bff',
+//               allowOutsideClick:false,
+//               icon:'error'
+//             });
+//             console.log(error.error.result);
+//           });
+//       }
+//     })
+//   }else{
+//     Swal.fire({
+//       title: 'Lo siento, sólo se pueden dar de baja los emplazamientos activos',
+//       text:`El emplazamiento ${site.siteComercialId} no se dará de baja`,
+//       allowOutsideClick:false,
+//       confirmButtonColor: '#007bff',
+//       icon:'error'
+//     });
+//   }
 
 
-  if (site.status.id!=1){
-    Swal.fire({
-      title:'¿Desea dar de baja el emplazamiento?',
-      text: `${site.siteComercialId} localizado en ${site.name}`,
-      icon: 'question',
-      cancelButtonText:'Cancelar',
-      confirmButtonColor: '#007bff',
-      allowOutsideClick:false,
-      showConfirmButton:true,
-      showCancelButton:true,
-    }).then(resp=>{
-      if (resp.value){
-        this.siteServices.updateStatusSite(a)
-        .subscribe(resp=>{
-  //        this.listSites.splice(this.listSites.findIndex(e=> e.id===site.id),1);
-          this.listSites[i].status.id=4;
-          },
-          error=>{
-            Swal.fire({
-              title: 'Lo siento tuvimos un problema',
-              text:`El emplazamiento ${site.siteComercialId} no se dio de baja`,
-              confirmButtonColor: '#007bff',
-              allowOutsideClick:false,
-              icon:'error'
-            });
-            console.log(error.error.result);
-          });
-      }
-    })
-  }else{
-    Swal.fire({
-      title: 'Lo siento, sólo se pueden dar de baja los emplazamientos activos',
-      text:`El emplazamiento ${site.siteComercialId} no se dará de baja`,
-      allowOutsideClick:false,
-      confirmButtonColor: '#007bff',
-      icon:'error'
-    });
-  }
-
-
-return
-}
-       // if (this.userId==='todos'){
-           //   this.venueName=null;
-           // }else{
-             //   this.userServices.getUserById(this.userId)
-             //   .subscribe(resp=>{
-               //     this.venueName=` del usuario ${resp.data[0].name} ${resp.data[0].surname} (#${resp.data[0].id})`;
-               //     console.log(this.userId,resp.data[0].id);
-               //   });  
-               // }
+// return
+// }
 
 }

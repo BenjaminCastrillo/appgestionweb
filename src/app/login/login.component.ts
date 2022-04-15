@@ -108,17 +108,9 @@ export class LoginComponent implements OnInit {
 
       },
       error=>{
-        console.log('error', error);
-        this.translate.get('login.textError1')
-          .subscribe(res=>msg1=res);
-        this.translate.get('login.textError2')
-          .subscribe(res=>msg2=res);
-        Swal.fire({
-          icon: 'error',
-          title: msg1,
-          text: msg2,
-          allowOutsideClick:false
-        })
+
+        // Mensaje de error en pantalla
+        this.loginServices.accessErrorText(error,'login');
 
         // restituyo la situación inicial
         if (localStorage.getItem('email')){
@@ -129,7 +121,7 @@ export class LoginComponent implements OnInit {
         }
         this.loginForm.get('password').patchValue('');
         // this.loginForm.reset();
-      })    
+      });
     }else{
       console.log('No hago nada y sigo en la página ');
     } 

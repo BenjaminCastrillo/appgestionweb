@@ -1,18 +1,22 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup,Validators, FormControl,FormArray } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable,forkJoin} from 'rxjs';
+import { NgbModal, NgbModalConfig,ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
+import { Observable,forkJoin,throwError } from 'rxjs';
 import Swal from 'sweetalert2';
-import {FormBuilder, FormGroup,Validators, FormControl,FormArray} from '@angular/forms';
-import {NgbModal, NgbModalConfig,ModalDismissReasons, NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-// import { IDropdownSettings } from 'ng-multiselect-dropdown';
 import { TranslateService } from '@ngx-translate/core'; 
-import { Venue, Country, Customer, Brand, MarketRegion, PhoneNumber, RoadType, Week, Schedule, Weekly, StartDate } from '../../../interfaces/venue-interface';
+
+import { Venue, Country, Customer, Brand, MarketRegion, RoadType, Week, Schedule, 
+          Weekly, StartDate } 
+        from '../../../interfaces/venue-interface';
 import {SitesComercialCode} from '../../../interfaces/customer-interface';
-import { VenueService } from '../../../services/venue.service';
+
 import { CustomerService } from '../../../services/customer.service';
+import { GlobalDataService } from '../../../services/global-data.service';
+import { LoginService } from '../../../services/login.service';
 import { UploadService  } from '../../../services/upload.service';
 import { UtilService } from '../../../services/util.service';
-import { GlobalDataService } from '../../../services/global-data.service';
+import { VenueService } from '../../../services/venue.service';
 
 
 interface ImagenesFile{
@@ -81,6 +85,7 @@ export class VenueComponent implements OnInit {
     private ActivatedRoute:ActivatedRoute,
     private uploadServices:UploadService,
     private utilService:UtilService,
+    private loginServices:LoginService,
     private globalDataServices:GlobalDataService,
     private router:Router,
     private translate: TranslateService,
@@ -99,13 +104,11 @@ export class VenueComponent implements OnInit {
     this.venueId= this.ActivatedRoute.snapshot.paramMap.get('id');
     if (this.venueId==='nuevo'){
       this.newVenue=true;
-  //   this.tituloPagina='Alta nuevo local';   
       // this.binariosImagenMarca=this.imageDefault;
       // this.binariosImagenLocal=this.imageDefault;
       this.crearListeners();
     }else{
       this.newVenue=false;
- //     this.tituloPagina='Modificación datos del local';
       this.venueServices.getVenueAndSiteById(this.venueId)
       .subscribe(resp=>{
           this.currentVenue=resp.data[0];
@@ -117,6 +120,14 @@ export class VenueComponent implements OnInit {
           this.loadData(resp.data[0]);   
           this.venueForm.get('pais').disable();
           this.crearListeners();
+        },
+        error=>{ 
+          // Visualización del error al usuario
+          this.loginServices.accessErrorText(error)
+              .then(resp=>{
+                this.salidaForzada();   
+              })
+        
         })
     }  
     this.customerServices.getCustomers()
@@ -127,25 +138,65 @@ export class VenueComponent implements OnInit {
               identification:elem.identification, 
               name:elem.name}})            
         }
+    },
+    error=>{ 
+      this.loginServices.accessErrorText(error)
+          .then(resp=>{
+            this.salidaForzada();  
+          })
     });  
-    this.venueServices.getCountries()
-    .subscribe(resp=>{
-      this.countries=resp;
-      console.log('tengo los paises',this.countries);
-    });    
-    this.venueServices.getRoadTypes()
-    .subscribe(resp=>{
-      this.roadTypes=resp;
-    });     
-    this.venueServices.getWeek()
-    .subscribe(resp=>{   
-      this.week=resp;
-    });    
-    this.venueServices.getMonthsLicenses()
-    .subscribe(resp=>{   
-      this.monthsLicense=resp;
-    }); 
+
+
+      this.venueServices.getCountries()
+      .subscribe(resp=>{
+        console.log('llegan las countries');
+        this.countries=resp;
+      },
+      error=>{ 
+        this.loginServices.accessErrorText(error)
+        .then(resp=>{
+         this.salidaForzada();
+        });
+      }); 
+
+      this.venueServices.getRoadTypes()
+      .subscribe(resp=>{
+        console.log('llegan las road');
+        this.roadTypes=resp;
+      },
+      error=>{ 
+        this.loginServices.accessErrorText(error)
+        .then(resp=>{
+         this.salidaForzada();
+        });
+      });    
+
+      this.venueServices.getWeek()
+      .subscribe(resp=>{   
+        this.week=resp;
+      },
+      error=>{ 
+        this.loginServices.accessErrorText(error)
+        .then(resp=>{
+         this.salidaForzada();
+        });
+      });  
+
+      this.venueServices.getMonthsLicenses()
+      .subscribe(resp=>{   
+        console.log('llegan las licencias');
+        this.monthsLicense=resp;
+      },
+      error=>{ 
+        this.loginServices.accessErrorText(error)
+        .then(resp=>{
+         this.salidaForzada();
+        }); 
+      }); 
+
   
+    console.log('antes del return');
+  return
   }
 
   onItemSelect(item: any) {
@@ -155,6 +206,12 @@ export class VenueComponent implements OnInit {
   onItemDeselect(item: any) {
   }
 
+  salidaForzada(){
+    this.venueForm.reset();
+    this.loginServices.logout();
+    this.router.navigate(['/login']);    
+    return
+  }
       
   crearFormulario() {
 
@@ -185,7 +242,6 @@ export class VenueComponent implements OnInit {
     let lo=[], sc=[], co=[], cop=[];
 
     venue.location.forEach(elem=>{
-      console.log('ELEMEMTO',elem);
       lo.push(this.newLocalizacion(elem.id,elem.territorialOrganizationId,
         elem.territorialOrganizationName,elem.hierarchy,elem.territorialEntityId));
       this.lastLocalizacion.push(elem.territorialEntityId);
@@ -436,7 +492,6 @@ export class VenueComponent implements OnInit {
       })
       //  creamos el array de observables para la peticion de las entidades
       for(let i=0;i<entitiesArray.length;i++){
-        console.log('voy a por los datos de entidades',entitiesArray[i][0],entitiesArray[i][1]);
         ObservablesArray.push(this.venueServices.getTerritorialEntities(entitiesArray[i][0],entitiesArray[i][1]))
       }
       // Resolvemos la promesa cuando se ejecutan todos los observables

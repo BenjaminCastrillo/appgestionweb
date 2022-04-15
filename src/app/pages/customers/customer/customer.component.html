@@ -103,6 +103,9 @@
         <li class="nav-item" role="presentation">
           <button class="nav-link" id="horario-tab" data-bs-toggle="tab" data-bs-target="#horario" type="button" role="tab" aria-controls="horario" aria-selected="false">{{'customer.tabTitle5'|translate}}</button>
         </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="franjahoraria-tab" data-bs-toggle="tab" data-bs-target="#franjahoraria" type="button" role="tab" aria-controls="franjahoraria" aria-selected="false">{{'customer.tabTitle6'|translate}}</button>
+        </li>
       </ul>
   
       <!-- Contenidos pestañas -->
@@ -174,7 +177,6 @@
           </div> 
         </div>
         <!-- Fin pestaña marcas comerciales -->  
-  
         <!-- Pestaña Región de mercado   -->
         <div class="tab-pane fade mt-3" id="regionmercado" role="tabpanel" aria-labelledby="regionmercado-tab">  
           <div class="row container-fluid">
@@ -455,13 +457,75 @@
           </div>
         </div>
         <!-- Fin pestaña horarios -->     
+        <!--  Pestaña Franjas horarias  -->
+        <div class="tab-pane fade mt-3" id="franjahoraria" role="tabpanel" aria-labelledby="franjahoraria-tab">
+          <div class="row container-fluid">
+            <div class="col">
+              <table class="table">
+                <thead class="table-light">
+                  <tr>
+                    <th class="col-1">{{'customer.tabHeaderId'|translate}}</th> 
+                    <th class="col-5">{{'customer.tab6Header1'|translate}}</th>
+                    <th class="col-2">{{'customer.tab6Header2'|translate}}</th>
+                    <th class="col-2">{{'customer.tab6Header3'|translate}}</th>
+                    <th class="col-2">{{'customer.tabHeaderAccions'|translate}}</th>
+                  </tr>
+                </thead>
+                <tbody formArrayName="franjaHoraria">
+                  <tr *ngFor="let f of franjaHoraria.controls; let franjaHorariaIndex=index" [formGroupName]="franjaHorariaIndex">
+                    <th>
+                      {{franjaHorariaIndex+1}}
+                    </th>
+                    <td>
+                      <input class="form-control"
+                        type="text"
+                        placeholder="{{'customer.tab6placeholder1'|translate}}"
+                        formControlName="nombreFranjaHoraria"
+                        [class.is-invalid]="f.get('nombreFranjaHoraria').invalid && f.get('nombreFranjaHoraria').touched">
+                      <small *ngIf="f.get('nombreFranjaHoraria').invalid && f.get('nombreFranjaHoraria').touched" class="text-danger">{{msgErrorArray('nombreFranjaHoraria',franjaHorariaIndex)}}</small>             
+                    </td>  
+                    <td>
+                      <input class="form-control"
+                      type="time"           
+                      formControlName="inicioFranjaHoraria"
+                      [class.is-invalid]="f.get('inicioFranjaHoraria').invalid && f.get('inicioFranjaHoraria').touched">
+                      <small *ngIf="f.get('inicioFranjaHoraria').invalid && f.get('inicioFranjaHoraria').touched" class="text-danger">{{msgErrorArray('inicioFranjaHoraria',franjaHorariaIndex)}}</small> 
+                    </td> 
+                    <td>
+                      <input class="form-control"
+                      type="time"           
+                      formControlName="finFranjaHoraria"
+                      [class.is-invalid]="f.get('finFranjaHoraria').invalid && f.get('finFranjaHoraria').touched">
+                      <small *ngIf="f.get('finFranjaHoraria').invalid && f.get('finFranjaHoraria').touched" class="text-danger">{{msgErrorArray('finFranjaHoraria',franjaHorariaIndex)}}</small> 
+                    </td> 
+                     
+                    <td>
+                      <button type="button" class="btn btn-light" (click)="removeFranjaHoraria(franjaHorariaIndex)"
+                        placement="bottom" ngbTooltip="{{'general.deleteButton'|translate}}" [openDelay]="300">
+                        <i class="far fa-trash-alt"></i>                    
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>  
+            </div>
+          </div>
+          <div class="d-grid gap-2 col-4 mx-auto">  
+            <button class="btn btn-outline-primary mt-3 btn-block" 
+                    type="button" (click)="addFranjaHoraria(null,null,null,null)">
+                    {{'customer.tab6AddItem'|translate}}
+            </button>
+          </div> 
+        </div>
+        <!-- Fin pestaña franjas horarias -->  
+            
       </div>  
       <!-- Fin Contenidos pestañas -->
     </div>
     <!-- Fin bloque Pestañas de listas de datos de cliente    --> 
 
 </form>
-<!-- <hr>
+<hr>
 
 <pre>
   estado formulario:{{customerForm.valid}}
@@ -471,7 +535,7 @@
 </pre>
 <pre>
   {{customerForm.value|json}}
-</pre> -->
+</pre>
 
 
 

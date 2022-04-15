@@ -1,19 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import {FormBuilder, FormGroup,Validators, FormControl,FormArray} from '@angular/forms';
 import { Observable,forkJoin} from 'rxjs';
 import Swal from 'sweetalert2';
-import {FormBuilder, FormGroup,Validators, FormControl,FormArray} from '@angular/forms';
 
+import { TranslateService } from '@ngx-translate/core'; 
 
 import { Site, ScreenLocation, Orientation, ScreenType, ScreenModel } from '../../../interfaces/site-interface';
 import { Venue, ScreenBrand } from '../../../interfaces/venue-interface';
 
+import { GlobalDataService } from '../../../services/global-data.service';
+import { LoginService } from '../../../services/login.service';
 import { SiteService } from '../../../services/site.service';
-import { VenueService } from '../../../services/venue.service';
 import { UploadService  } from '../../../services/upload.service';
 import { UtilService } from '../../../services/util.service';
-import { GlobalDataService } from '../../../services/global-data.service';
-import { TranslateService } from '@ngx-translate/core'; 
+import { VenueService } from '../../../services/venue.service';
 
 
 interface ImagenesFile{
@@ -75,6 +76,7 @@ export class SiteComponent implements OnInit {
     private ActivatedRoute:ActivatedRoute,
     private uploadServices:UploadService,
     private utilServices:UtilService,
+    private loginServices:LoginService,
     private globalDataServices:GlobalDataService,
     private translate: TranslateService,
     private router:Router,) 
@@ -86,20 +88,28 @@ export class SiteComponent implements OnInit {
 
   ngOnInit(): void {
     this.siteId= this.ActivatedRoute.snapshot.paramMap.get('id');
-    this.siteServices.getSiteById(this.siteId)
-    .subscribe(resp=>{
+
+      this.siteServices.getSiteById(this.siteId)
+      .subscribe(resp=>{
         this.currentSite=resp.data[0];
         console.log('El site',this.currentSite);
+        
         this.venueServices.getVenueById(this.currentSite.venueId.toString())
         .subscribe(resp=>{
           this.currentVenue=resp.data[0];
           this.binariosImagenVenue=(this.currentVenue.image)?this.urlImageVenue+this.currentVenue.image:this.imageDefault;
           this.binariosImagenMarca=(this.currentVenue.brand.image)?this.urlImageBrand+this.currentVenue.brand.image:this.imageDefault;
           this.binariosImagenEmplazamiento=(this.currentSite.image)?this.urlImageSite+this.currentSite.image:this.imageDefault;
+        },
+        error=>{ 
+          this.loginServices.accessErrorText(error)
+              .then(resp=>{
+                this.salidaForzada();   
+              })
         });
 
         this.siteServices.getScreenLocations(this.currentSite.customer.id)
-          .subscribe(resp=>{
+        .subscribe(resp=>{
             this.screenLocations=resp;
             if (this.screenLocations.length>0){
               this.screenLocations.unshift (
@@ -107,32 +117,43 @@ export class SiteComponent implements OnInit {
                   id:null,
                   description:null,
                   deleted:false
-                }
-              )
+                })
             }
-
-
-          });  
+        });  
 
         this.siteServices.getScreenTypes()
-          .subscribe(resp=>{
+        .subscribe(resp=>{
             this.screenTypes=resp;
-          });
+        });
 
         this.siteServices.getScreenBrands()
-          .subscribe(resp=>{
+        .subscribe(resp=>{
             this.screenBrands=resp;
-          });
+        });
 
         this.siteServices.getScreenOrientations()
-          .subscribe(resp=>{
+        .subscribe(resp=>{
             this.screenOrientations=resp;
-          });
-       
+        });
+        
         this.loadData(this.currentSite);   
         this.crearListeners();
+      },
+    error=>{ 
+      this.loginServices.accessErrorText(error)
+          .then(resp=>{
+            this.salidaForzada();  
+          })
     });
    
+   return
+  }
+
+  salidaForzada(){
+    this.siteForm.reset();
+    this.loginServices.logout();
+    this.router.navigate(['/login']);    
+    return
   }
 
   get localizacion(){
