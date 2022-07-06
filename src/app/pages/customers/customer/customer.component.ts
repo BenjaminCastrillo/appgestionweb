@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core'; 
 import { Observable} from 'rxjs';
 import Swal from 'sweetalert2';
-import {NgbModal, NgbModalConfig,ModalDismissReasons, NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbModalConfig,ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 
  
-import { Customer, Week, Month, SitesComercialCode, TimeRange } 
+import { Customer, Week, Month, SitesComercialCode } 
         from '../../../interfaces/customer-interface';
 
 import { CustomerService } from '../../../services/customer.service';
@@ -15,7 +15,8 @@ import { GlobalDataService } from '../../../services/global-data.service';
 import { LoginService } from '../../../services/login.service';
 import { UploadService  } from '../../../services/upload.service';
 import { UtilService } from '../../../services/util.service';
-
+import { ErrorService } from '../../../services/error.service';
+ 
 interface ErrorValidate{
   [s:string]:boolean
 }
@@ -45,6 +46,7 @@ export class CustomerComponent implements OnInit {
   public ordenHorario:number=0;
   public indiceHorario:number=0;
   public sitesCodes:SitesComercialCode[]=[];
+  public fechaAlta:Date|null=null;
   
   public closeResult = '';
   public activeLang = this.globalDataServices.getStringUserLanguage();
@@ -58,12 +60,13 @@ export class CustomerComponent implements OnInit {
   constructor(private fb: FormBuilder,
               private customerServices:CustomerService,
               private uploadServices:UploadService,
-              private utilService:UtilService,
+              private utilServices:UtilService,
               private ActivatedRoute:ActivatedRoute,
               private router:Router,
               private translate: TranslateService,
               private globalDataServices:GlobalDataService,
               private loginServices:LoginService,
+              private errorServices:ErrorService,
               config: NgbModalConfig, private modalService: NgbModal) 
   {               
       config.backdrop = 'static';
@@ -88,7 +91,7 @@ export class CustomerComponent implements OnInit {
       this.customerServices.getCustomerById(this.customerId)
       .subscribe(resp=>{
           this.currentCustomer=resp.data[0];
-          console.log(this.currentCustomer)
+          console.log('el customer recibido',this.currentCustomer);
           this.loadData(this.currentCustomer);
         },
         error=>{ 
@@ -96,7 +99,7 @@ export class CustomerComponent implements OnInit {
           // Visualización del error al usuario
           this.loginServices.accessErrorText(error)
               .then(resp=>{
-                this.salidaForzada();  
+                this.salidaFormulario();  
               })
         })
     }     
@@ -108,7 +111,7 @@ export class CustomerComponent implements OnInit {
     error=>{ 
       this.loginServices.accessErrorText(error)
       .then(resp=>{
-        this.salidaForzada();
+        this.salidaFormulario();
       });
     });    
 
@@ -119,14 +122,14 @@ export class CustomerComponent implements OnInit {
     error=>{ 
       this.loginServices.accessErrorText(error)
       .then(resp=>{
-        this.salidaForzada();
+        this.salidaFormulario();
       });
     });  
   
    
   }
 
-  salidaForzada(){
+  salidaFormulario(){
     this.customerForm.reset();
     this.loginServices.logout();
     this.router.navigate(['/login']);    
@@ -251,6 +254,9 @@ export class CustomerComponent implements OnInit {
       tr.push(this.newFranjaHoraria(elem.id,elem.description,elem.start_time,elem.end_time))
     });
 
+  //  this.fechaAlta= this.utilServices.stringToDate(customer.entryDate);
+    this.fechaAlta=customer.entryDate;
+
     this.customerForm.get('identification').patchValue(customer.identification);
     this.customerForm.get('nombre').patchValue(customer.name);
     this.customerForm.get('nombreContacto').patchValue(customer.contactName);
@@ -285,7 +291,7 @@ export class CustomerComponent implements OnInit {
       imagenMarca: [null],
       colorMarca: [c],
       idMarca: [d],
-      codigoImagen: [this.utilService.ramdonNumber(2000,9000).toString()],
+      codigoImagen: [this.utilServices.ramdonNumber(2000,9000).toString()],
       tocado:false,
       nombreArchivo: [b]
     });
@@ -311,7 +317,7 @@ export class CustomerComponent implements OnInit {
       this.customerServices.existsCode.bind(this.customerServices) // validador asincrono
     ],
     });
-  }
+  } 
 
   newHorario(a:number|null,b:string|null,c:string|null,d:string|null): FormGroup {
     return this.fb.group({
@@ -501,7 +507,7 @@ export class CustomerComponent implements OnInit {
 
       if ( this.customerForm.invalid || datosErroneos){
 
-        if (!datosErroneos){
+        if (!datosErroneos){ // Solo accedo si hay algun otro error
 
           if(this.customerForm.get('horario').invalid){
             let horarioIncorrecto=this.horario.controls.find(elem=>elem.invalid);
@@ -547,7 +553,7 @@ export class CustomerComponent implements OnInit {
           name                :this.customerForm.get('nombre').value,
           contactName         :this.customerForm.get('nombreContacto').value,
           phoneNumber         :this.customerForm.get('telefono').value,
-          entryDate           :this.customerId==='nuevo'?null:this.currentCustomer.entryDate,
+          entryDate           :this.fechaAlta,
           brands              :br,
           marketRegions       :mr,
           locationsScreen     :ls,
@@ -555,7 +561,6 @@ export class CustomerComponent implements OnInit {
           schedules           :sc,
           timeRanges          :tr
         }
-        console.log('la respuesta',respuesta);
 
         if (this.customerId==='nuevo'){
           peticionHtml=this.customerServices.saveCustomer(respuesta);
@@ -676,7 +681,6 @@ export class CustomerComponent implements OnInit {
 
     if (this.horario.controls.length===0){
 
-      console.log('horario obligatorio');
       error=true;
       this.translate.get('error.validationField18')
       .subscribe(res=>msg1=res);  
@@ -684,7 +688,6 @@ export class CustomerComponent implements OnInit {
 
     if (this.franjaHoraria.controls.length===0 && !error){
 
-      console.log('FRANJA obligatoria');
       error=true;
       this.translate.get('error.validationField19')
       .subscribe(res=>msg1=res);     
@@ -696,7 +699,6 @@ export class CustomerComponent implements OnInit {
 
     if (franjaErronea!=-1 && !error){
       let franjaIncorrecta=this.franjaHoraria.controls[franjaErronea];
-      console.log('la franja erronea',franjaIncorrecta)
       const fa=franjaIncorrecta.get('nombreFranjaHoraria').value==null?'':franjaIncorrecta.get('nombreFranjaHoraria').value;
       this.translate.get('error.validationField17', {value1: fa})
       .subscribe(res=>msg1=res);  
@@ -707,7 +709,6 @@ export class CustomerComponent implements OnInit {
 
 
     if (error){
-      console.log('Entro en el error');
       this.translate.get('general.modalClosePage8')
       .subscribe(res=>msg2=res);
 
@@ -905,7 +906,7 @@ export class CustomerComponent implements OnInit {
         id:elem.get('idHorario').value,
         description:elem.get('descripcionHorario').value,
         startDate:{
-          id: this.utilService.zeroFill(elem.get('diaInicio').value,2)+this.utilService.zeroFill(elem.get('mesInicio').value,2),
+          id: this.utilServices.zeroFill(elem.get('diaInicio').value,2)+this.utilServices.zeroFill(elem.get('mesInicio').value,2),
           description: null
         },      
         weekly:rr,
@@ -964,34 +965,11 @@ respFranjaHoraria(){
 }
 
   msgError(campo: string): string {
-    let message: string = null;
-
-    if(this.customerForm.get(campo).hasError('required'))
-        this.translate.get('error.validationField1')
-        .subscribe(res=>(message=res));
-       
-    if(this.customerForm.get(campo).hasError('pattern')) 
-        this.translate.get('error.validationField2')
-        .subscribe(res=>(message=res));
-  
-    if(this.customerForm.get(campo).hasError('exists'))
-        this.translate.get('error.validationField3')
-        .subscribe(res=>(message=res));
-    
-    if(this.customerForm.get(campo).hasError('minlength'))    
-        this.translate.get('error.validationField4', 
-                {value1: campo,
-                 value2: this.customerForm.get(campo).errors.minlength.requiredLength})
-        .subscribe(res=>(message=res));
-    
- //     return `La longitud mínima del campo ${campo} es ${this.customerForm.get(campo).errors.minlength.requiredLength}`;
-    if(this.customerForm.get(campo).hasError('maxlength'))    
-        this.translate.get('error.validationField5', 
-                {value1: campo,
-                 value2: this.customerForm.get(campo).errors.maxlength.requiredLength})
-        .subscribe(res=>(message=res));
-    
-    return message;
+    let textMsg: string = '';
+    if (this.customerForm.get(campo)?.errors){
+      textMsg=this.errorServices.validationFieldError(this.customerForm.get(campo)?.errors,campo);
+    }
+    return textMsg;
 }
 
   msgErrorArray(campo: string, i: number): string {
@@ -1044,36 +1022,39 @@ respFranjaHoraria(){
       default:      
         return;
     }
-    if (controlElementoArray.hasError('required'))
-        this.translate.get('error.validationField1')
-        .subscribe(res=>(message=res));
+
+   message=this.errorServices.validationArrayFieldError(controlElementoArray);
+
+    // if (controlElementoArray.hasError('required'))
+    //     this.translate.get('error.validationField1')
+    //     .subscribe(res=>(message=res));
     
-    if (controlElementoArray.hasError('maxlength'))   
-        this.translate.get('error.validationField6', 
-            {value1: controlElementoArray.errors.maxlength.requiredLength})
-        .subscribe(res=>(message=res));
+    // if (controlElementoArray.hasError('maxlength'))   
+    //     this.translate.get('error.validationField6', 
+    //         {value1: controlElementoArray.errors.maxlength.requiredLength})
+    //     .subscribe(res=>(message=res));
    
-     if (controlElementoArray.hasError('pattern'))
-         this.translate.get('error.validationField2')
-         .subscribe(res=>(message=res));
+    //  if (controlElementoArray.hasError('pattern'))
+    //      this.translate.get('error.validationField2')
+    //      .subscribe(res=>(message=res));
 
-    if (controlElementoArray.hasError('wrongStartDay')) return 'NUNCA SALTO';  
+    // if (controlElementoArray.hasError('wrongStartDay')) return 'NUNCA SALTO';  
 
-    if (controlElementoArray.hasError('wrongStartDate')) 
-        this.translate.get('error.validationField7')
-        .subscribe(res=>(message=res));
+    // if (controlElementoArray.hasError('wrongStartDate')) 
+    //     this.translate.get('error.validationField7')
+    //     .subscribe(res=>(message=res));
 
-    if (controlElementoArray.hasError('wrongEndTime')) 
-        this.translate.get('error.validationField8')
-        .subscribe(res=>(message=res));
+    // if (controlElementoArray.hasError('wrongEndTime')) 
+    //     this.translate.get('error.validationField8')
+    //     .subscribe(res=>(message=res));
    
-    if (controlElementoArray.hasError('wrongStartTime')) 
-        this.translate.get('error.validationField9')
-        .subscribe(res=>(message=res));
+    // if (controlElementoArray.hasError('wrongStartTime')) 
+    //     this.translate.get('error.validationField9')
+    //     .subscribe(res=>(message=res));
 
-    if (controlElementoArray.hasError('exists'))   
-        this.translate.get('error.validationField10')
-        .subscribe(res=>(message=res));
+    // if (controlElementoArray.hasError('exists'))   
+    //     this.translate.get('error.validationField10')
+    //     .subscribe(res=>(message=res));
     
     
     return message;

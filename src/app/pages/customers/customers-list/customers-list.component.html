@@ -51,7 +51,7 @@
         &nbsp;
         <button type="button" 
                 class="btn btn-light btn-sm" 
-                (click)="venuesList(content,i)"
+                (click)="venuesList(content,customer)"
                 placement="bottom" ngbTooltip="{{'general.venuesButton'|translate}}" [openDelay]="300">
                 <i class="bi bi-shop"></i>
         </button>
@@ -59,7 +59,7 @@
 <!-- Modal  Lista de emplazamientos ng-bootstrap-->
 <ng-template #content let-modal>
   <div class="modal-header">
-    <h4 class="modal-title" id="modal-sites">{{'customerList.modalTitle'|translate}} {{customer.name}}</h4>
+    <h4 class="modal-title" id="modal-sites">{{'customerList.modalTitle'|translate}} {{customer.name}} (#{{customer.id}})</h4>
     <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>

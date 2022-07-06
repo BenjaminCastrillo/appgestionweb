@@ -76,7 +76,7 @@ export class UsersListComponent implements OnInit {
     let msg2:string='';
 
     this.translate.get('general.modalClosePage14')
-    .subscribe(res=>msg1=res);
+    .subscribe(res=>msg1=res); 
 
     Swal.fire({
       title: msg1,
@@ -117,17 +117,15 @@ export class UsersListComponent implements OnInit {
     return
   }
 
-  sitesUser(content:any,i:number){
+  sitesUser(content:any,user:User){
 
-    this.venueServices.getVenues(this.users[i].id.toString())
+    this.venueServices.getVenues(user.id.toString())
     .subscribe(resp=>{    
       if (resp.result===true){ 
         this.venues=resp.data;     
         // Cargamos array de sites
-        console.log('los venues',this.venues);
          this.listSites=this.venueServices.cargarSites(this.venues);
-        
-
+    
         this.modalReference=this.modalService.open(content, {ariaLabelledBy: 'modal-sites',  size: 'xl' , scrollable: true} );
         this.modalReference.result.then((result) => { 
           this.closeResult = `Closed with: ${result}`;

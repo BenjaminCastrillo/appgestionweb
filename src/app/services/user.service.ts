@@ -47,7 +47,7 @@ export class UserService {
   }
 
   getLanguages():Observable<any>{
-    return this.http.get<any>(`${this.url}/languages`);
+    return this.http.get<any>(`${this.url}/languages/${this.lang}`);
   }
   
   getRoles():Observable<any>{

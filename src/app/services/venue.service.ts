@@ -66,7 +66,6 @@ export class VenueService {
       })
     )
   }
-
   
   getTerritorialEntities(territorialOrganization:number,territorialEntity:number):Observable<TerritorialEntities[]>{
     
@@ -127,15 +126,7 @@ export class VenueService {
       map(week=>{
           return week
       })
-      // ,
-      // catchError(error=> {
-      //     console.log('El error',error);
-      //     throw new Error(error);
-      // })
       )
-      
-
-
   }
 
   getMonthsLicenses(){

@@ -45,7 +45,7 @@
         <!-- Fecha de alta-->
         <div class="col-2" *ngIf="!newVenue">
           <label class="form-label" for="inputfechaAlta">{{'venue.field3'|translate}}</label>
-          <p class=" p-2 cajaFecha">{{currentVenue.entryDate|date:'mediumDate'}}</p>
+          <p class="p-2 cajaFecha">{{fechaAlta|translatedate}}</p>
           <!-- <input class="form-control"
                 id="inputfechaAlta"
                 type="text"
@@ -93,7 +93,7 @@
           <!-- Input Imagen del local-->
           <div class="col-4">     
             <label class="form-label" for="inputImagenLocal">{{'venue.field6'|translate}}</label>  
-            <input (change)="capturarFile($event)"
+            <input (change)="capturarFile($event)" 
               class="form-control"
               type="file"
               accept="image/png/jpeg"

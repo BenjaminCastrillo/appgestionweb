@@ -73,36 +73,19 @@ export class LoginService {
       let msg1:string=null;
       let msg2:string=null;
 
-      switch (errorCode) {
-        case 0:
-          this.translate.get('error.server1')
-          .subscribe(res=>msg1=res); 
-          break;
-        case 400:
-            this.translate.get('error.server2')
-            .subscribe(res=>msg1=res); 
-            break;
-        case 401:  
-            this.translate.get(origen?'login.textError1':'error.server3')
-            .subscribe(res=> msg1=res); 
-            break;
-        case 403:
-          this.translate.get('error.server7')
-          .subscribe(res=>msg1=res); 
-          break;
-        case 500:
-          this.translate.get('error.server4')
-          .subscribe(res=>msg1=res);  
-          break;    
-        case 503:
-          this.translate.get('error.server5')
-          .subscribe(res=>msg1=res);   
-          break;    
-        default:
-          this.translate.get('error.server6')
-          .subscribe(res=>msg1=res);  
+    
+      let mensajes={
+        0:   'error.server1',
+        400: 'error.server2',
+        401:origen?'login.textError1':'error.server3',
+        403: 'error.server7',
+        500: 'error.server4',
+        503: 'error.server5',
       }
   
+      this.translate.get(mensajes[errorCode]===undefined?'error.server6':mensajes[errorCode])
+      .subscribe(res=>msg1=res);  
+      
       this.translate.get(origen?'login.textError2':'login.textError4')
       .subscribe(res=> msg2=res); 
   

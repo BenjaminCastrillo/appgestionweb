@@ -19,7 +19,6 @@ export class LanguageService {
     if (!userLanguage){
        userLanguage= this.translate.getBrowserLang();
     }
-    console.log('en el serviceLanguage el idioma del navegador es',userLanguage)
     const validLanguage=this.globalDataServices.supportedLanguages.includes(userLanguage)?userLanguage:this.globalDataServices.defaultLanguage;
     localStorage.setItem('language',validLanguage);
     return validLanguage;

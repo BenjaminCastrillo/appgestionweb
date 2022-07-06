@@ -25,16 +25,15 @@ export class NavbarComponent implements OnInit {
   }
 
   logout(){
-    console.log('en logout');
+   
     this.loginServices.logout();
     this.router.navigateByUrl('/login');
 
   }
   buscarElemento(texto:string){
-  texto=texto.trim();
-  if(texto.length===0){
-    return;
-  }
-    console.log(texto);
+    texto=texto.trim();
+    if(texto.length===0){
+      return;
+    }
   }
 }

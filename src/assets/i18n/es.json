@@ -106,7 +106,7 @@
   "user.field7"                       : "Rol",
   "user.field8"                       : "Relación con el usuario",
   "user.field9"                       : "Usuario bloqueado",
-  "user.field10"                      : "Último acceso",
+  "user.field10"                      : "Fecha del último acceso",
   "user.field11"                      : "Notas",
   "user.field12"                      : "Modificar password",
   "user.tabTitle1"                    : "Clientes",
@@ -203,7 +203,7 @@
   "siteList.header2"                  : "Código",
   "siteList.header3"                  : "Local",
   "siteList.header4"                  : "Localización",
-  "siteList.header5"                  : "Localización pantalla",
+  "siteList.header5"                  : "Situación pantalla",
   "siteList.header6"                  : "Estado",
   "siteList.header7"                  : "Acciones",
   "siteList.header8"                  : "Nombre del local",
@@ -222,7 +222,7 @@
   "site.field1"                       : "Localización de la pantalla:",
   "site.field2"                       : "Descripción",
   "site.field3"                       : "Fecha de alta",
-  "site.field4"                       : "Imagen del pantalla",
+  "site.field4"                       : "Imagen de la pantalla",
   "site.text8"                        : "Categorías asociadas al emplazamiento",
   "site.headerId"                     : "#",
   "site.header1"                      : "Descripción",
@@ -281,6 +281,8 @@
   "general.goScheduleButton"          : "Ver horario",
   "general.deleteTelephoneButton"     : "Borrar número de teléfono",
   
+  "general.noAccess"                  : "Sin acceder todavía",
+
   
   "general.modalClosePage1"           : "¿Desea abandonar la página?",
   "general.modalClosePage2"           : "Los cambios realizados se perderán",
@@ -303,7 +305,7 @@
   "general.modalClosePage19"          : "¿Desea dar de baja el emplazamiento?",
 
   "error.validationField1"            : "El campo es obligatorio",
-  "error.validationField2"            : "Formato incorrecto",
+  "error.validationField2"            : "Formato incorrecto", 
   "error.validationField3"            : "El id introducido ya existe",
   "error.validationField4"            : "La longitud mínima del campo {{value1}} es {{value2}}",
   "error.validationField5"            : "La longitud máxima del campo {{value1}} es {{value2}}",
@@ -313,7 +315,7 @@
   "error.validationField9"            : "La hora de apertura es incorrecta",
   "error.validationField10"           : "El código introducido ya existe",
   
-  "error.validationField11"           : "Formato incorrecto. La dirección no es valida",
+  "error.validationField11"           : "Formato incorrecto. La dirección de email no es valida",
   "error.validationField12"           : "Formato incorrecto. Debe tener al menos ocho carácteres, una letra mayúscula, una minúscula y un dígito",
   "error.validationField13"           : "El email introducido ya existe",
   "error.validationField14"           : "El campo fue borrado",

@@ -59,6 +59,7 @@ export class CustomersListComponent implements OnInit {
       this.sortedData=this.customers.slice();
       },
       err=>{console.log(err);
+        console.log('Error en la llamada');
         this.loginServices.accessErrorText(err)
         .then(resp=>{
           this.loginServices.logout();
@@ -119,9 +120,11 @@ export class CustomersListComponent implements OnInit {
     this.router.navigate(['/home/customer',customer.id]);
   }
 
-  venuesList(content:any,i:number){
+  venuesList(content:any,customer:Customer){
 
-    this.venueService.getVenueByCustomer(this.sortedData[i].id)
+    console.log('revisando la lista de venues',customer.id)
+    console.log('el id',customer.id)
+    this.venueService.getVenueByCustomer(customer.id)
     .subscribe(resp=>{
       if (resp.result===true){
         this.venues=resp.data
@@ -138,7 +141,7 @@ export class CustomersListComponent implements OnInit {
         this.venues=[];
       }
     });
-  }
+  } 
 
   editVenue(venueId:number){
     this.modalReference.close();

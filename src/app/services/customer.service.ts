@@ -216,7 +216,6 @@ endTimeCorrect(timeStart1:string,timeEnd1:string){
       if (horaFin1>horaInicio1){
         timeEndControl1.setErrors(null); // correcto
       }else{
-        console.log('me voy por el error');
         timeEndControl1.setErrors({ wrongEndTime:true });      
     }
   }

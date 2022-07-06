@@ -33,7 +33,10 @@
       <td >{{user.id}} <span *ngIf="user.filter" class="badge bg-warning text-dark">cli</span></td>
       <td>{{user.name}}</td>
       <td>{{user.surname}}</td>
-      <td>{{user.email}}</td>
+      <td>{{user.email}} <span> <i *ngIf="user.blocked" 
+        class="fas fa-lock text-danger" placement="bottom" 
+        ngbTooltip="{{'user.field9'|translate}}" [openDelay]="300"></i></span></td>  
+        
       <td>
         <i *ngIf="user.rol.id===0" class="fas fa-user-plus"
           placement="bottom" ngbTooltip="{{'userList.rolDescription1'|translate}}" [openDelay]="300"></i>
@@ -42,11 +45,8 @@
         <i *ngIf="user.rol.id===3" class="fas fa-user-cog"
           placement="bottom" ngbTooltip="{{'userList.rolDescription3'|translate}}" [openDelay]="300"></i>
         <i *ngIf="user.rol.id!=0 && user.rol.id!=1 && user.rol.id!=3" 
-          class="far fa-question-circle" placement="bottom" 
-          ngbTooltip="Gestión propietario" [openDelay]="300"></i>
-          
-          
-          
+          class="fas fa-question-circle" placement="bottom" 
+          ngbTooltip="unknown rol" [openDelay]="300"></i>
           
 
       </td>
@@ -68,7 +68,7 @@
         &nbsp;
         <button type="button" 
                 class="btn btn-light btn-sm" 
-                (click)="sitesUser(content,i)"
+                (click)="sitesUser(content,user)"
                 placement="bottom" ngbTooltip="{{'userList.sitesButton'|translate}}" [openDelay]="300">
                 <i class="fas fa-tv"></i>
         </button> 
@@ -78,7 +78,7 @@
 <!-- Modal  Lista de emplazamientos ng-bootstrap-->
 <ng-template #content let-modal>
   <div class="modal-header">
-    <h4 class="modal-title" id="modal-sites">{{'userList.modalTitle'|translate}} {{user.name}} {{user.surname}}</h4>
+    <h4 class="modal-title" id="modal-sites">{{'userList.modalTitle'|translate}} {{user.name}} {{user.surname}} (#{{user.id}})</h4>
     <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>

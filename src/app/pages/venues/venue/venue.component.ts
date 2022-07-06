@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup,Validators, FormControl,FormArray } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal, NgbModalConfig,ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-import { Observable,forkJoin,throwError } from 'rxjs';
+import { Observable,forkJoin,throwError, Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import { TranslateService } from '@ngx-translate/core'; 
 
@@ -34,7 +34,7 @@ interface ImagenesFile{
   templateUrl: './venue.component.html',
   styleUrls: ['./venue.component.css']
 })
-export class VenueComponent implements OnInit {
+export class VenueComponent implements OnInit, OnDestroy {
 
   private imageDefault=this.globalDataServices.getUrlImageDefault();
   private urlImageBrand=this.globalDataServices.getUrlImageBrand();
@@ -54,6 +54,7 @@ export class VenueComponent implements OnInit {
   public schedules:Schedule[]=[];
   public comercialCodes:SitesComercialCode[]=[];
   public monthsLicense:number[];
+  public listeners:Subscription[]=[];
  
 
 
@@ -76,7 +77,7 @@ export class VenueComponent implements OnInit {
   public filesImagenVenue:ImagenesFile;
   public activeLang = this.globalDataServices.getStringUserLanguage();
  //  public dropdownSettings:IDropdownSettings = {};
-  
+ public fechaAlta:Date|null=null;
 
 
   constructor(private fb: FormBuilder,
@@ -84,7 +85,7 @@ export class VenueComponent implements OnInit {
     private customerServices:CustomerService,
     private ActivatedRoute:ActivatedRoute,
     private uploadServices:UploadService,
-    private utilService:UtilService,
+    private utilServices:UtilService,
     private loginServices:LoginService,
     private globalDataServices:GlobalDataService,
     private router:Router,
@@ -109,6 +110,7 @@ export class VenueComponent implements OnInit {
       this.crearListeners();
     }else{
       this.newVenue=false;
+      console.log('Voy a por el venue');
       this.venueServices.getVenueAndSiteById(this.venueId)
       .subscribe(resp=>{
           this.currentVenue=resp.data[0];
@@ -125,11 +127,12 @@ export class VenueComponent implements OnInit {
           // Visualización del error al usuario
           this.loginServices.accessErrorText(error)
               .then(resp=>{
-                this.salidaForzada();   
+                this.salidaFormulario();   
               })
         
         })
     }  
+
     this.customerServices.getCustomers()
       .subscribe(resp=>{
         if (resp.result===true) {
@@ -142,32 +145,29 @@ export class VenueComponent implements OnInit {
     error=>{ 
       this.loginServices.accessErrorText(error)
           .then(resp=>{
-            this.salidaForzada();  
+            this.salidaFormulario();  
           })
     });  
 
-
       this.venueServices.getCountries()
       .subscribe(resp=>{
-        console.log('llegan las countries');
         this.countries=resp;
       },
       error=>{ 
         this.loginServices.accessErrorText(error)
         .then(resp=>{
-         this.salidaForzada();
+         this.salidaFormulario();
         });
       }); 
 
       this.venueServices.getRoadTypes()
       .subscribe(resp=>{
-        console.log('llegan las road');
         this.roadTypes=resp;
       },
       error=>{ 
         this.loginServices.accessErrorText(error)
         .then(resp=>{
-         this.salidaForzada();
+         this.salidaFormulario();
         });
       });    
 
@@ -178,25 +178,28 @@ export class VenueComponent implements OnInit {
       error=>{ 
         this.loginServices.accessErrorText(error)
         .then(resp=>{
-         this.salidaForzada();
+         this.salidaFormulario();
         });
       });  
 
       this.venueServices.getMonthsLicenses()
       .subscribe(resp=>{   
-        console.log('llegan las licencias');
         this.monthsLicense=resp;
       },
       error=>{ 
         this.loginServices.accessErrorText(error)
         .then(resp=>{
-         this.salidaForzada();
+         this.salidaFormulario();
         }); 
       }); 
 
-  
-    console.log('antes del return');
   return
+  }
+
+  ngOnDestroy(): void {
+    //Called once, before the instance is destroyed.
+    //Add 'implements OnDestroy' to the class.
+    console.log('en el destructor');
   }
 
   onItemSelect(item: any) {
@@ -206,7 +209,14 @@ export class VenueComponent implements OnInit {
   onItemDeselect(item: any) {
   }
 
-  salidaForzada(){
+  salidaFormulario(){
+
+    console.log('cierro todo----------------');
+    console.log('el listener',this.listeners);
+    if (this.listeners && this.listeners.length > 0) {
+      this.listeners.forEach(s => s.unsubscribe());
+    }
+
     this.venueForm.reset();
     this.loginServices.logout();
     this.router.navigate(['/login']);    
@@ -229,7 +239,7 @@ export class VenueComponent implements OnInit {
       imagenLocal:    [''],
       nombreArchivo:  [''],
       tocado:         false,
-      codigoImagen:   [this.utilService.ramdonNumber(200000,900000).toString()],
+      codigoImagen:   [this.utilServices.ramdonNumber(200000,900000).toString()],
       horario:        this.fb.array([]),   
       contacto:       this.fb.array([]),       
       emplazamiento:  this.fb.array([]),  
@@ -252,7 +262,7 @@ export class VenueComponent implements OnInit {
             territorialOrganizationName: elem.territorialOrganizationName
           });
       });
-      console.log(lo);
+
       this.descripcionesOrganizacion.sort(function (a,b){
         if (a.hierarchy>b.hierarchy){
           return 1}
@@ -278,6 +288,10 @@ export class VenueComponent implements OnInit {
     this.binariosImagenLocal=(venue.image)?this.urlImageVenue+venue.image:this.imageDefault;
 
     this.prevCountry=venue.country.id;
+
+    // this.fechaAlta= this.utilServices.stringToDate(venue.entryDate)
+    this.fechaAlta= venue.entryDate;
+
   //  this.venueForm.get('id').patchValue(venue.id);
     this.venueForm.get('nombre').patchValue(venue.name);
     this.venueForm.get('cliente').patchValue(venue.customer.id);
@@ -300,7 +314,7 @@ export class VenueComponent implements OnInit {
       cop[ind].forEach(element => {
         this.telefonos.push(element)
       });
-    });
+    }); 
 
     this.marcaBorrada=venue.brand.deleted;
     this.regionComercialBorrada=venue.marketRegion.deleted;
@@ -312,7 +326,6 @@ export class VenueComponent implements OnInit {
 
     this.getTerritorialEntities(lo)
     .then(res=>{
-      console.log('--------',res);
       this.location=res;
       this.listenerLocalizacion();
     })
@@ -322,7 +335,7 @@ export class VenueComponent implements OnInit {
   crearListeners(){
 
     // Detección cambios en el cliente
-    this.venueForm.get('cliente').valueChanges.subscribe(a=>{
+    this.listeners.push(this.venueForm.get('cliente').valueChanges.subscribe(a=>{
       if (!this.newVenue){
         if(a==this.currentVenue.customer.id){
           // Si vuelve a seleccionar el cliente inicial cargo la marca y region comercial iniciales
@@ -344,10 +357,10 @@ export class VenueComponent implements OnInit {
         }
       }
       this.getCustomerData(a);  
-    });
+    }));
 
     // Detección cambios en la marca
-    this.venueForm.get('marca').valueChanges.subscribe(a=>{
+    this.listeners.push(this.venueForm.get('marca').valueChanges.subscribe(a=>{
       console.log('detecto cambio en marca',a)
       if (this.brands.length>0){
         let b=this.brands.find(elem=>elem.id==a)
@@ -355,16 +368,16 @@ export class VenueComponent implements OnInit {
         this.binariosImagenMarca=(b===undefined)?this.imageDefault:this.urlImageBrand+b.image;
       }
       if (this.marcaBorrada) this.marcaBorrada=false;
-    });
+    }));
 
     // Detección cambios en la region comercial
-    this.venueForm.get('regionComercial').valueChanges.subscribe(a=>{
+    this.listeners.push(this.venueForm.get('regionComercial').valueChanges.subscribe(a=>{
       console.log('detecto cambio en region comercial',a)
       if (this.regionComercialBorrada) this.regionComercialBorrada=false;     
-    });
+    }));
 
     // Detección cambios en el pais
-    this.venueForm.get('pais').valueChanges.subscribe(codPais=>{
+    this.listeners.push(this.venueForm.get('pais').valueChanges.subscribe(codPais=>{
       console.log('detecto cambios en pais',codPais,this.prevCountry);
       if (this.newVenue || codPais!=this.prevCountry){ // && codPais!=''
         this.prevCountry=codPais;
@@ -384,18 +397,18 @@ export class VenueComponent implements OnInit {
       }else{
         this.listenerLocalizacion();
       }
-    });
+    }));
 
     // deteccion campo busqueda horario
-    this.venueForm.get('schedulesSearch').valueChanges.subscribe(a=>{
+    this.listeners.push(this.venueForm.get('schedulesSearch').valueChanges.subscribe(a=>{
       this.filterSchedules=a;
       this.page=0;
-    });
+    }));
   } 
 
   listenerLocalizacion(){
 
-    this.localizacion.valueChanges.subscribe(a=>{        
+    this.listeners.push(this.localizacion.valueChanges.subscribe(a=>{        
 
       //  Comprobamos el nivel cambiado y actualizamos los inferiores a null
       let posicionCambio=0;
@@ -437,7 +450,7 @@ export class VenueComponent implements OnInit {
           this.lastLocalizacion.push(null)
         });       
       }
-    });  
+    }));  
   }
 
 
@@ -484,7 +497,7 @@ export class VenueComponent implements OnInit {
       let entitiesArray:any=[];
       let ObservablesArray:any=[];
       
-      console.log('organizacion',organizacion);
+ //     console.log('organizacion',organizacion);
       organizacion.forEach( (org,index)=>{
     
         entitiesArray[index]=[org.get("idOrganizacionTerritorial").value,prevEntity];
@@ -857,7 +870,6 @@ export class VenueComponent implements OnInit {
                             file:image};
       reader.onload = () => this.binariosImagenLocal = reader.result as string;
     }
-
     return;
   }
 
@@ -938,8 +950,6 @@ export class VenueComponent implements OnInit {
           newSite:               si,
         }
 
-        console.log('respuesta',respuesta);
-  
         if (this.venueId==='nuevo'){
           peticionHtml=this.venueServices.saveVenue(respuesta);
         }else{
@@ -1145,6 +1155,7 @@ export class VenueComponent implements OnInit {
   respEmplazamiento(){
     let r=[];
   
+    console.log('Lo que tiene la lista de emplazamientos',this.emplazamiento.controls.length)
     this.emplazamiento.controls.forEach((elem,index) => {
       r.push({   
         comercialCodeId:  elem.get('idCodigoComercial').value,

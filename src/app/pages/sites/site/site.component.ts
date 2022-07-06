@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {FormBuilder, FormGroup,Validators, FormControl,FormArray} from '@angular/forms';
-import { Observable,forkJoin} from 'rxjs';
+import { Observable,Subscription} from 'rxjs';
 import Swal from 'sweetalert2';
 
 import { TranslateService } from '@ngx-translate/core'; 
@@ -67,7 +67,8 @@ export class SiteComponent implements OnInit {
 
   public tipoPantallaPanelLed:boolean;
   public activeLang = this.globalDataServices.getStringUserLanguage();
-
+  public listeners:Subscription[]=[];
+  public fechaAlta:Date|null=null;
 
 
   constructor(private fb: FormBuilder,
@@ -104,7 +105,7 @@ export class SiteComponent implements OnInit {
         error=>{ 
           this.loginServices.accessErrorText(error)
               .then(resp=>{
-                this.salidaForzada();   
+                this.salidaFormulario();   
               })
         });
 
@@ -142,14 +143,17 @@ export class SiteComponent implements OnInit {
     error=>{ 
       this.loginServices.accessErrorText(error)
           .then(resp=>{
-            this.salidaForzada();  
+            this.salidaFormulario();  
           })
     });
    
    return
   }
 
-  salidaForzada(){
+  salidaFormulario(){
+    if (this.listeners && this.listeners.length > 0) {
+      this.listeners.forEach(s => s.unsubscribe());
+    }
     this.siteForm.reset();
     this.loginServices.logout();
     this.router.navigate(['/login']);    
@@ -193,11 +197,11 @@ export class SiteComponent implements OnInit {
   }
 
   loadData(site:Site){
-    
-
-
+  
     this.tipoPantallaPanelLed=site.screen.screenType.panel;
-   
+    this.fechaAlta= site.entryDate;
+
+
     this.siteForm.get('localizacionPantalla').patchValue(site.screenLocation.id);
     this.siteForm.get('texto').patchValue(site.text);
     this.siteForm.get('nombreArchivo').patchValue(site.image);
@@ -232,12 +236,10 @@ export class SiteComponent implements OnInit {
     this.siteServices.getScreenModels()
     .subscribe(resp=>{
       this.screenModels=resp;    
-      console.log('this.screenModels',this.screenModels);
       if (site.screen.screenModel.id){ // Si el site tiene modelo de pantalla obtenemos los datos (Si hay modelo tambien hay tipo y pantalla)
         this.screenModelData(site.screen.screenModel.id)
         .then(res=>{
           this.modeloPantallaSeleccionado=res;
-          console.log('en la respuesta de la promesa',this.modeloPantallaSeleccionado);
          //  Desabilitamos campos del número de paneles si la pantalla es LCD
           if ( this.modeloPantallaSeleccionado.panel ) {
             this.siteForm.get('modulosAncho').enable();
@@ -249,7 +251,6 @@ export class SiteComponent implements OnInit {
         });
       }
     });  
-console.log('salgo de cargar datos');
     return
 
   }
@@ -257,14 +258,12 @@ console.log('salgo de cargar datos');
   crearListeners(){
 
     // Detección cambios en la localización de la pantalla 
-    this.siteForm.get('localizacionPantalla').valueChanges.subscribe(a=>{
-      console.log('detecto cambio en la localización de la pantalla',a)
+    this.listeners.push(this.siteForm.get('localizacionPantalla').valueChanges.subscribe(a=>{
       if (this.localizacionPantallaBorrada) this.localizacionPantallaBorrada=false;     
-    });
+    }));
 
     // Detección cambios en el tipo de pantalla
-    this.siteForm.get('tipoPantalla').valueChanges.subscribe(codTipoPantalla=>{
-      console.log('detecto cambios en tipo de pantalla',codTipoPantalla);
+    this.listeners.push(this.siteForm.get('tipoPantalla').valueChanges.subscribe(codTipoPantalla=>{
       
       this.siteForm.get('marcaPantalla').patchValue(null);   
       this.siteForm.get('modeloPantalla').patchValue(null);   
@@ -296,10 +295,9 @@ console.log('salgo de cargar datos');
         this.pulgadasPantalla=0;
         this.pixelesPantalla=null;
 
-    });
+    }));
 
-    this.siteForm.get('marcaPantalla').valueChanges.subscribe(codMarcaPantalla=>{
-      console.log('detecto cambios en marca de pantalla',codMarcaPantalla);
+    this.listeners.push(this.siteForm.get('marcaPantalla').valueChanges.subscribe(codMarcaPantalla=>{
       
       if (this.siteForm.get('marcaPantalla').value){
         this.siteForm.get('modeloPantalla').patchValue(null);    
@@ -313,17 +311,14 @@ console.log('salgo de cargar datos');
       this.resolucionAlto=null;
       this.pulgadasPantalla=0;
       this.pixelesPantalla=null;
-    });
+    }));
 
-    this.siteForm.get('modeloPantalla').valueChanges.subscribe(codModeloPantalla=>{
-      console.log('detecto cambios en modelo de pantalla',codModeloPantalla,typeof codModeloPantalla );
+    this.listeners.push(this.siteForm.get('modeloPantalla').valueChanges.subscribe(codModeloPantalla=>{
 
       if (this.siteForm.get('modeloPantalla').value){
-        console.log('me cuelo',this.siteForm.get('modeloPantalla').value);
         this.screenModelData(codModeloPantalla)
         .then(res=>{ 
           this.modeloPantallaSeleccionado=res;
-          console.log('modelo de pantalla actual',this.modeloPantallaSeleccionado)
           const rw:number=res.panel?res.measureWidth/Number(res.pixel):res.resolutionWidth;
           const rh:number=res.panel?res.measureHeight/Number(res.pixel):res.resolutionHeight;
                
@@ -340,10 +335,9 @@ console.log('salgo de cargar datos');
          
         });
       }
-    });
+    }));
 
-    this.siteForm.get('modulosAncho').valueChanges.subscribe(ancho=>{
-      console.log('detecto cambios en número modulos de ancho del led',this.modeloPantallaSeleccionado);
+    this.listeners.push(this.siteForm.get('modulosAncho').valueChanges.subscribe(ancho=>{
       if (this.modeloPantallaSeleccionado!= undefined){
         this.anchoPantalla=ancho*this.modeloPantallaSeleccionado.measureWidth;
         if (this.tipoPantallaPanelLed){
@@ -353,10 +347,9 @@ console.log('salgo de cargar datos');
           this.resolucionAncho=ancho*(this.modeloPantallaSeleccionado.resolutionWidth);  
         }
       } 
-    });
+    }));
     
-    this.siteForm.get('modulosAlto').valueChanges.subscribe(alto=>{
-      console.log('detecto cambios en número modulos de alto del led',this.modeloPantallaSeleccionado);
+    this.listeners.push(this.siteForm.get('modulosAlto').valueChanges.subscribe(alto=>{
       if (this.modeloPantallaSeleccionado!= undefined){
         
         this.altoPantalla=alto*this.modeloPantallaSeleccionado.measureHeight;
@@ -367,7 +360,7 @@ console.log('salgo de cargar datos');
           this.resolucionAlto=alto*(this.modeloPantallaSeleccionado.resolutionHeight);
         }
       }
-    });
+    }));
 
   }
 

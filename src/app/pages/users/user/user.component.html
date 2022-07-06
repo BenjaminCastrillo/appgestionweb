@@ -44,13 +44,17 @@
       <!-- Fin apellido de cliente -->
       <!-- Fecha de alta-->
       <div class="col-2" *ngIf="!newUser">
-      <label class="form-label" for="inputFechaAlta">{{'user.field3'|translate}}</label>
-      <p class="p-2 cajaFecha">{{currentUser.entryDate|date:'mediumDate'}}</p>
-    </div>
-    <!-- Fin fecha de alta -->
+        <label class="form-label" for="inputFechaAlta">{{'user.field3'|translate}}</label>
+         <p class="p-2 cajaFecha">{{fechaAlta|translatedate}}</p>
+        <!-- <input class="form-control"
+                id="inputFechaAlta" 
+                type="text"
+                formControlName="fechaAlta"> -->
+      </div>
+      <!-- Fin fecha de alta -->
     </div>
       <!-- Fin linea-->
-    <div class="form-group row mb-3">
+    <div class="form-group row mb-4">
       <!-- email -->
       <div class="col-4">
         <label class="form-label" for="inputEmail">{{'user.field4'|translate}}</label>
@@ -84,7 +88,7 @@
       </div>
       <!-- Fin Password -->
       <!-- Idioma-->
-      <div class="col-2">
+      <!-- <div class="col-2">
         <label class="form-label" for="inputidioma">{{'user.field6'|translate}}</label>
         <select class="form-select" formControlName="idioma">
           <option  value="{{a.id}}" *ngFor="let a of languages" 
@@ -92,7 +96,7 @@
                   [class.is-invalid]="idiomaNoValido">{{a.description}}</option>
         </select>     
         <small *ngIf="idiomaNoValido" class="text-danger">{{msgError('idioma')}}</small>
-      </div>
+      </div> -->
       <!-- Fin idioma -->
     </div>
       <!-- Fin linea-->
@@ -124,18 +128,23 @@
           <input class="form-check-input" type="checkbox" value="bloqueado" 
                   id="flexCheckBlocked"
                   formControlName="bloqueado">
-          <label class="form-check-label" for="flexCheckBlocked">{{'user.field9'|translate}}</label>
+                  
+          <label *ngIf="!userForm.get('bloqueado').value" class="form-check-label" for="flexCheckBlocked">{{'user.field9'|translate}}</label>
+          <label *ngIf="userForm.get('bloqueado').value" class="form-check-label bg-danger text-white" for="flexCheckBlocked">{{'user.field9'|translate}}</label>
 
         </div>
       </div>
       <!-- Fin check usuario bloqueado -->
        <!-- Último acceso-->
-       <div class="col-2">
+      <div class="col-2" *ngIf="!newUser">
         <label class="form-label" for="inputultimoAcceso">{{'user.field10'|translate}}</label>
-        <input class="form-control"
-              id="inputultimoAcceso"
+        <p *ngIf="fechaAcceso" class="p-2 cajaFecha">{{fechaAcceso|translatedate}}</p>
+        <p *ngIf="!fechaAcceso" class="p-2 cajaFecha">{{'general.noAccess'|translate}}</p>
+      
+        <!-- <input class="form-control"
+              id="inputultimoAcceso" 
               type="text"
-              formControlName="ultimoAcceso">
+              formControlName="ultimoAcceso"> -->
       </div> 
       <!-- Fin último acceso -->
     </div>

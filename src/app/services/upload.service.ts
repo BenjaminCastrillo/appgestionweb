@@ -18,7 +18,6 @@ export class UploadService {
     const httpHeaders = new HttpHeaders({
       'enctype':'multipart/form-data'
     });
-    console.log('aqui............');
     switch (imageType){
     case 'B':
       metodo='brandimage';

@@ -47,10 +47,10 @@
          <!-- Fecha de alta-->
       <div class="col-2" *ngIf="!newCustomer">
         <label class="form-label" for="inputFechaAlta">{{'customer.field3'|translate}}</label>
-        <p class=" p-2 cajaFecha">{{currentCustomer.entryDate|date:'mediumDate'}}</p>
+        <p class="p-2 cajaFecha">{{fechaAlta|translatedate}}</p>
       </div>
       <!-- Fin fecha de alta -->
-      </div>
+      </div> 
 
       <!--Telefono  del cliente-->
       <div class="form-group row">

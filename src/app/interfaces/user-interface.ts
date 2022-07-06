@@ -1,4 +1,3 @@
-import { ScreenLocation } from './venue-interface';
 import { Customer } from './site-interface';
 
 export interface UsersResponse {
@@ -7,17 +6,11 @@ export interface UsersResponse {
   message: null;
 }
 
-export interface SitesListResponse {
-  result:  boolean;
-  data:    SitesList[];
-  message: null;
-}
-
 export interface User {
   id:               number;
   name:             string;
   surname:          string;
-  lastAccess:       null | Date;
+  lastAccess?:      null | Date;
   entryDate?:       null | Date;  
   languageId:       number;
   email:            string;
@@ -31,6 +24,7 @@ export interface User {
   categories:       Category[];
   filter?:          null | boolean;
   blocked:          boolean;
+  image?:            string;
 }
 
 export interface Category {
@@ -53,7 +47,11 @@ export interface CustomerUserList {
   deleted:       boolean;
 }
 
-
+export interface SitesListResponse {
+  result:  boolean;
+  data:    SitesList[];
+  message: null;
+}
 
 export interface SitesList {
   id:              number;

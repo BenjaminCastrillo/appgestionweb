@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
-import { Observable} from 'rxjs';
+import { Observable,Subscription} from 'rxjs';
 
 import Swal from 'sweetalert2';
 import {NgbModal, NgbModalConfig,ModalDismissReasons, NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
@@ -17,6 +17,8 @@ import { LoginService } from '../../../services/login.service';
 import { SiteService } from '../../../services/site.service';
 import { UtilService } from '../../../services/util.service';
 import { UserService } from '../../../services/user.service';
+import { ErrorService } from '../../../services/error.service';
+import { now } from 'moment';
 
 interface ErrorValidate{
   [s:string]:boolean
@@ -84,8 +86,11 @@ export class UserComponent implements OnInit {
   public sortedData:SitesList[]=[];
   public listaExcepcionesActiva:SitesList[];
   public activeLang = this.globalDataServices.getStringUserLanguage();
-
+  public listeners:Subscription[]=[];
   
+  public fechaAlta:Date|null=null;
+  public fechaAcceso:Date|null=null;
+
   constructor(
     private ActivatedRoute:ActivatedRoute,
     private fb: FormBuilder,
@@ -97,6 +102,9 @@ export class UserComponent implements OnInit {
     private UtilService:UtilService, 
     private loginServices:LoginService,
     private globalDataServices:GlobalDataService,
+    private errorServices:ErrorService,
+    private utilServices:UtilService,
+
     config: NgbModalConfig, private modalService: NgbModal  
     ) {
       config.backdrop = 'static';
@@ -109,6 +117,7 @@ export class UserComponent implements OnInit {
   ngOnInit(): void {
     
     this.userId= this.ActivatedRoute.snapshot.paramMap.get('id');
+
     if (this.userId==='nuevo'){
       this.newUser=true;
    //   this.pageTitle='Alta nuevo usuario';
@@ -119,25 +128,25 @@ export class UserComponent implements OnInit {
       .subscribe(resp=>{
           this.currentUser=resp.data[0];
           this.rolAnterior=this.currentUser.rol.id;
-          console.log('el usuario recibido',this.currentUser);
+          console.log(this.currentUser);
           this.loadData(resp.data[0]);      
         },
         error=>{ 
           // Visualización del error al usuario
           this.loginServices.accessErrorText(error)
               .then(resp=>{
-                this.salidaForzada();   
+                this.salidaFormulario();   
           })
         })
     }   
-    this.userServices.getLanguages()
+    this.userServices.getLanguages() 
       .subscribe(resp=>{
         if (resp.result===true) this.languages=resp.data;
       },
       error=>{ 
         this.loginServices.accessErrorText(error)
         .then(resp=>{
-         this.salidaForzada();
+         this.salidaFormulario();
         });
       });
     this.userServices.getRoles()
@@ -147,7 +156,7 @@ export class UserComponent implements OnInit {
       error=>{ 
         this.loginServices.accessErrorText(error)
         .then(resp=>{
-           this.salidaForzada();
+           this.salidaFormulario();
         });
       });
     this.customerServices.getCustomers()
@@ -157,13 +166,16 @@ export class UserComponent implements OnInit {
       error=>{ 
         this.loginServices.accessErrorText(error)
         .then(resp=>{
-           this.salidaForzada();
+           this.salidaFormulario();
         });
       });
     this.crearListeners();
   }
  
-  salidaForzada(){
+  salidaFormulario(){
+    if (this.listeners && this.listeners.length > 0) {
+      this.listeners.forEach(s => s.unsubscribe());
+    }
     this.userForm.reset();
     this.loginServices.logout();
     this.router.navigate(['/login']);    
@@ -228,7 +240,8 @@ export class UserComponent implements OnInit {
     this.userForm = this.fb.group({
       nombre:         ['', Validators.required],
       apellido:       ['', Validators.required],
-      ultimoAcceso:   [{value:'',disabled:true}],
+      // ultimoAcceso:   [{value:'',disabled:true}],
+      // fechaAlta:      [{value:'',disabled:true}],
       email:          ['', [Validators.required,
                       Validators.pattern('[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$')]
                       ,this.existsEmailUser.bind(this)],
@@ -236,14 +249,14 @@ export class UserComponent implements OnInit {
       password:       ['', [Validators.required,Validators.minLength(8),
                       Validators.pattern('^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])[a-zA-Z0-9]{8,}$')]],
       rol:            ['', Validators.required],
-      idioma:         ['', Validators.required],
+      idioma:         ['1', Validators.required],
       bloqueado:      [false, Validators.required],
       relacionUsuario:[''],
       notas:          [],
       cliente: this.fb.array([]),
       categoria: this.fb.array([]),
       excepciones: this.fb.array([]),
-      customerSearch: [],
+      customerSearch: [], 
       siteSearch: [],
       // customerSearch2:[],
       exceptionType:  []
@@ -268,15 +281,17 @@ export class UserComponent implements OnInit {
     user.customerUserList.forEach(elem=>{
       cus.push(this.newCliente(elem.id,elem.customerId,elem.customerName,elem.exception))
     });
-    console.log('Lista de clientes del usuario',user.customerUserList);
-    console.log('Lista de sites',user.sitesList);
     user.sitesList.forEach(elem=>{
-      console.log('elemento que falla',elem);
       exc.push(this.newExceptionEmplazamiento(elem.id,elem.siteId,elem.siteComercialId,
         elem.venueName,elem.customer.id,elem.customer.name,
         user.customerUserList.find(e=>e.customerId==elem.customer.id).exception))
-      });
-
+    });
+      
+    // this.fechaAlta= this.utilServices.stringToDate(user.entryDate)   
+    // this.fechaAcceso= this.utilServices.stringToDate(user.lastAccess)  
+    this.fechaAlta= user.entryDate;
+    this.fechaAcceso= user.lastAccess;
+    
     this.userForm.get('nombre').patchValue(user.name);
     this.userForm.get('apellido').patchValue(user.surname);
     this.userForm.get('email').patchValue(user.email);
@@ -284,12 +299,11 @@ export class UserComponent implements OnInit {
     this.userForm.get('password').patchValue(null);
     this.userForm.get('idioma').patchValue(user.languageId);
     this.userForm.get('bloqueado').patchValue(user.blocked);
- 
-   // this.userForm.get('rol').patchValue(1);
+    
     this.userForm.get('rol').patchValue(user.rol.id);
     this.userForm.get('relacionUsuario').patchValue(user.relationship);
-    this.userForm.get('ultimoAcceso').patchValue(user.lastAccess);
- //   this.userForm.get('fechaAlta').patchValue(user.entryDate);
+   // this.userForm.get('ultimoAcceso').patchValue(user.lastAccess);
+    // this.userForm.get('fechaAlta').patchValue(user.entryDate);
     this.userForm.get('notas').patchValue(user.notes);
 
     
@@ -301,15 +315,14 @@ export class UserComponent implements OnInit {
   return
   }
 
-
   crearListeners(){
 
-    this.userForm.get('customerSearch').valueChanges.subscribe(a=>{
+    this.listeners.push(this.userForm.get('customerSearch').valueChanges.subscribe(a=>{
       this.filterCustomer=a;
       this.page=0;
-    });
+    }));
 
-    this.userForm.get('rol').valueChanges.subscribe(a=>{
+    this.listeners.push(this.userForm.get('rol').valueChanges.subscribe(a=>{
       if (Number(a)===3){
         this.userForm.get('relacionUsuario').patchValue(this.prevRelationship);
         this.userForm.get('relacionUsuario').enable();
@@ -321,15 +334,14 @@ export class UserComponent implements OnInit {
       if ((a==0 && this.rolAnterior==3) || 
           (a==1 && this.rolAnterior==3) || 
           (a==0 && this.rolAnterior==1)){
-        console.log('vamos a borrar clientes y excepciones');
         // eliminamos clientes y excepciones 
         this.cliente.controls.splice(0);
         this.excepciones.controls.splice(0);
       }
       this.rolAnterior=a;
-    });
+    }));
 
-    this.userForm.get('nuevaPassword').valueChanges.subscribe(a=>{
+    this.listeners.push(this.userForm.get('nuevaPassword').valueChanges.subscribe(a=>{
      if (this.userForm.get('nuevaPassword').value){
        this.userForm.get('password').enable();
       }  
@@ -337,14 +349,14 @@ export class UserComponent implements OnInit {
         this.userForm.get('password').disable();
         this.userForm.get('password').patchValue(null);
     }
-    });
+    }));
        
-    this.userForm.get('siteSearch').valueChanges.subscribe(a=>{  
+    this.listeners.push(this.userForm.get('siteSearch').valueChanges.subscribe(a=>{  
       this.filterSite=a;
       this.page=0;
-    });
+    }));
 
-    this.userForm.get('exceptionType').valueChanges.subscribe(a=>{  
+    this.listeners.push(this.userForm.get('exceptionType').valueChanges.subscribe(a=>{  
    // actualizamos el tipo de excepcion a todos los emplazamientos
        if (this.excepcionesCliente != undefined) {   
         this.excepcionesCliente.forEach(elem=>{
@@ -353,7 +365,7 @@ export class UserComponent implements OnInit {
         const i=this.cliente.controls.findIndex(b=>b.get('idCliente').value=== this.codigoCliente);
         this.cliente.controls[i].get('excepcion').patchValue(a);
        }
-    });
+    }));
     return
   }
 
@@ -414,8 +426,6 @@ export class UserComponent implements OnInit {
  
     this.excepcionesCliente.splice(i,1);
 
-    console.log(this.excepcionesBorradas);
-
   }
 
   removeExcepcionesByCustomer(idCliente:number){
@@ -431,6 +441,7 @@ export class UserComponent implements OnInit {
   }
 
   selectRol(elem:number){
+    console.log('en  selectRol',elem);
     return elem==this.userForm.get('rol').value?true:false;
   }
 
@@ -448,7 +459,6 @@ export class UserComponent implements OnInit {
    }
     switch (Number(this.userForm.get('rol').value)){
       case 0:
-       console.log('x',this.userForm.get('rol').value, typeof this.userForm.get('rol').value)
         Swal.fire({
           title: this.userForm.get('rol').value=='0'?`El rol ${rol.description}`:'Es necesario elegir un rol',
           text:this.userForm.get('rol').value=='0'?'no permite seleccionar clientes':'para seleccionar clientes',
@@ -561,7 +571,6 @@ export class UserComponent implements OnInit {
           this.excepciones.push(this.newExceptionEmplazamiento(elem.id,elem.siteId,elem.siteComercialId,
             elem.venueName,elem.customer.id,elem.customer.name,elem.exception));
         }else{
-          console.log('ya existia',elem);
           // actualizamos el tipo de excepcion
           this.excepciones.controls[i].get('excepcion').patchValue(elem.exception);
         }
@@ -576,9 +585,7 @@ export class UserComponent implements OnInit {
           }        
         })     
       }
-      console.log('el formulario',this.excepciones.controls);
       this.sortedData=this.listaExcepcionesActiva=this.cargarExcepciones(null);
-      console.log('la sort',this.sortedData);
     return
   }
 
@@ -650,7 +657,6 @@ export class UserComponent implements OnInit {
 
   sortData(sort: Sort) {
     const data = this.listaExcepcionesActiva.slice(); 
-    console.log(data);
     if (!sort.active || sort.direction === '') {
       this.sortedData = data;
       return;
@@ -679,7 +685,6 @@ export class UserComponent implements OnInit {
     let msg1:string=null;
     let msg2:string=null;
     let msg3:string=null;
-    console.log(this.userForm)
 
     if (this.userForm.touched){
       let invalidListCustomer=(this.cliente.controls.length==0 
@@ -708,7 +713,6 @@ export class UserComponent implements OnInit {
         cat=this.respCategoria();
         cus=this.respCliente();
         exc=this.respExcepciones();
-        console.log('excepciones',exc);
  //       sit=this.userId!='nuevo'?this.currentUser.sitesList:[];
         let objectRol:Rol= this.roles.find(a=>a.id==Number(this.userForm.get('rol').value));
 
@@ -724,13 +728,12 @@ export class UserComponent implements OnInit {
               blocked             :this.userForm.get('bloqueado').value,
               notes               :this.userForm.get('notas').value,
               languageId          :Number(this.userForm.get('idioma').value),
-              lastAccess          :this.userForm.get('ultimoAcceso').value,
+              lastAccess          :this.fechaAcceso,
               categories          :cat,
               customerUserList    :cus,
               sitesList           :exc,
         }
 
-        console.log('enviamos al servidor',respuesta);
         if (this.userId==='nuevo'){
           peticionHtml=this.userServices.saveUser(respuesta);
         }else{
@@ -942,37 +945,10 @@ respExcepciones(){
 
 msgError(campo: string): string {
 
-  let message: string = null;
-
-  if(this.userForm.get(campo).hasError('required'))
-      this.translate.get('error.validationField1')
-      .subscribe(res=>(message=res));
-
-  if(this.userForm.get(campo).hasError('pattern') && campo=='email')
-      this.translate.get('error.validationField11')
-      .subscribe(res=>(message=res));
-
-  if(this.userForm.get(campo).hasError('pattern') && campo=='password')
-      this.translate.get('error.validationField12')
-      .subscribe(res=>(message=res));
-
-  if(this.userForm.get(campo).hasError('exists'))
-      this.translate.get('error.validationField13')
-      .subscribe(res=>(message=res));
-  
-
-    if(this.userForm.get(campo).hasError('minlength'))    
-      this.translate.get('error.validationField4', 
-          {value1: campo,
-           value2: this.userForm.get(campo).errors.minlength.requiredLength})
-      .subscribe(res=>(message=res));
-    
-    if(this.userForm.get(campo).hasError('maxlength'))    
-        this.translate.get('error.validationField5', 
-              {value1: campo,
-               value2: this.userForm.get(campo).errors.maxlength.requiredLength})
-        .subscribe(res=>(message=res));
-
-    return message;
+      let textMsg: string = '';
+      if (this.userForm.get(campo)?.errors){
+        textMsg=this.errorServices.validationFieldError(this.userForm.get(campo)?.errors,campo);
+      }
+      return textMsg;
 }
 }
