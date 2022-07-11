@@ -9,6 +9,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatIconModule } from '@angular/material/icon';
 import {  TranslateModule } from '@ngx-translate/core';
+import { ImageCropperModule } from 'ngx-image-cropper';
 
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { ComponentsModule } from '../components/components.module';
@@ -53,6 +54,7 @@ import { PagesComponent } from './pages.component';
     RouterModule,
     MatIconModule,
     TranslateModule,
+    ImageCropperModule,
    // MatButtonModule,
   ],
   exports:[

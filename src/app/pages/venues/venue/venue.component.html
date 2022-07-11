@@ -90,16 +90,20 @@
             <small *ngIf="regionComercialNoValido" class="text-danger">{{msgError('regionComercial')}}</small>
           </div>
           <!-- Fin Región de mercado -->
+
           <!-- Input Imagen del local-->
           <div class="col-4">     
             <label class="form-label" for="inputImagenLocal">{{'venue.field6'|translate}}</label>  
-            <input (change)="capturarFile($event)" 
+            <!-- <input (change)="capturarFile($event)"  -->
+            <input (change)="fileChangeEvent($event)" 
               class="form-control"
               type="file"
-              accept="image/png/jpeg"
+              accept="image/png/jpeg/jpg"
               formControlName="imagenLocal">         
           </div>
-          <!-- Fin input imagen del local -->       
+          <!-- Fin input imagen del local -->     
+
+
         </div>       
         <!-- Fin Linea 1 izquierda -->
         <!-- Linea 2 izquierda -->
@@ -151,8 +155,22 @@
 
       <!-- Inicio columna derecha-->
       <!-- Imagen del local-->
+
       <div class="col-3">
-         <img id="fileVenue" class="img-fluid rounded-3"  width="300"  [src]="binariosImagenLocal">
+          <image-cropper
+          [imageURL]="binariosImagenLocal"
+          [imageChangedEvent]="imageChangedEvent"
+          [maintainAspectRatio]="true"
+          [aspectRatio]="16 / 9"
+          [resizeToWidth]="300"
+          [roundCropper]="true"
+          format="png"
+          (imageCropped)="imageCropped($event)"
+          (imageLoaded)="imageLoaded($event)"
+          (loadImageFailed)="loadImageFailed()">
+        </image-cropper>    
+
+         <!-- <img id="fileVenue" class="img-fluid rounded-3"  width="300"  [src]="binariosImagenLocal"> -->
       </div>
       <!-- Fin Imagen del local-->
       <!-- Fin columna derecha-->

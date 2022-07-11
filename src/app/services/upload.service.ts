@@ -78,4 +78,20 @@ Metodo para extraer la base 64 de un fichero de imagen obtenido en un input
     }
   });
 
+  // Convertir imagen base64 a File
+
+  dataURLtoFile(dataUrul:any,filename:any){
+    let arr=dataUrul.split(','),
+    mime=arr[0].match(/:(.*?);/)[1],
+    bstr=atob(arr[1]),
+    n=bstr.length,
+    u8arr=new Uint8Array(n);
+  
+    while (n--){
+      u8arr[n]=bstr.charCodeAt(n);
+    }
+    return new File([u8arr],filename,{type:mime});
+  }
+
+
 }

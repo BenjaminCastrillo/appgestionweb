@@ -5,6 +5,7 @@ import { NgbModal, NgbModalConfig,ModalDismissReasons } from '@ng-bootstrap/ng-b
 import { Observable,forkJoin,throwError, Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import { TranslateService } from '@ngx-translate/core'; 
+import { ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
 
 import { Venue, Country, Customer, Brand, MarketRegion, RoadType, Week, Schedule, 
           Weekly, StartDate } 
@@ -77,7 +78,11 @@ export class VenueComponent implements OnInit, OnDestroy {
   public filesImagenVenue:ImagenesFile;
   public activeLang = this.globalDataServices.getStringUserLanguage();
  //  public dropdownSettings:IDropdownSettings = {};
- public fechaAlta:Date|null=null;
+  public fechaAlta:Date|null=null;
+
+  public imageChangedEvent: any = '';
+  public croppedImage: any = '';
+
 
 
   constructor(private fb: FormBuilder,
@@ -284,6 +289,7 @@ export class VenueComponent implements OnInit, OnDestroy {
       })
     });
    
+    // Cargamos las imagenes 
     this.binariosImagenMarca=(venue.brand.image)?this.urlImageBrand+venue.brand.image:this.imageDefault;
     this.binariosImagenLocal=(venue.image)?this.urlImageVenue+venue.image:this.imageDefault;
 
@@ -857,8 +863,9 @@ export class VenueComponent implements OnInit, OnDestroy {
     return  
   }
 
-  capturarFile(e:any){
-    
+  // Funcion en desuso al utilizar el componente ngx-image-cropper
+  capturarFile(e:any){   
+    console.log('estoy en capturarfile')
     if(e.target.files && e.target.files.length) {
       const reader = new FileReader();      
       const codImage=this.venueForm.get('codigoImagen').value;
@@ -871,6 +878,32 @@ export class VenueComponent implements OnInit, OnDestroy {
       reader.onload = () => this.binariosImagenLocal = reader.result as string;
     }
     return;
+  }
+
+  fileChangeEvent(event: any): void {
+
+    this.imageChangedEvent = event;
+    const codImage=this.venueForm.get('codigoImagen').value;
+    this.venueForm.get('tocado').patchValue(true);
+    this.venueForm.get('tocado').markAsTouched();  
+    console.log('en fileChangeEvent',event.target.files[0]);
+    const image:File = event.target.files[0];   
+    this.filesImagenVenue={cod:codImage,
+      file:image};
+  }
+
+  imageCropped(event: ImageCroppedEvent) {
+    console.log('estoy en imageCropped')
+    this.croppedImage = event.base64;
+  }
+
+  imageLoaded(a:LoadedImage) {
+    let aa=a.transformed.size;
+  }
+
+  loadImageFailed() {
+    // show message
+    console.log('ERROR estoy en loadImageFailed');
   }
 
 
@@ -959,6 +992,7 @@ export class VenueComponent implements OnInit, OnDestroy {
         peticionHtml.subscribe(resp=>{    
           
           if (this.filesImagenVenue){
+            this.filesImagenVenue.file=this.uploadServices.dataURLtoFile(this.croppedImage,'image.png');
             this.subirArchivo();
           }
 
@@ -1169,6 +1203,8 @@ export class VenueComponent implements OnInit, OnDestroy {
   subirArchivo():any{
     const fd= new FormData();
     
+    console.log('estoy en subir archico this.filesImagenVenue.file',this.filesImagenVenue.file)
+    console.log('this.filesImagenVenue.cod',this.filesImagenVenue.cod)
     try{
         fd.append('image',this.filesImagenVenue.file);
         fd.append('imageCode',this.filesImagenVenue.cod);

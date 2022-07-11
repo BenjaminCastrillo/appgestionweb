@@ -5,6 +5,7 @@ import { Observable,Subscription} from 'rxjs';
 import Swal from 'sweetalert2';
 
 import { TranslateService } from '@ngx-translate/core'; 
+import { ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
 
 import { Site, ScreenLocation, Orientation, ScreenType, ScreenModel } from '../../../interfaces/site-interface';
 import { Venue, ScreenBrand } from '../../../interfaces/venue-interface';
@@ -69,6 +70,10 @@ export class SiteComponent implements OnInit {
   public activeLang = this.globalDataServices.getStringUserLanguage();
   public listeners:Subscription[]=[];
   public fechaAlta:Date|null=null;
+
+  public imageChangedEvent: any = '';
+  public croppedImage: any = '';
+
 
 
   constructor(private fb: FormBuilder,
@@ -473,7 +478,7 @@ get observacionesNoValido(){
     });
   }
 
-
+  // Funcion en desuso al utilizar el componente ngx-image-cropper
   capturarFile(e:any){
     
     if(e.target.files && e.target.files.length) {
@@ -491,6 +496,31 @@ get observacionesNoValido(){
     return;
   }
 
+
+  fileChangeEvent(event: any): void {
+
+    this.imageChangedEvent = event;
+    const codImage=this.siteForm.get('codigoImagen').value;
+    this.siteForm.get('tocado').patchValue(true);
+    this.siteForm.get('tocado').markAsTouched();  
+    console.log('en fileChangeEvent',event.target.files[0]);
+    const image:File = event.target.files[0];   
+    this.filesImagenSite={cod:codImage,
+      file:image};
+  }
+
+  imageCropped(event: ImageCroppedEvent) {
+    this.croppedImage = event.base64;
+  }
+
+  imageLoaded(a:LoadedImage) {
+    let aa=a.transformed.size;
+  }
+
+  loadImageFailed() {
+    // show message
+    console.log('ERROR estoy en loadImageFailed');
+  }
 
   onSubmit(){
     let mensajeError:string='Datos incorrectos'
@@ -587,6 +617,7 @@ get observacionesNoValido(){
   
       peticionHtml.subscribe(resp=>{            
         if (this.filesImagenSite){
+          this.filesImagenSite.file=this.uploadServices.dataURLtoFile(this.croppedImage,'image.png');
            this.subirArchivo();
         }
   

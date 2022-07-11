@@ -29,6 +29,7 @@
     "moment": "^2.29.1",
     "ng-multiselect-dropdown": "^0.3.4",
     "ngx-bootstrap": "^7.0.0",
+    "ngx-image-cropper": "^5.0.0",
     "rxjs": "~6.6.0",
     "sweetalert2": "^11.0.18",
     "tslib": "^2.0.0",
