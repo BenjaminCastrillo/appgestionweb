@@ -17,7 +17,7 @@ export class CustomerPipe implements PipeTransform {
           customer.identification.toLowerCase().indexOf(text.toLowerCase())>-1)
       {
         resultado.push(customer);
-      } 
+      }  
     }
     
     return resultado.slice(page,page+linesPage);

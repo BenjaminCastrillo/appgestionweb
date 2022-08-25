@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 import { TranslateService } from '@ngx-translate/core'; 
 import { ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
 
-import { Site, ScreenLocation, Orientation, ScreenType, ScreenModel } from '../../../interfaces/site-interface';
+import { Site, ScreenLocation, Orientation, ScreenType, ScreenModel, AspectRatio } from '../../../interfaces/site-interface';
 import { Venue, ScreenBrand } from '../../../interfaces/venue-interface';
 
 import { GlobalDataService } from '../../../services/global-data.service';
@@ -22,6 +22,7 @@ interface ImagenesFile{
   cod:string,
   file:File
 }
+
 
 @Component({
   selector: 'app-site',
@@ -60,6 +61,7 @@ export class SiteComponent implements OnInit {
   public resolucionAlto:number=0;
   public pulgadasPantalla:number=0;
   public pixelesPantalla:number=0;
+  public aspectRatio:number=0;
   // Datos modelo seleccionado
   public modeloPantallaSeleccionado:ScreenModel;
 
@@ -67,6 +69,9 @@ export class SiteComponent implements OnInit {
   public marcaPantallaActual:number=0;
 
   public tipoPantallaPanelLed:boolean;
+  public defaultAspectRatio:AspectRatio[]=[];
+  public nuevaRelacionAspecto:boolean=false
+
   public activeLang = this.globalDataServices.getStringUserLanguage();
   public listeners:Subscription[]=[];
   public fechaAlta:Date|null=null;
@@ -81,7 +86,7 @@ export class SiteComponent implements OnInit {
     private siteServices:SiteService,
     private ActivatedRoute:ActivatedRoute,
     private uploadServices:UploadService,
-    private utilServices:UtilService,
+    public utilServices:UtilService,
     private loginServices:LoginService,
     private globalDataServices:GlobalDataService,
     private translate: TranslateService,
@@ -113,7 +118,6 @@ export class SiteComponent implements OnInit {
                 this.salidaFormulario();   
               })
         });
-
         this.siteServices.getScreenLocations(this.currentSite.customer.id)
         .subscribe(resp=>{
             this.screenLocations=resp;
@@ -126,7 +130,6 @@ export class SiteComponent implements OnInit {
                 })
             }
         });  
-
         this.siteServices.getScreenTypes()
         .subscribe(resp=>{
             this.screenTypes=resp;
@@ -140,6 +143,12 @@ export class SiteComponent implements OnInit {
         this.siteServices.getScreenOrientations()
         .subscribe(resp=>{
             this.screenOrientations=resp;
+        });
+
+        this.siteServices.getAspectRatio(this.currentSite.customer.id)
+        .subscribe(resp=>{
+            this.defaultAspectRatio=resp;
+            console.log('los aspectos',this.defaultAspectRatio);
         });
         
         this.loadData(this.currentSite);   
@@ -178,22 +187,23 @@ export class SiteComponent implements OnInit {
 
   crearFormulario() {
   this.siteForm = this.fb.group({
-    localizacionPantalla:  ['',this.deletedLocalizacionPantalla.bind(this)],
-    texto:                 [''],
- //   fechaAlta:             [{value:'',disabled:true}],
-    nombreArchivo:         [''],
-    tocado:                false,
-    codigoImagen:          [this.utilServices.ramdonNumber(200000,900000).toString()],
-    tipoPantalla:          ['', Validators.required],
-    marcaPantalla:         ['', Validators.required],
-    modeloPantalla:        ['', Validators.required],
-    orientacionPantalla:   ['', Validators.required],
-    numeroSeriePantalla:   [''],
-    numeroSerieReproductor:[''],
-    orientacionReproductor:['', Validators.required],
-    observaciones:         [''],
-    modulosAncho:          [{value:'',disabled:true}, Validators.pattern('[1-9]*')],
-    modulosAlto:           [{value:'',disabled:true}, Validators.pattern('[1-9]*')] 
+    localizacionPantalla:      ['',this.deletedLocalizacionPantalla.bind(this)],
+    texto:                     [''],
+ //   fechaAlta:                 [{value:'',disabled:true}],
+    nombreArchivo:             [''],
+    tocado:                    false,
+    codigoImagen:              [this.utilServices.ramdonNumber(200000,900000).toString()],
+    tipoPantalla:              ['', Validators.required],
+    marcaPantalla:             ['', Validators.required],
+    modeloPantalla:            ['', Validators.required],
+    orientacionPantalla:       ['', Validators.required],
+    numeroSeriePantalla:       [''], 
+    numeroSerieReproductor:    [''],
+    orientacionReproductor:    ['', Validators.required],
+    observaciones:             [''],
+    modulosAncho:              [{value:'1',disabled:true}, [Validators.pattern('[0-9]*'),Validators.min(1)]],
+    modulosAlto:               [{value:'1',disabled:true}, [Validators.pattern('[0-9]*'),Validators.min(1)]],
+    descripcionRelacionAspecto:[{value:'',disabled:true}],
   });
   
   //   validación con decimales Validators.pattern('^[0-9]+(,[0-9]+)?$')],
@@ -282,8 +292,8 @@ export class SiteComponent implements OnInit {
       this.tipoPantallaPanelLed=this.screenTypes[indiceTipoPantalla].panel;
 
         if(this.tipoPantallaPanelLed){
-          this.siteForm.get('modulosAncho').patchValue(0); 
-          this.siteForm.get('modulosAlto').patchValue(0); 
+          this.siteForm.get('modulosAncho').patchValue(1); 
+          this.siteForm.get('modulosAlto').patchValue(1); 
           this.siteForm.get('modulosAncho').enable();
           this.siteForm.get('modulosAlto').enable(); 
         }else{
@@ -316,6 +326,8 @@ export class SiteComponent implements OnInit {
       this.resolucionAlto=null;
       this.pulgadasPantalla=0;
       this.pixelesPantalla=null;
+      this.aspectRatio=0;
+      this.nuevaRelacionAspecto=false;
     }));
 
     this.listeners.push(this.siteForm.get('modeloPantalla').valueChanges.subscribe(codModeloPantalla=>{
@@ -333,7 +345,8 @@ export class SiteComponent implements OnInit {
           this.altoPantalla=this.siteForm.get('modulosAlto').value*res.measureHeight
           this.resolucionAlto=this.siteForm.get('modulosAlto').value*rh;
 
-          // this.siteForm.value.modulos.alto
+          this.aspectRatio=this.resolucionAncho/this.resolucionAlto;
+          this.nuevaRelacionAspecto=this.comprobarRelacionAspecto();
   
           this.pixelesPantalla=res.panel?Number(res.pixel):null;
           this.pulgadasPantalla=res.panel?Math.round(Math.sqrt(Math.pow(this.anchoPantalla,2)+Math.pow(this.altoPantalla,2))/25.4):Number(res.inches);
@@ -350,7 +363,9 @@ export class SiteComponent implements OnInit {
           this.resolucionAncho=ancho*(this.modeloPantallaSeleccionado.measureWidth/Number(this.modeloPantallaSeleccionado.pixel));  
         }else{
           this.resolucionAncho=ancho*(this.modeloPantallaSeleccionado.resolutionWidth);  
-        }
+        };
+        this.aspectRatio=this.resolucionAncho/this.resolucionAlto;
+        this.nuevaRelacionAspecto=this.comprobarRelacionAspecto();
       } 
     }));
     
@@ -363,7 +378,9 @@ export class SiteComponent implements OnInit {
           this.resolucionAlto=alto*(this.modeloPantallaSeleccionado.measureHeight/Number(this.modeloPantallaSeleccionado.pixel));
         }else{
           this.resolucionAlto=alto*(this.modeloPantallaSeleccionado.resolutionHeight);
-        }
+        };
+        this.aspectRatio=this.resolucionAncho/this.resolucionAlto;
+        this.nuevaRelacionAspecto=this.comprobarRelacionAspecto();
       }
     }));
 
@@ -403,7 +420,7 @@ export class SiteComponent implements OnInit {
     );
   }
   get modulosAnchoNoValido(){
-    return (
+    return ( 
       this.siteForm.get('modulosAncho').invalid &&
       this.siteForm.get('modulosAncho').touched
     );
@@ -470,7 +487,6 @@ get observacionesNoValido(){
 
   screenModelData(idModeloPantalla:any){
   
-    console.log('en la busqueda del modelo',idModeloPantalla)
   let datosModelo:ScreenModel=null;
   return new Promise<ScreenModel>( resolve=>{
       datosModelo= this.screenModels.find(a=> {return a.id===Number(idModeloPantalla)});
@@ -519,7 +535,7 @@ get observacionesNoValido(){
 
   loadImageFailed() {
     // show message
-    console.log('ERROR estoy en loadImageFailed');
+    console.log('ERROR en loadImageFailed');
   }
 
   onSubmit(){
@@ -543,8 +559,6 @@ get observacionesNoValido(){
           icon:'error'
         });
       } else{
-    
-
         // Preparar los datos
        
         let respuesta:Site ={
@@ -569,8 +583,8 @@ get observacionesNoValido(){
                             id:              this.currentSite.screen.id,
                             inches:          this.pulgadasPantalla, 
                             screenBrand:     {
-                              id:          this.siteForm.get('marcaPantalla').value, 
-                              description: null
+                                          id:          this.siteForm.get('marcaPantalla').value, 
+                                          description: null
                             },
                             screenModel:     {
                                             id:this.siteForm.get('modeloPantalla').value,
@@ -611,8 +625,7 @@ get observacionesNoValido(){
       }
 
       console.log('respuesta',respuesta);
-  
-      
+
       peticionHtml=this.siteServices.updateSite(respuesta);
   
       peticionHtml.subscribe(resp=>{            
@@ -633,10 +646,12 @@ get observacionesNoValido(){
           confirmButtonColor: '#007bff',
           allowOutsideClick:false,
           icon:'success'
-        });
-  
-          //this.venueForm.reset();
-          this.router.navigate(['/home/site-list/todos']);
+        }).then(resp=>{
+          if (resp.value){
+            //this.venueForm.reset();
+            this.router.navigate(['/home/site-list/todos']);
+          };
+        });       
         },
         error=>{
           console.log(error);
@@ -649,6 +664,19 @@ get observacionesNoValido(){
 
 
   }
+
+  comprobarRelacionAspecto(){
+    let c:number =this.utilServices.dosDecimales(this.resolucionAncho/this.resolucionAlto);
+    let a:number =this.resolucionAncho/this.resolucionAlto;
+    let b:string =a.toFixed(2);
+    console.log('La relacion de aspecto actual numero',a);
+    console.log('La relacion de aspecto actual cadena redondeada',b);
+    console.log('La relacion de aspecto actual numero redondead',parseFloat(b));
+    console.log('La relacion de aspecto actual con la funcion dosDecimales',c);
+    if (this.defaultAspectRatio.find(e=>e.value==c)===undefined)
+          return true;
+    return false;
+}
 
   abandonarPagina(){
     let msg1:string=null;
@@ -726,6 +754,10 @@ get observacionesNoValido(){
 
     if(this.siteForm.get(campo).hasError('deleted')) 
         this.translate.get('error.validationField14')
+        .subscribe(res=>(message=res));
+
+    if(this.siteForm.get(campo).hasError('min')) 
+        this.translate.get('error.validationField20')
         .subscribe(res=>(message=res));
 
     if(this.siteForm.get(campo).hasError('minlength'))    

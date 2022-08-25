@@ -115,7 +115,6 @@ export class VenueComponent implements OnInit, OnDestroy {
       this.crearListeners();
     }else{
       this.newVenue=false;
-      console.log('Voy a por el venue');
       this.venueServices.getVenueAndSiteById(this.venueId)
       .subscribe(resp=>{
           this.currentVenue=resp.data[0];
@@ -204,7 +203,6 @@ export class VenueComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     //Called once, before the instance is destroyed.
     //Add 'implements OnDestroy' to the class.
-    console.log('en el destructor');
   }
 
   onItemSelect(item: any) {
@@ -217,7 +215,6 @@ export class VenueComponent implements OnInit, OnDestroy {
   salidaFormulario(){
 
     console.log('cierro todo----------------');
-    console.log('el listener',this.listeners);
     if (this.listeners && this.listeners.length > 0) {
       this.listeners.forEach(s => s.unsubscribe());
     }
@@ -367,7 +364,6 @@ export class VenueComponent implements OnInit, OnDestroy {
 
     // Detección cambios en la marca
     this.listeners.push(this.venueForm.get('marca').valueChanges.subscribe(a=>{
-      console.log('detecto cambio en marca',a)
       if (this.brands.length>0){
         let b=this.brands.find(elem=>elem.id==a)
         // Cambiamos la imagen de la marca
@@ -503,7 +499,6 @@ export class VenueComponent implements OnInit, OnDestroy {
       let entitiesArray:any=[];
       let ObservablesArray:any=[];
       
- //     console.log('organizacion',organizacion);
       organizacion.forEach( (org,index)=>{
     
         entitiesArray[index]=[org.get("idOrganizacionTerritorial").value,prevEntity];
@@ -865,7 +860,6 @@ export class VenueComponent implements OnInit, OnDestroy {
 
   // Funcion en desuso al utilizar el componente ngx-image-cropper
   capturarFile(e:any){   
-    console.log('estoy en capturarfile')
     if(e.target.files && e.target.files.length) {
       const reader = new FileReader();      
       const codImage=this.venueForm.get('codigoImagen').value;
@@ -893,7 +887,6 @@ export class VenueComponent implements OnInit, OnDestroy {
   }
 
   imageCropped(event: ImageCroppedEvent) {
-    console.log('estoy en imageCropped')
     this.croppedImage = event.base64;
   }
 
@@ -903,7 +896,7 @@ export class VenueComponent implements OnInit, OnDestroy {
 
   loadImageFailed() {
     // show message
-    console.log('ERROR estoy en loadImageFailed');
+    console.log('ERROR en loadImageFailed');
   }
 
 
@@ -1007,10 +1000,12 @@ export class VenueComponent implements OnInit, OnDestroy {
             allowOutsideClick:false,
             confirmButtonColor: '#007bff',
             icon:'success'
+          }).then(resp=>{
+            if (resp.value){
+              //this.venueForm.reset();
+              this.router.navigate(['/home/venue-list']);
+            };
           });
-  
-          //this.venueForm.reset();
-          this.router.navigate(['/home/venue-list']);
         },
         error=>{
           console.log(error);
@@ -1203,8 +1198,6 @@ export class VenueComponent implements OnInit, OnDestroy {
   subirArchivo():any{
     const fd= new FormData();
     
-    console.log('estoy en subir archico this.filesImagenVenue.file',this.filesImagenVenue.file)
-    console.log('this.filesImagenVenue.cod',this.filesImagenVenue.cod)
     try{
         fd.append('image',this.filesImagenVenue.file);
         fd.append('imageCode',this.filesImagenVenue.cod);

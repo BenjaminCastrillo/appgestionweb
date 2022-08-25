@@ -2,7 +2,9 @@
   <form [formGroup]="siteForm" (ngSubmit)="onSubmit()">
     <!-- Bloque de botones -->
     <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4 mt-2">
-      <h4 class="col">{{'site.title'|translate}} <small class="text-muted">(#{{currentSite.id}})</small></h4>  
+      <h4 class="col">{{'site.title'|translate}} 
+        <small class="text-muted">(#{{currentSite.id}})</small>
+      </h4>  
      
       <button type="button"  class="btn btn-outline-primary btn-block"
         (click)="abandonarPagina()"> 
@@ -269,6 +271,9 @@
                         formControlName="numeroSeriePantalla"
                       [class.is-invalid]="numeroSeriePantallaNoValido">
                 <small *ngIf="numeroSeriePantallaNoValido" class="text-danger">{{msgError('numeroSeriePantalla')}}</small>
+              
+           
+              
               </div>  <!-- Fin Número de serie de la pantalla -->
             </div>
 
@@ -297,10 +302,17 @@
                       <td><strong>{{'site.tab1Text5'|translate}}</strong></td>
                       <td>{{pixelesPantalla}}</td>
                     </tr>
+                    <tr>
+                      <td><strong>{{'site.tab1Text6'|translate}}</strong></td>
+                      <td *ngIf="nuevaRelacionAspecto" class="text-warning"><strong>{{utilServices.dosDecimales(aspectRatio)}}</strong></td>  
+                      <td *ngIf="!nuevaRelacionAspecto">{{utilServices.dosDecimales(aspectRatio)}}</td>  
+                    </tr>
                   </tbody>
                 </table>
               </div>
+
             </div>
+           
           </div> <!-- Fin columna 2 pestaña pantalla-->
        </div>
        <div class="row mt-3">
@@ -412,7 +424,10 @@
     </div>    <!-- Fin Contenidos pestañas -->
   </div>   <!-- Fin bloque Pestañas de listas de datos de cliente    -->          
 </form>
-
+<br>
+<alert type="warning" *ngIf="nuevaRelacionAspecto">
+  <strong>{{'site.alarmTitle1'|translate}}</strong> {{'site.alarmText1'|translate}}
+</alert>
 
 <!-- 
 <pre>

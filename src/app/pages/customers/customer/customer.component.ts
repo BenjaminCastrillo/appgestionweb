@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray, ValidatorFn } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core'; 
 import { Observable} from 'rxjs';
 import Swal from 'sweetalert2';
@@ -191,12 +191,13 @@ export class CustomerComponent implements OnInit {
   get franjaHoraria(){
     return this.customerForm.get('franjaHoraria') as FormArray;
   }
+  get relacionAspecto(): FormArray{
+    return this.customerForm.get('relacionAspecto') as FormArray;
+  }
   get weekly(){
      return this.horario.controls[this.ordenHorario].get('weekly') as FormArray;
   }
   
-
-
   crearFormulario() {
     this.customerForm = this.fb.group({
       identification: ['',
@@ -215,13 +216,14 @@ export class CustomerComponent implements OnInit {
       codigo:this.fb.array([]),
       horario:this.fb.array([]),   
       franjaHoraria:this.fb.array([]),   
+      relacionAspecto:this.fb.array([]),  
   });
 
 
 }
 
   loadData(customer:Customer){  
-    let mr=[], ls=[], co=[], br=[],sc=[],scw=[],tr=[];
+    let mr=[], ls=[], co=[], br=[], sc=[], scw=[], tr=[], ra=[];
 
     customer.brands.forEach((elem,index)=>{
       br.push(this.newMarca(elem.description,elem.image,elem.color,elem.id))
@@ -239,22 +241,22 @@ export class CustomerComponent implements OnInit {
     });
     customer.sitesComercialCodes.forEach((elem)=>{
         co.push(this.newCodigo(elem.id,elem.acronym))
-    });
-
+    });  
     customer.schedules.forEach((elem,ind)=>{
       sc.push(this.newHorario(elem.id,elem.description,elem.startDate.id.substring(0,2).replace(/^0+/, ''),elem.startDate.id.substring(2).replace(/^0+/, '')))    
       scw.push(new Array())
       elem.weekly.forEach(e=>{
         scw[ind].push(this.newHorarioSemanal(e.day,e.descriptionDay,e.openingTime1,e.closingTime1,e.openingTime2,e.closingTime2))
       })
-  
     });
-
     customer.timeRanges.forEach(elem=>{
       tr.push(this.newFranjaHoraria(elem.id,elem.description,elem.start_time,elem.end_time))
     });
-
-  //  this.fechaAlta= this.utilServices.stringToDate(customer.entryDate);
+    customer.aspectRatio.forEach((elem)=>{
+      ra.push(this.newRelacionAspecto(elem.id,elem.description,elem.value))
+    });
+    
+    //  this.fechaAlta= this.utilServices.stringToDate(customer.entryDate);
     this.fechaAlta=customer.entryDate;
 
     this.customerForm.get('identification').patchValue(customer.identification);
@@ -269,6 +271,7 @@ export class CustomerComponent implements OnInit {
     this.customerForm.setControl('codigo',this.fb.array(co||[]));
     this.customerForm.setControl('horario',this.fb.array(sc||[]));
     this.customerForm.setControl('franjaHoraria',this.fb.array(tr||[]));
+    this.customerForm.setControl('relacionAspecto',this.fb.array(ra||[]));
    
  
  //   Bloqueamos los codigos iniciales
@@ -308,6 +311,8 @@ export class CustomerComponent implements OnInit {
       nombreLocalizacionPantalla: [b,Validators.required],
     });
   }
+  
+
   newCodigo(a:number|null,b:string|null): FormGroup {
 
     return this.fb.group({
@@ -333,6 +338,8 @@ export class CustomerComponent implements OnInit {
       validators: this.customerServices.dateStartCorrect('diaInicio','mesInicio')
     });
   }
+
+ 
 
   newHorarioSemanal(a:string|null,b:string|null,c:string|null,
                     d:string|null,e:string|null,f:string|null): FormGroup {
@@ -361,7 +368,15 @@ export class CustomerComponent implements OnInit {
     // }
     );
   }
-  
+
+  newRelacionAspecto(a:number|null,b:string|null,c:number|null): FormGroup {
+    return this.fb.group({
+      idRelacionAspecto: [a],
+      descripcionRelacionAspecto: [b,Validators.required],
+      valorRelacionAspecto: [c,[Validators.required, Validators.pattern('[0-9]{1,10}(\.[0-9]{1,2})?')]],
+    });
+  }
+
   addMarca() {
     this.marca.push(this.newMarca(null,null,null,null));
     this.binariosImagenMarca.push(null);
@@ -392,6 +407,10 @@ export class CustomerComponent implements OnInit {
     this.franjaHoraria.push(this.newFranjaHoraria(a,b,c,d));
   }
 
+  addRelacionAspecto(){
+    this.relacionAspecto.push(this.newRelacionAspecto(null,null,null));
+  }
+
   removeMarca(marcaIndex: number) {
     this.marca.removeAt(marcaIndex);
     this.customerForm.markAsTouched();
@@ -417,6 +436,12 @@ export class CustomerComponent implements OnInit {
     this.franjaHoraria.removeAt(i);
     this.customerForm.markAsTouched();
   }
+
+  removeRelacionaspecto(i:number){
+    this.relacionAspecto.removeAt(i);
+    this.customerForm.markAsTouched();
+  }
+
   selectMesHorario(elem:number,i:number){
      return elem==this.horario.at(i).get('mesInicio').value?true:false;
   }
@@ -506,7 +531,6 @@ export class CustomerComponent implements OnInit {
       const datosErroneos=this.validarDatos();
 
       if ( this.customerForm.invalid || datosErroneos){
-
         if (!datosErroneos){ // Solo accedo si hay algun otro error
 
           if(this.customerForm.get('horario').invalid){
@@ -537,7 +561,7 @@ export class CustomerComponent implements OnInit {
         }
       } else{
         let peticionHtml: Observable <any>;
-        let mr=[], ls=[], co=[], br=[], sc=[], tr=[];    
+        let mr=[], ls=[], co=[], br=[], sc=[], tr=[], ra=[];    
         // Preparar los datos
         br=this.respMarca();
         mr=this.respRegionMercado();
@@ -545,6 +569,7 @@ export class CustomerComponent implements OnInit {
         co=this.respCodigo();
         sc=this.respHorario();
         tr=this.respFranjaHoraria();
+        ra=this.respRelacionAspecto();
 
    
         let respuesta:Customer ={
@@ -559,9 +584,11 @@ export class CustomerComponent implements OnInit {
           locationsScreen     :ls,
           sitesComercialCodes :co,
           schedules           :sc,
-          timeRanges          :tr
+          timeRanges          :tr,
+          aspectRatio         :ra
         }
 
+        console.log('la respuesta',respuesta);
         if (this.customerId==='nuevo'){
           peticionHtml=this.customerServices.saveCustomer(respuesta);
         }else{
@@ -583,9 +610,12 @@ export class CustomerComponent implements OnInit {
             allowOutsideClick:false,
             confirmButtonColor: '#007bff',
             icon:'success'
+          }).then(resp=>{
+            if (resp.value){
+              this.customerForm.reset();
+              this.router.navigate(['/home/customer-list']);
+            };
           });
-          this.customerForm.reset();
-          this.router.navigate(['/home/customer-list']);
         },
         error=>{
           console.log(error);
@@ -609,7 +639,7 @@ export class CustomerComponent implements OnInit {
         .subscribe(res=>msg2=res);
       this.translate.get('general.modalClosePage3')
         .subscribe(res=>msg3=res);
-
+ 
       Swal.fire({
         title: msg1,
         text: msg2,
@@ -753,8 +783,6 @@ export class CustomerComponent implements OnInit {
           return 0;
   });
 
-  console.log('ordenada',r);
-
   for (let i=0;i<r.length-1;i++){
     if (r[i].endTime+1!=r[i+1].startTime){
       result=r[i+1].index;
@@ -764,7 +792,6 @@ export class CustomerComponent implements OnInit {
   };
     return result
   }
-
 
 /*
   Preparamos la tabla de marcas para actualizar los datos del servidor.
@@ -806,7 +833,6 @@ export class CustomerComponent implements OnInit {
 */  
   respRegionMercado(){
     let r=[];
-    
     this.regionMercado.controls.forEach((elem,index) => {
       r.push({
         id:elem.get('idRegionMercado').value,
@@ -932,37 +958,68 @@ export class CustomerComponent implements OnInit {
   }
 
     /*
-  Preparamos la tabla de franjas horarias para actualizar los datos del servidor.
-*/  
-respFranjaHoraria(){
-  let r=[];
-
-  this.franjaHoraria.controls.forEach((elem,index) => {
-    r.push({
-      id:          elem.get('idFranjaHoraria').value,
-      description: elem.get('nombreFranjaHoraria').value,
-      start_time:  elem.get('inicioFranjaHoraria').value,
-      end_time:    elem.get('finFranjaHoraria').value,
-      deleted:false
-    })
-  });
-
-  if (this.customerId!='nuevo'){   
-    this.currentCustomer.timeRanges.forEach((elem,index) => {    
-      let resultado = r.find(a=>a.id===elem.id)
-      if(resultado===undefined){
-        r.push({
-          id:elem.id,
-          description: elem.description,
-          start_time:  elem.start_time,
-          end_time:    elem.end_time,
-          deleted:true
-        })
-      }
+    Preparamos la tabla de franjas horarias para actualizar los datos del servidor.
+  */  
+  respFranjaHoraria(){
+    let r=[];
+  
+    this.franjaHoraria.controls.forEach((elem,index) => {
+      r.push({
+        id:          elem.get('idFranjaHoraria').value,
+        description: elem.get('nombreFranjaHoraria').value,
+        start_time:  elem.get('inicioFranjaHoraria').value,
+        end_time:    elem.get('finFranjaHoraria').value,
+        deleted:false
+      })
     });
-  }  
-  return r;
-}
+  
+    if (this.customerId!='nuevo'){   
+      this.currentCustomer.timeRanges.forEach((elem,index) => {    
+        let resultado = r.find(a=>a.id===elem.id)
+        if(resultado===undefined){
+          r.push({
+            id:elem.id,
+            description: elem.description,
+            start_time:  elem.start_time,
+            end_time:    elem.end_time,
+            deleted:true
+          })
+        }
+      });
+    }  
+    return r;
+  }
+
+  /*
+    Preparamos la tabla de relaciones de aspecot para actualizar los datos del servidor.
+  */  
+  respRelacionAspecto(){
+    let r=[];
+    this.relacionAspecto.controls.forEach((elem,index) => {
+      r.push({
+        id:elem.get('idRelacionAspecto').value,
+        description:elem.get('descripcionRelacionAspecto').value,
+        value:elem.get('valorRelacionAspecto').value,
+        deleted:false
+      })
+    });
+    if (this.customerId!='nuevo'){   
+      this.currentCustomer.aspectRatio.forEach((elem,index) => {    
+        let resultado = r.find(a=>a.id===elem.id)
+        if(resultado===undefined){
+          r.push({
+            id:elem.id,
+            description:elem.description,        
+            value:elem.value,        
+            deleted:true
+          })
+        }
+      });
+    }
+  
+    return r;
+  }
+
 
   msgError(campo: string): string {
     let textMsg: string = '';
@@ -1019,43 +1076,14 @@ respFranjaHoraria(){
       case 'finFranjaHoraria':
         controlElementoArray=this.franjaHoraria.at(i).get('finFranjaHoraria');  
         break;
+        case 'valueRelacionAspecto':
+        controlElementoArray=this.relacionAspecto.at(i).get('valueRelacionAspecto');  
+        break;
       default:      
         return;
     }
 
    message=this.errorServices.validationArrayFieldError(controlElementoArray);
-
-    // if (controlElementoArray.hasError('required'))
-    //     this.translate.get('error.validationField1')
-    //     .subscribe(res=>(message=res));
-    
-    // if (controlElementoArray.hasError('maxlength'))   
-    //     this.translate.get('error.validationField6', 
-    //         {value1: controlElementoArray.errors.maxlength.requiredLength})
-    //     .subscribe(res=>(message=res));
-   
-    //  if (controlElementoArray.hasError('pattern'))
-    //      this.translate.get('error.validationField2')
-    //      .subscribe(res=>(message=res));
-
-    // if (controlElementoArray.hasError('wrongStartDay')) return 'NUNCA SALTO';  
-
-    // if (controlElementoArray.hasError('wrongStartDate')) 
-    //     this.translate.get('error.validationField7')
-    //     .subscribe(res=>(message=res));
-
-    // if (controlElementoArray.hasError('wrongEndTime')) 
-    //     this.translate.get('error.validationField8')
-    //     .subscribe(res=>(message=res));
-   
-    // if (controlElementoArray.hasError('wrongStartTime')) 
-    //     this.translate.get('error.validationField9')
-    //     .subscribe(res=>(message=res));
-
-    // if (controlElementoArray.hasError('exists'))   
-    //     this.translate.get('error.validationField10')
-    //     .subscribe(res=>(message=res));
-    
     
     return message;
   }

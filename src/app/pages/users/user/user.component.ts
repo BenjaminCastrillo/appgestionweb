@@ -49,8 +49,7 @@ interface ListaExcepciones{
   styleUrls: ['./user.component.css']
 })
 export class UserComponent implements OnInit {
-  
-  
+
   public currentUser:User;
   public userForm: FormGroup;
   public userId:string;
@@ -90,6 +89,7 @@ export class UserComponent implements OnInit {
   
   public fechaAlta:Date|null=null;
   public fechaAcceso:Date|null=null;
+
 
   constructor(
     private ActivatedRoute:ActivatedRoute,
@@ -441,7 +441,6 @@ export class UserComponent implements OnInit {
   }
 
   selectRol(elem:number){
-    console.log('en  selectRol',elem);
     return elem==this.userForm.get('rol').value?true:false;
   }
 
@@ -753,9 +752,12 @@ export class UserComponent implements OnInit {
             allowOutsideClick:false,
             confirmButtonColor: '#007bff',
             icon:'success'
-          });
-          this.userForm.reset();
-          this.router.navigate(['/home/user-list']);
+          }).then(resp=>{
+            if (resp.value){
+              this.userForm.reset();
+              this.router.navigate(['/home/user-list']);
+            };
+          });     
         },
         error=>{
           console.log(error);
@@ -951,4 +953,5 @@ msgError(campo: string): string {
       }
       return textMsg;
 }
+
 }

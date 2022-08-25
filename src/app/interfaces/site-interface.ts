@@ -156,8 +156,13 @@ export interface License {
   text:              string | null;
 }
 
-export interface siteStatus {
+export interface SiteStatus {
   siteId:           number;
   newStatus:        number;
+}
+
+export interface AspectRatio {
+  description:string;
+  value      :number
 }
 

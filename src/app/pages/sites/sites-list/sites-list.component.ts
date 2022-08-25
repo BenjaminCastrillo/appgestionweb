@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 import { GlobalDataService } from '../../../services/global-data.service';
 import { LoginService } from '../../../services/login.service';
 import { SiteService } from '../../../services/site.service';
-import { Site, siteStatus } from '../../../interfaces/site-interface';
+import { Site } from '../../../interfaces/site-interface';
 import { VenueService } from '../../../services/venue.service';
 import { Venue } from '../../../interfaces/venue-interface';
 import { UtilService } from '../../../services/util.service';

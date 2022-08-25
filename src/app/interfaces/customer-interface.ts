@@ -17,6 +17,7 @@ export interface Customer {
   sitesComercialCodes: SitesComercialCode[];
   schedules:           Schedule[];
   timeRanges:          TimeRange[];
+  aspectRatio?:        AspectRatio[];
 
 }
 
@@ -88,5 +89,11 @@ export interface TimeRange {
   start_time:     string;
   end_time:       string;
   id_customer:    number;
+  deleted:        boolean;
+}
+export interface AspectRatio {
+  id:             number;
+  description:    string;
+  value:          number;
   deleted:        boolean;
 }

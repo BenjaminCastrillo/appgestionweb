@@ -19,6 +19,14 @@ export class UtilService {
   }
   return numero 
   }
+
+  dosDecimales(n:number):number {
+    // devuelve el numenro recibido con dos decimales sin redondear
+    let t=n.toString();
+    let regex=/(\d*.\d{0,2})/;
+    return parseFloat(t.match(regex)[0]);
+  }
+
   // Metodo para ordenar listas de datos
   compare(a: number | string, b: number | string, isAsc: boolean) {
     return (a < b ? -1 : 1) * (isAsc ? 1 : -1);

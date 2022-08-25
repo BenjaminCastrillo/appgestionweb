@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { SitesResponse, Site, ScreenLocation, ScreenBrand, ScreenType, ScreenModel, Orientation, siteStatus } from '../interfaces/site-interface';
+import { SitesResponse, Site, ScreenLocation, ScreenBrand, ScreenType, ScreenModel, Orientation, SiteStatus, AspectRatio } from '../interfaces/site-interface';
 import { SitesListResponse } from '../interfaces/user-interface';
 import { Venue } from '../interfaces/venue-interface';
 import { Observable } from 'rxjs';
@@ -34,7 +34,7 @@ export class SiteService {
     return this.http.delete(`${this.url}/sites/${id}`);
   }
 
-  updateStatusSite(a:siteStatus):Observable<any>{
+  updateStatusSite(a:SiteStatus):Observable<any>{
     return this.http.put(`${this.url}/statusites/`,a);
   }
 
@@ -61,6 +61,20 @@ export class SiteService {
       })
     )
   }
+
+  getAspectRatio(customerId:number):Observable<AspectRatio[]>{
+
+    return this.http.get<any>(`${this.url}/aspectratio/${customerId}`)
+    .pipe(
+      map (resp=>{
+        if (resp.result===true)
+            return resp.data
+        else 
+            return []
+      })
+    )
+  }
+
   getScreenModels():Observable<ScreenModel[]>{
     return this.http.get<any>(`${this.url}/screenmodels/${this.lang}`)
     .pipe(

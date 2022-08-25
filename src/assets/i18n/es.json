@@ -41,6 +41,7 @@
   "customer.tabTitle4"                : "Codificación de emplazamientos",
   "customer.tabTitle5"                : "Horarios de locales",
   "customer.tabTitle6"                : "Franjas horarias pantallas",
+  "customer.tabTitle7"                : "Relación de aspecto pantallas",
   "customer.tabHeaderId"              : "#",
   "customer.tabHeaderAccions"         : "Acciones",
   "customer.tab1Header1"              : "Marca",
@@ -63,12 +64,16 @@
   "customer.tab5placeholder1"         : "Descripción del horario",
   "customer.tab5placeholder2"         : "Día inicio del horario",
   "customer.tab5AddItem"              : "Añadir horario",
-  
   "customer.tab6Header1"              : "Franja horaria",
   "customer.tab6Header2"              : "Hora de inicio de la franja",
   "customer.tab6Header3"              : "Hora de fin de la franja",
   "customer.tab6AddItem"              : "Añadir franja horaria",
   "customer.tab6placeholder1"         : "Descripción de la franja",
+  "customer.tab7Header1"              : "Descripción relación de aspecto",
+  "customer.tab7Header2"              : "Valor relación de aspecto",
+  "customer.tab7AddItem"              : "Añadir relación de aspecto",
+  "customer.tab7placeholder1"         : "Descripción de ralación de aspecto",
+  "customer.tab7placeholder2"         : "Valor de la relación de aspecto. Formato 9.999",
 
   "customer.modalScheduleTitle"       : "Horario",
   "customer.modalScheduleHeader1"     : "Día de la semana",
@@ -243,6 +248,7 @@
   "site.tab1Text3"                    : "Resolución de la Pantalla:",
   "site.tab1Text4"                    : "Pulgadas:",
   "site.tab1Text5"                    : "Pixel:",
+  "site.tab1Text6"                    : "Valor relacion de aspecto:",
   "site.tab2Field1"                   : "Orientación del reproductor",
   "site.tab2Field2"                   : "Número de serie reproductor",
   "site.tab2Text1"                    : "Información del reproductor",
@@ -256,6 +262,9 @@
   "site.tab2Text9"                    : "Fecha de activación:",
   "site.tab2Text10"                   : "Fecha de expiración:",
   "site.tab2Text11"                   : "Meses de duración:",
+  "site.alarmTitle1"                  : "Aviso",
+  "site.alarmText1"                   : "La relación de aspecto de la pantalla no esta registrada para el cliente. Puede darla de alta junto a los demás datos del cliente.",
+
 
   "general.newButton"                 : "Nuevo",
   "general.filter"                    : "Buscar...",
@@ -324,7 +333,8 @@
   "error.validationField17"           : "Hora inicio o fin de la franja horaria {{value1}} incorrecta ",
   "error.validationField18"           : "Falta introducir el horario",
   "error.validationField19"           : "Falta introducir la franja horaria",
-
+  "error.validationField20"           : "El número de modulos no puede ser cero",
+  
   "error.server1"                     : "Error del servidor",
   "error.server2"                     : "Solicitud erronea",
   "error.server3"                     : "Error de acceso a la aplicación",
